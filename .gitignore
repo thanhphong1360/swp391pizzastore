@@ -1,27 +1,50 @@
-### Java (Servlet/JSP) ###
-*.class
-*.log
-*.jar
-*.war
-*.ear
+# ------------------------
+# Java / NetBeans .gitignore
+# ------------------------
 
-### Build directories ###
-build/
-dist/
-nbbuild/
-nbdist/
+### Java ###
+# Compiled class files
+*.class
+
+# Log files
+*.log
+
+# Package files (bỏ tất cả trừ thư viện cần thiết cho .war)
+*.nar
+*.zip
+*.tar.gz
+*.rar
+*.ear
+*.war      # file .war build ra sẽ bị bỏ
+*.jar      # bỏ tất cả jar mặc định
+!WEB-INF/lib/*.jar   # nhưng giữ các jar trong WEB-INF/lib
+!META-INF/lib/*.jar  # nếu bạn có jar trong META-INF/lib
+
+# BlueJ files
+*.ctxt
+
+# Mobile Tools for Java (J2ME)
+.mtj.tmp/
+
+# JVM crash logs
+hs_err_pid*
+replay_pid*
 
 ### NetBeans ###
 **/nbproject/private/
 **/nbproject/Makefile-*.mk
 **/nbproject/Package-*.bash
+build/
+nbbuild/
+dist/
+nbdist/
 .nb-gradle/
 
-### OS generated files ###
+# OS generated files
 .DS_Store
 Thumbs.db
 
-### Temp / backup ###
+# Temp / backup files
 *.tmp
 *.bak
 *.swp
