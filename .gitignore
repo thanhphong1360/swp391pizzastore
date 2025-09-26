@@ -1,0 +1,27 @@
+### Java (Servlet/JSP) ###
+*.class
+*.log
+*.jar
+*.war
+*.ear
+
+### Build directories ###
+build/
+dist/
+nbbuild/
+nbdist/
+
+### NetBeans ###
+**/nbproject/private/
+**/nbproject/Makefile-*.mk
+**/nbproject/Package-*.bash
+.nb-gradle/
+
+### OS generated files ###
+.DS_Store
+Thumbs.db
+
+### Temp / backup ###
+*.tmp
+*.bak
+*.swp
