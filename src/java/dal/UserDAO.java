@@ -13,15 +13,16 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import model.User;
+import java.util.Scanner;
 
-public class UserDAO extends DBContext {
+public class UserDAO{
 
-    public User login(String email, String password) {
+    public static User login(String email, String password) {
         String sql = "SELECT user_id, role_id, email, password, name, created_at "
                 + "FROM Users WHERE email = ? AND password = ?";
 
         try {
-            DBContext db = new DBContext();
+            DBContext db = DBContext.getInstance();
             Connection conn = db.connection;
 
             PreparedStatement ps = conn.prepareStatement(sql);
@@ -50,7 +51,7 @@ public class UserDAO extends DBContext {
     public boolean checkEmailExists(String email) {
         String sql = "SELECT user_id FROM Users WHERE email = ?";
         try {
-            DBContext db = new DBContext();
+            DBContext db = DBContext.getInstance();
             Connection conn = db.connection;
             PreparedStatement ps = conn.prepareStatement(sql);
             ps.setString(1, email);
@@ -60,5 +61,17 @@ public class UserDAO extends DBContext {
             e.printStackTrace();
         }
         return false;
+    }
+    
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("email: ");
+        String email = scanner.nextLine();
+        System.out.println("password: ");
+        String password = scanner.nextLine();
+        UserDAO userdao = new UserDAO();
+        User user = userdao.login(email, password);
+        System.out.println("email: " +user.getEmail() +" password: "+user.getPassword());
+        
     }
 }
