@@ -27,13 +27,27 @@ public class DBContext {
     {
         try {
             String user = "sa";
-            String pass = "1"; //123
-            String url = "jdbc:sqlserver://localhost:1433;databaseName=?";
-            //jdbc:sqlserver://DESKTOP-LI8DM67:1433;databaseName=hotel_24_table;TrustServerCertificate=true;
+            String pass = "123"; //1, 123
+            String url = "jdbc:sqlserver://DESKTOP-LI8DM67:1433;databaseName=PizzaRestaurantDB;TrustServerCertificate=true;";
+            //jdbc:sqlserver://DESKTOP-LI8DM67:1433;databaseName=PizzaRestaurantDB;TrustServerCertificate=true;
             Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
             connection = DriverManager.getConnection(url, user, pass);
         } catch (ClassNotFoundException | SQLException ex) {
             Logger.getLogger(DBContext.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
+    public static void main(String[] args) {
+        try {
+            Connection conn = DBContext.getInstance().getConnection();
+            if (conn != null && !conn.isClosed()) {
+                System.out.println("Kết nối thành công đến cơ sở dữ liệu!");
+            } else {
+                System.out.println(" Kết nối thất bại.");
+            }
+        } catch (Exception e) {
+            System.out.println("Lỗi khi kết nối: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 }
