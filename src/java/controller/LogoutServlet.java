@@ -5,8 +5,6 @@
 
 package controller;
 
-import dal.RoleDAO;
-import dal.UserDAO;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
@@ -14,14 +12,12 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
-import model.Role;
-import model.User;
 
 /**
  *
  * @author cungp
  */
-public class HomeServlet extends HttpServlet {
+public class LogoutServlet extends HttpServlet {
    
     /** 
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
@@ -38,10 +34,10 @@ public class HomeServlet extends HttpServlet {
             out.println("<!DOCTYPE html>");
             out.println("<html>");
             out.println("<head>");
-            out.println("<title>Servlet HomeServlet</title>");  
+            out.println("<title>Servlet LogoutServlet</title>");  
             out.println("</head>");
             out.println("<body>");
-            out.println("<h1>Servlet HomeServlet at " + request.getContextPath () + "</h1>");
+            out.println("<h1>Servlet LogoutServlet at " + request.getContextPath () + "</h1>");
             out.println("</body>");
             out.println("</html>");
         }
@@ -59,20 +55,9 @@ public class HomeServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
         HttpSession session = request.getSession();
-        User user = (User) session.getAttribute("user");
-        Role role = RoleDAO.getRoleById(user.getRoleId());
-        if("Manager".equals(role.getRoleName())){
-            request.getRequestDispatcher("/WEB-INF/View/ManagerHome.jsp").forward(request, response);
-        }else if("Cashier".equals(role.getRoleName())){
-            request.getRequestDispatcher("/WEB-INF/View/CashierHome.jsp").forward(request, response);
-        }else if("Chef".equals(role.getRoleName())){
-            request.getRequestDispatcher("/WEB-INF/View/ChefHome.jsp").forward(request, response);
-        }else if("Waiter".equals(role.getRoleName())){
-            request.getRequestDispatcher("/WEB-INF/View/WaiterHome.jsp").forward(request, response);
-        }else if("DeliveryStaff".equals(role.getRoleName())){
-            request.getRequestDispatcher("/WEB-INF/View/DeliveryStaffHome.jsp").forward(request, response);
-        }else if("Customer".equals(role.getRoleName())){
-            request.getRequestDispatcher("/WEB-INF/View/CustomerHome.jsp").forward(request, response);
+        if(session.getAttribute("user")!=null){
+            session.invalidate();
+            response.sendRedirect("Login");
         }
     } 
 
@@ -86,7 +71,7 @@ public class HomeServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
-        processRequest(request, response);
+        doGet(request, response);
     }
 
     /** 

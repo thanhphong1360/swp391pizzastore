@@ -98,15 +98,15 @@ public class LoginServlet extends HttpServlet {
             Role role = RoleDAO.getRoleById(user.getRoleId());
             session.setAttribute("role", role.getRoleName());
             if ("Manager".equals(role.getRoleName())) {
-                response.sendRedirect(request.getContextPath() + "/AdminServlet");
+                response.sendRedirect(request.getContextPath() + "/Home");
             } else if ("Cashier".equals(role.getRoleName())) {
-                
+                response.sendRedirect(request.getContextPath() + "/Home");
             }else if ("Chef".equals(role.getRoleName())) {
-                
+                response.sendRedirect(request.getContextPath() + "/Home");
             }else if ("Waiter".equals(role.getRoleName())) {
-                
+                response.sendRedirect(request.getContextPath() + "/Home");
             }else if ("DeliveryStaff".equals(role.getRoleName())) {
-                
+                response.sendRedirect(request.getContextPath() + "/Home");
             }else if ("Customer".equals(role.getRoleName())) {
                 response.sendRedirect(request.getContextPath() + "/Home");
             }
