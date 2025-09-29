@@ -1,6 +1,6 @@
 <%-- 
-    Document   : CustomerHome
-    Created on : Sep 29, 2025, 10:43:47 PM
+    Document   : WaiterHome
+    Created on : Sep 29, 2025, 11:04:26 PM
     Author     : cungp
 --%>
 
@@ -13,11 +13,10 @@
     </head>
     <body>
         <jsp:include page="TopNav.jsp"></jsp:include>
-        <h1>Customer Home</h1>
+        <h1>Waiter Home</h1>
         <div>
-            <a href="#">Restaurant Menu</a>
-            <a href="#">Order Pizza Online</a>
-            <a href="#">Table Reservation</a>
+            <a href="#">Open Table</a>
+            <a href="#">Create Order</a>
         </div>
     </body>
 </html>
