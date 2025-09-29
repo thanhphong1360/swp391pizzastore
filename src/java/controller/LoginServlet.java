@@ -15,6 +15,10 @@ import jakarta.servlet.http.HttpSession;
 import model.User;
 import dal.UserDAO;
 
+import model.Role;
+import dal.RoleDAO;
+import util.HashUtil;
+
 /**
  *
  * @author HP
@@ -60,7 +64,7 @@ public class LoginServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        processRequest(request, response);
+        doPost(request, response);
     }
 
     /**
@@ -81,27 +85,36 @@ public class LoginServlet extends HttpServlet {
         if (email == null || email.isEmpty() || password == null || password.isEmpty()) {
             alertMsg = "Email and password can't be empty!";
             request.setAttribute("alert", alertMsg);
-            request.getRequestDispatcher("/views/client/pages/login.jsp").forward(request, response);
+            request.getRequestDispatcher("/view/client/pages/login.jsp").forward(request, response);
             return;
         }
-
-        UserDAO userDao = new UserDAO();
-        User user = userDao.login(email, password);
+        
+        User user = UserDAO.login(email, password);
+        
 
         if (user != null) {
-            HttpSession session = request.getSession(true);
-            session.setAttribute("account", user);
-
-            if (user.getRoleId() == 1) {
+            HttpSession session = request.getSession();
+            session.setAttribute("user", user);
+            Role role = RoleDAO.getRoleById(user.getRoleId());
+            session.setAttribute("role", role.getRoleName());
+            if ("Manager".equals(role.getRoleName())) {
                 response.sendRedirect(request.getContextPath() + "/AdminServlet");
-            } else {
+            } else if ("Cashier".equals(role.getRoleName())) {
+                
+            }else if ("Chef".equals(role.getRoleName())) {
+                
+            }else if ("Waiter".equals(role.getRoleName())) {
+                
+            }else if ("DeliveryStaff".equals(role.getRoleName())) {
+                
+            }else if ("Customer".equals(role.getRoleName())) {
                 response.sendRedirect(request.getContextPath() + "/Home");
             }
 
         } else {
             alertMsg = "Email or password is not correct!";
             request.setAttribute("alert", alertMsg);
-            request.getRequestDispatcher("/views/client/pages/login.jsp").forward(request, response);
+            request.getRequestDispatcher("/view/client/pages/login.jsp").forward(request, response);
         }
     }
 
