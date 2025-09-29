@@ -20,14 +20,14 @@ public class AuthFilter implements Filter {
         HttpSession session = req.getSession(false);
 
         // Cho phép vào trang login và resources tĩnh
-        if (uri.endsWith("login.jsp") || uri.endsWith("LoginServlet") || uri.contains("/assets/")) {
+        if (uri.endsWith("/login") || uri.endsWith("LoginServlet") || uri.contains("/assets/")) {
             chain.doFilter(request, response);
             return;
         }
 
         // Kiểm tra session
         if (session == null || session.getAttribute("role") == null) {
-            res.sendRedirect(req.getContextPath() + "/login.jsp");
+            res.sendRedirect(req.getContextPath() + "/login");
             return;
         }
 

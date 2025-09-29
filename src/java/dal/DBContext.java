@@ -25,11 +25,11 @@ public class DBContext {
     
     private DBContext()
     {
+        
         try {
             String user = "sa";
-            String pass = "123"; //1, 123
-            String url = "jdbc:sqlserver://DESKTOP-LI8DM67:1433;databaseName=PizzaRestaurantDB;TrustServerCertificate=true;";
-            //jdbc:sqlserver://DESKTOP-LI8DM67:1433;databaseName=PizzaRestaurantDB;TrustServerCertificate=true;
+            String pass = "1";
+            String url = "jdbc:sqlserver://localhost:1433;databaseName=PizzaRestaurantDB";
             Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
             connection = DriverManager.getConnection(url, user, pass);
         } catch (ClassNotFoundException | SQLException ex) {
