@@ -27,7 +27,7 @@ public class AuthFilter implements Filter {
 
         // Kiểm tra session
         if (session == null || session.getAttribute("role") == null) {
-            res.sendRedirect(req.getContextPath() + "/login.jsp");
+            res.sendRedirect(req.getContextPath() + "/Login");
             return;
         }
 
@@ -35,15 +35,31 @@ public class AuthFilter implements Filter {
         String role = (String) session.getAttribute("role");
 
         // Kiểm tra quyền
-        if (uri.contains("/admin/") && !"ADMIN".equals(role)) {
+        if (uri.contains("/manager/") && !"Manager".equals(role)) {
+            res.sendRedirect(req.getContextPath() + "/access-denied.jsp");
+            return;
+        }
+        if (uri.contains("/cashier/") && !"Cashier".equals(role)) {
+            res.sendRedirect(req.getContextPath() + "/access-denied.jsp");
+            return;
+        }
+        if (uri.contains("/chef/") && !"Chef".equals(role)) {
+            res.sendRedirect(req.getContextPath() + "/access-denied.jsp");
+            return;
+        }
+        if (uri.contains("/waiter/") && !"Waiter".equals(role)) {
+            res.sendRedirect(req.getContextPath() + "/access-denied.jsp");
+            return;
+        }
+        if (uri.contains("/deliverystaff/") && !"DeliveryStaff".equals(role)) {
+            res.sendRedirect(req.getContextPath() + "/access-denied.jsp");
+            return;
+        }
+        if (uri.contains("/customer/") && !"Customer".equals(role)) {
             res.sendRedirect(req.getContextPath() + "/access-denied.jsp");
             return;
         }
 
-        if (uri.contains("/user/") && !"USER".equals(role) && !"ADMIN".equals(role)) {
-            res.sendRedirect(req.getContextPath() + "/access-denied.jsp");
-            return;
-        }
 
         // Nếu hợp lệ → cho đi tiếp
         chain.doFilter(request, response);
