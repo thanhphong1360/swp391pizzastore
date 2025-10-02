@@ -85,6 +85,14 @@ public class LoginServlet extends HttpServlet {
             return;
         }
 
+        String emailRegex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$";
+        if (!email.matches(emailRegex)) {
+            alertMsg = "Invalid email format! Please enter a valid email address.";
+            request.setAttribute("alert", alertMsg);
+            request.getRequestDispatcher("/views/client/pages/login.jsp").forward(request, response);
+            return;
+        } 
+
         UserDAO userDao = new UserDAO();
         User user = userDao.login(email, password);
 
@@ -99,7 +107,7 @@ public class LoginServlet extends HttpServlet {
             }
 
         } else {
-            alertMsg = "Email or password is not correct!";
+            alertMsg = "Email or password is incorrect!";
             request.setAttribute("alert", alertMsg);
             request.getRequestDispatcher("/views/client/pages/login.jsp").forward(request, response);
         }
