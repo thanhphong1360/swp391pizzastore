@@ -24,7 +24,7 @@ public class DBContext {
         return connection;
     }
     
-    private DBContext()
+    public DBContext()
     {
         try {
             String user = "sa";

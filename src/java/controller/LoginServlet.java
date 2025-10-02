@@ -4,6 +4,7 @@
  */
 package controller;
 
+import dal.RoleDAO;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
@@ -14,6 +15,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import model.User;
 import dal.UserDAO;
+import model.Role;
 
 /**
  *
@@ -91,25 +93,34 @@ public class LoginServlet extends HttpServlet {
             request.setAttribute("alert", alertMsg);
             request.getRequestDispatcher("/views/client/pages/login.jsp").forward(request, response);
             return;
-        } 
+        }
 
         UserDAO userDao = new UserDAO();
         User user = userDao.login(email, password);
 
         if (user != null) {
-            HttpSession session = request.getSession(true);
-            session.setAttribute("account", user);
-
-            if (user.getRoleId() == 1) {
-                response.sendRedirect(request.getContextPath() + "/AdminServlet");
-            } else {
+            HttpSession session = request.getSession();
+            session.setAttribute("user", user);
+            Role role = RoleDAO.getRoleById(user.getRoleId());
+            session.setAttribute("role", role.getRoleName());
+            if ("Manager".equals(role.getRoleName())) {
+                response.sendRedirect(request.getContextPath() + "/Home");
+            } else if ("Cashier".equals(role.getRoleName())) {
+                response.sendRedirect(request.getContextPath() + "/Home");
+            } else if ("Chef".equals(role.getRoleName())) {
+                response.sendRedirect(request.getContextPath() + "/Home");
+            } else if ("Waiter".equals(role.getRoleName())) {
+                response.sendRedirect(request.getContextPath() + "/Home");
+            } else if ("DeliveryStaff".equals(role.getRoleName())) {
+                response.sendRedirect(request.getContextPath() + "/Home");
+            } else if ("Customer".equals(role.getRoleName())) {
                 response.sendRedirect(request.getContextPath() + "/Home");
             }
 
         } else {
-            alertMsg = "Email or password is incorrect!";
+            alertMsg = "Email or password is not correct!";
             request.setAttribute("alert", alertMsg);
-            request.getRequestDispatcher("/views/client/pages/login.jsp").forward(request, response);
+            request.getRequestDispatcher("/view/client/pages/login.jsp").forward(request, response);
         }
     }
 
