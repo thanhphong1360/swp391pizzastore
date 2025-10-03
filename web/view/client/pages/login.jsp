@@ -11,10 +11,13 @@
     <div class="container" id="container">
         <div class="form-container sign-in-container">
             <form action="${pageContext.request.contextPath}/Login" method="post">
-                <h1>Sign in</h1>
-                <input type="email" name="username" placeholder="Email" required />
-                <input type="password" name="password" placeholder="Password" required />
+                <h1>Login</h1>
+                Email: <br>
+                <input type="email" name="username" placeholder="Email" required /><p>
+                Password:<br>
+                <input type="password" name="password" placeholder="Password" required /><p>
                 <button type="submit">Sign In</button>
+                <button type="submit">Sign Up</button>
                 <c:if test="${alert != null}">
                     <p style="color: red;">"${alert}"</p>
                 </c:if>
