@@ -17,6 +17,10 @@ import model.User;
 import dal.UserDAO;
 import model.Role;
 
+import model.Role;
+import dal.RoleDAO;
+import util.HashUtil;
+
 /**
  *
  * @author HP
@@ -62,7 +66,7 @@ public class LoginServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        processRequest(request, response);
+        doPost(request, response);
     }
 
     /**
@@ -83,7 +87,7 @@ public class LoginServlet extends HttpServlet {
         if (email == null || email.isEmpty() || password == null || password.isEmpty()) {
             alertMsg = "Email and password can't be empty!";
             request.setAttribute("alert", alertMsg);
-            request.getRequestDispatcher("/views/client/pages/login.jsp").forward(request, response);
+            request.getRequestDispatcher("/view/client/pages/login.jsp").forward(request, response);
             return;
         }
 
