@@ -4,6 +4,7 @@
  */
 package controller;
 
+import dal.RoleDAO;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
@@ -14,6 +15,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import model.User;
 import dal.UserDAO;
+import model.Role;
 
 import model.Role;
 import dal.RoleDAO;
@@ -88,9 +90,17 @@ public class LoginServlet extends HttpServlet {
             request.getRequestDispatcher("/view/client/pages/login.jsp").forward(request, response);
             return;
         }
-        
-        User user = UserDAO.login(email, password);
-        
+
+        String emailRegex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$";
+        if (!email.matches(emailRegex)) {
+            alertMsg = "Invalid email format! Please enter a valid email address.";
+            request.setAttribute("alert", alertMsg);
+            request.getRequestDispatcher("/views/client/pages/login.jsp").forward(request, response);
+            return;
+        }
+
+        UserDAO userDao = new UserDAO();
+        User user = userDao.login(email, password);
 
         if (user != null) {
             HttpSession session = request.getSession();
@@ -101,13 +111,13 @@ public class LoginServlet extends HttpServlet {
                 response.sendRedirect(request.getContextPath() + "/Home");
             } else if ("Cashier".equals(role.getRoleName())) {
                 response.sendRedirect(request.getContextPath() + "/Home");
-            }else if ("Chef".equals(role.getRoleName())) {
+            } else if ("Chef".equals(role.getRoleName())) {
                 response.sendRedirect(request.getContextPath() + "/Home");
-            }else if ("Waiter".equals(role.getRoleName())) {
+            } else if ("Waiter".equals(role.getRoleName())) {
                 response.sendRedirect(request.getContextPath() + "/Home");
-            }else if ("DeliveryStaff".equals(role.getRoleName())) {
+            } else if ("DeliveryStaff".equals(role.getRoleName())) {
                 response.sendRedirect(request.getContextPath() + "/Home");
-            }else if ("Customer".equals(role.getRoleName())) {
+            } else if ("Customer".equals(role.getRoleName())) {
                 response.sendRedirect(request.getContextPath() + "/Home");
             }
 
