@@ -13,10 +13,13 @@
     </head>
     <body>
         <jsp:include page="TopNav.jsp"></jsp:include>
-        <h1>Waiter Home</h1>
-        <div>
-            <a href="#">Open Table</a>
-            <a href="#">Create Order</a>
+            <div class="home-container">
+                <h1>Waiter Home</h1>
+                <link rel="stylesheet" href="${pageContext.request.contextPath}/css/Home.css" />
+            <div class="home-links">
+                <a href="#">Open Table</a>
+                <a href="#">Create Order</a>
+            </div>
         </div>
     </body>
 </html>

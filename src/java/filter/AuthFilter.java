@@ -40,28 +40,28 @@ public class AuthFilter implements Filter {
         String role = (String) session.getAttribute("role");
 
         // Kiểm tra quyền
-        if (uri.contains("/manager/") && !"Manager".equals(role)) {
-            res.sendRedirect(req.getContextPath() + "/access-denied.jsp");
+        if (uri.contains("/Manager/") && !"Manager".equals(role)) {
+            res.sendRedirect(req.getContextPath() + "/AccessDenied.jsp");
             return;
         }
-        if (uri.contains("/cashier/") && !"Cashier".equals(role)) {
-            res.sendRedirect(req.getContextPath() + "/access-denied.jsp");
+        if (uri.contains("/Cashier/") && !"Cashier".equals(role)) {
+            res.sendRedirect(req.getContextPath() + "/AccessDenied.jsp");
             return;
         }
-        if (uri.contains("/chef/") && !"Chef".equals(role)) {
-            res.sendRedirect(req.getContextPath() + "/access-denied.jsp");
+        if (uri.contains("/Chef/") && !"Chef".equals(role)) {
+            res.sendRedirect(req.getContextPath() + "/AccessDenied.jsp");
             return;
         }
-        if (uri.contains("/waiter/") && !"Waiter".equals(role)) {
-            res.sendRedirect(req.getContextPath() + "/access-denied.jsp");
+        if (uri.contains("/Waiter/") && !"Waiter".equals(role)) {
+            res.sendRedirect(req.getContextPath() + "/AccessDenied.jsp");
             return;
         }
-        if (uri.contains("/deliverystaff/") && !"DeliveryStaff".equals(role)) {
-            res.sendRedirect(req.getContextPath() + "/access-denied.jsp");
+        if (uri.contains("/Deliverystaff/") && !"DeliveryStaff".equals(role)) {
+            res.sendRedirect(req.getContextPath() + "/AccessDenied.jsp");
             return;
         }
-        if (uri.contains("/customer/") && !"Customer".equals(role)) {
-            res.sendRedirect(req.getContextPath() + "/access-denied.jsp");
+        if (uri.contains("/Customer/") && !"Customer".equals(role)) {
+            res.sendRedirect(req.getContextPath() + "/AccessDenied.jsp");
             return;
         }
 
