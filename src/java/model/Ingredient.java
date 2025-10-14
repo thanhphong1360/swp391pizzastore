@@ -4,80 +4,42 @@
  */
 package model;
 
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.sql.Timestamp;
 
-/**
- *
- * @author cungp
- */
 public class Ingredient {
-    private int ingedientId;
+    private int ingredientId;
     private String name;
     private String description;
     private String unit;
-    private BigDecimal quantity;
-    private LocalDateTime updated_at;
+    private double quantity;
+    private Timestamp updatedAt;
 
-    public Ingredient() {
-    }
+    public Ingredient() {}
 
-    public Ingredient(int ingedientId, String name, String description, String unit, BigDecimal quantity, LocalDateTime updated_at) {
-        this.ingedientId = ingedientId;
+    public Ingredient(int ingredientId, String name, String description, String unit, double quantity, Timestamp updatedAt) {
+        this.ingredientId = ingredientId;
         this.name = name;
         this.description = description;
         this.unit = unit;
         this.quantity = quantity;
-        this.updated_at = updated_at;
+        this.updatedAt = updatedAt;
     }
 
-    public int getIngedientId() {
-        return ingedientId;
-    }
+    public int getIngredientId() { return ingredientId; }
+    public void setIngredientId(int ingredientId) { this.ingredientId = ingredientId; }
 
-    public void setIngedientId(int ingedientId) {
-        this.ingedientId = ingedientId;
-    }
+    public String getName() { return name; }
+    public void setName(String name) { this.name = name; }
 
-    public String getName() {
-        return name;
-    }
+    public String getDescription() { return description; }
+    public void setDescription(String description) { this.description = description; }
 
-    public void setName(String name) {
-        this.name = name;
-    }
+    public String getUnit() { return unit; }
+    public void setUnit(String unit) { this.unit = unit; }
 
-    public String getDescription() {
-        return description;
-    }
+    public double getQuantity() { return quantity; }
+    public void setQuantity(double quantity) { this.quantity = quantity; }
 
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public String getUnit() {
-        return unit;
-    }
-
-    public void setUnit(String unit) {
-        this.unit = unit;
-    }
-
-    public BigDecimal getQuantity() {
-        return quantity;
-    }
-
-    public void setQuantity(BigDecimal quantity) {
-        this.quantity = quantity;
-    }
-
-    public LocalDateTime getUpdated_at() {
-        return updated_at;
-    }
-
-    public void setUpdated_at(LocalDateTime updated_at) {
-        this.updated_at = updated_at;
-    }
-    
-    
+    public Timestamp getUpdatedAt() { return updatedAt; }
+    public void setUpdatedAt(Timestamp updatedAt) { this.updatedAt = updatedAt; }
 }
