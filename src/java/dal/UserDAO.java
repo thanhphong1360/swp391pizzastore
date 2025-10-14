@@ -16,6 +16,11 @@ import model.User;
 import java.util.Scanner;
 
 public class UserDAO{
+    private Connection conn;
+
+    public UserDAO() {
+        this.conn = DBContext.getInstance().getConnection();
+    }
 
     public static User login(String email, String password) {
         String sql = "SELECT user_id, role_id, email, password, name, created_at "
@@ -61,6 +66,30 @@ public class UserDAO{
             e.printStackTrace();
         }
         return false;
+    }
+    public boolean insertUser(User user) {
+        String sql = "INSERT INTO Users(role_id, email, password, name) VALUES (?, ?, ?, ?)";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, user.getRoleId());
+            ps.setString(2, user.getEmail());
+            ps.setString(3, user.getPassword());
+            ps.setString(4, user.getName());
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+    public boolean updatePassword(String email, String newPassword) {
+    String sql = "UPDATE Users SET password = ? WHERE email = ?";
+    try (PreparedStatement ps = conn.prepareStatement(sql)) {
+        ps.setString(1, newPassword);
+        ps.setString(2, email);
+        return ps.executeUpdate() > 0;
+    } catch (SQLException e) {
+        e.printStackTrace();
+        return false;
+    }
     }
     
     public static void main(String[] args) {
