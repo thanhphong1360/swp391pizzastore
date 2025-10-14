@@ -16,7 +16,7 @@ public class RegisterServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         
-        request.getRequestDispatcher("/view/client/pages/register.jsp").forward(request, response);
+        request.getRequestDispatcher("WEB-INF/View/client/pages/register.jsp").forward(request, response);
     }
 
     @Override
@@ -48,7 +48,7 @@ public class RegisterServlet extends HttpServlet {
         if (errorMessage != null) {
             request.setAttribute("error", errorMessage);
            
-            request.getRequestDispatcher("/view/client/pages/register.jsp").forward(request, response);
+            request.getRequestDispatcher("WEB-INF/View/client/pages/register.jsp").forward(request, response);
             return;
         }
 
@@ -58,10 +58,10 @@ public class RegisterServlet extends HttpServlet {
 
         if (success) {
             request.setAttribute("message", "Bạn đã đăng ký thành công!");
-            request.getRequestDispatcher("/view/client/pages/register.jsp").forward(request, response);
+            request.getRequestDispatcher("WEB-INF/View/client/pages/register.jsp").forward(request, response);
         } else {
             request.setAttribute("error", "Registration failed, try again!");
-            request.getRequestDispatcher("/view/client/pages/register.jsp").forward(request, response);
+            request.getRequestDispatcher("WEB-INF/View/client/pages/register.jsp").forward(request, response);
         }
     }
 }
