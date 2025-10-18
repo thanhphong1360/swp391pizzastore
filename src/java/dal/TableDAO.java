@@ -37,6 +37,29 @@ public class TableDAO {
         return list.isEmpty() ? null : list;
     }
     
+    public static Table getTableById(int tableId) {
+        ArrayList<Table> list = new ArrayList<>();
+        DBContext dbc = DBContext.getInstance();
+        String sql = "SELECT * FROM RestaurantTables WHERE table_id = ?";
+        try {
+            PreparedStatement statement = dbc.getConnection().prepareStatement(sql);
+            statement.setInt(1, tableId);
+            ResultSet rs = statement.executeQuery();
+            while (rs.next()) {
+                Table table = new Table(rs.getInt("table_id"),
+                                    rs.getString("table_number"),
+                                        rs.getInt("capacity"),
+                                        rs.getString("location"),
+                                        rs.getString("status"));
+                list.add(table);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+        return list.isEmpty() ? null : list.get(0);
+    }
+    
     public static Table updateTableStatus(Table table, String status) {
         DBContext dbc = DBContext.getInstance();
         int rs = 0;

@@ -15,7 +15,7 @@
         <jsp:include page="TopNav.jsp"></jsp:include>
         <h1>Waiter Home</h1>
         <div>
-            <form action="waiter/Table" method="GET">
+            <form action="${pageContext.request.contextPath}/waiter/Table" method="GET">
                 <input type="hidden" name="action" value="open">
                 <input type="submit" value="Open Table">
             </form>
