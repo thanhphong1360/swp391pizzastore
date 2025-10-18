@@ -15,7 +15,10 @@
         <jsp:include page="TopNav.jsp"></jsp:include>
         <h1>Waiter Home</h1>
         <div>
-            <a href="#">Open Table</a>
+            <form action="waiter/Table" method="GET">
+                <input type="hidden" name="action" value="open">
+                <input type="submit" value="Open Table">
+            </form>
             <a href="#">Create Order</a>
         </div>
     </body>

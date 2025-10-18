@@ -13,6 +13,7 @@ import java.time.LocalDateTime;
  */
 public class Invoice {
     private int invoiceId;
+    private String invoiceCode;
     private int dicountId;
     private int waiterId;
     private int cashierId;
@@ -20,6 +21,8 @@ public class Invoice {
     private BigDecimal price;
     private BigDecimal finalPrice;
     private LocalDateTime createdAt;
+    private LocalDateTime paidAt;
+    private String note;
 
     public Invoice() {
     }
@@ -98,6 +101,32 @@ public class Invoice {
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
     }
+
+    public String getInvoiceCode() {
+        return invoiceCode;
+    }
+
+    public void setInvoiceCode(String invoiceCode) {
+        this.invoiceCode = invoiceCode;
+    }
+
+    public LocalDateTime getPaidAt() {
+        return paidAt;
+    }
+
+    public void setPaidAt(LocalDateTime paidAt) {
+        this.paidAt = paidAt;
+    }
+
+    public String getNote() {
+        return note;
+    }
+
+    public void setNote(String note) {
+        this.note = note;
+    }
+    
+    
     
     
 }
