@@ -27,8 +27,9 @@ public class Invoice {
     public Invoice() {
     }
 
-    public Invoice(int invoiceId, int dicountId, int waiterId, int cashierId, String status, BigDecimal price, BigDecimal finalPrice, LocalDateTime createdAt) {
+    public Invoice(int invoiceId, String invoiceCode, int dicountId, int waiterId, int cashierId, String status, BigDecimal price, BigDecimal finalPrice, LocalDateTime createdAt, LocalDateTime paidAt, String note) {
         this.invoiceId = invoiceId;
+        this.invoiceCode = invoiceCode;
         this.dicountId = dicountId;
         this.waiterId = waiterId;
         this.cashierId = cashierId;
@@ -36,7 +37,11 @@ public class Invoice {
         this.price = price;
         this.finalPrice = finalPrice;
         this.createdAt = createdAt;
+        this.paidAt = paidAt;
+        this.note = note;
     }
+
+    
 
     public int getInvoiceId() {
         return invoiceId;

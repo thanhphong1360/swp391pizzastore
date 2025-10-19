@@ -12,6 +12,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import model.User;
 import java.util.Scanner;
 
@@ -73,5 +74,29 @@ public class UserDAO{
         User user = userdao.login(email, password);
         System.out.println("email: " +user.getEmail() +" password: "+user.getPassword());
         
+    }
+    
+    public static User getUserById(int id) {
+        ArrayList<User> list = new ArrayList<>();
+        DBContext dbc = DBContext.getInstance();
+        String sql = "SELECT * FROM Users WHERE user_id = ?";
+        try {
+            PreparedStatement statement = dbc.getConnection().prepareStatement(sql);
+            statement.setInt(1, id);
+            ResultSet rs = statement.executeQuery();
+            while (rs.next()) {
+                User user = new User(rs.getInt("user_id"),
+                                    rs.getInt("role_id"),
+                                    rs.getString("email"),
+                                    rs.getString("password"),
+                                    rs.getString("name"),
+                                    rs.getTime("created_at"));
+                list.add(user);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+        return list.isEmpty() ? null : list.get(0);
     }
 }
