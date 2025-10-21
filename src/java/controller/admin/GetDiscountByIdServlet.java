@@ -2,7 +2,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
  */
-package controller.admin;
+package controller.manager;
 
 import dal.DiscountDAO;
 import java.io.IOException;
@@ -38,7 +38,7 @@ public class GetDiscountByIdServlet extends HttpServlet {
             out.println("<!DOCTYPE html>");
             out.println("<html>");
             out.println("<head>");
-            out.println("<title>Servlet GetDiscountByIdServlet</title>");            
+            out.println("<title>Servlet GetDiscountByIdServlet</title>");
             out.println("</head>");
             out.println("<body>");
             out.println("<h1>Servlet GetDiscountByIdServlet at " + request.getContextPath() + "</h1>");
@@ -59,25 +59,29 @@ public class GetDiscountByIdServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-         try {
+        try {
             int id = Integer.parseInt(request.getParameter("id"));
             DiscountDAO dao = new DiscountDAO();
             Discount d = dao.getDiscountById(id);
 
             if (d != null) {
                 request.setAttribute("discount", d);
-                request.getRequestDispatcher("/${pageContext.request.contextPath}/views/admin/discount/list-discount.jsp").forward(request, response);
+                String action = request.getParameter("action");
+                if ("edit".equals(action)) {
+                    request.getRequestDispatcher("/WEB-INF/View/manager/discount/detail-discount.jsp").forward(request, response);
+                } else {
+                    request.getRequestDispatcher("/WEB-INF/View/manager/discount/detail-discount.jsp").forward(request, response); // View mode
+                }
             } else {
                 request.setAttribute("error", "Discount not found!");
-                request.getRequestDispatcher("/${pageContext.request.contextPath}/views/admin/discount/list-discount.jsp").forward(request, response);
+                request.getRequestDispatcher("/WEB-INF/View/manager/discount/list-discount.jsp").forward(request, response);
             }
-
         } catch (Exception e) {
             e.printStackTrace();
             request.setAttribute("error", "Error retrieving discount: " + e.getMessage());
-            request.getRequestDispatcher("/${pageContext.request.contextPath}/views/admin/discount/list-discount.jsp").forward(request, response);
+            request.getRequestDispatcher("/WEB-INF/View/manager/discount/list-discount.jsp").forward(request, response);
         }
-    
+
     }
 
     /**

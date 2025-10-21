@@ -2,7 +2,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
  */
-package controller.admin;
+package controller.manager;
 
 import dal.DiscountDAO;
 import java.io.IOException;
@@ -37,7 +37,7 @@ public class DeleteDiscountServlet extends HttpServlet {
             out.println("<!DOCTYPE html>");
             out.println("<html>");
             out.println("<head>");
-            out.println("<title>Servlet DeleteDiscountServlet</title>");            
+            out.println("<title>Servlet DeleteDiscountServlet</title>");
             out.println("</head>");
             out.println("<body>");
             out.println("<h1>Servlet DeleteDiscountServlet at " + request.getContextPath() + "</h1>");
@@ -62,11 +62,11 @@ public class DeleteDiscountServlet extends HttpServlet {
             int id = Integer.parseInt(request.getParameter("id"));
             DiscountDAO dao = new DiscountDAO();
             dao.delete(id);
-            response.sendRedirect("discountList");
+            response.sendRedirect(request.getContextPath() + "/manager/discount/list");
         } catch (Exception e) {
             e.printStackTrace();
             request.setAttribute("error", "Delete discount failed: " + e.getMessage());
-            request.getRequestDispatcher("/${pageContext.request.contextPath}/views/admin/discount/list-discount.jsp").forward(request, response);
+            request.getRequestDispatcher("/WEB-INF/View/manager/discount/list-discount.jsp").forward(request, response);
         }
     }
 

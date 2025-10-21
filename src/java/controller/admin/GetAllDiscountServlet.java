@@ -2,25 +2,23 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
  */
-package controller.manager;
+package controller.admin;
 
 import dal.DiscountDAO;
 import java.io.IOException;
-import jakarta.servlet.ServletException;
+import java.util.List;
+import jakarta.servlet.*;
 import jakarta.servlet.annotation.WebServlet;
-import jakarta.servlet.http.HttpServlet;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.*;
 import java.io.PrintWriter;
-import java.sql.Date;
 import model.Discount;
 
 /**
  *
  * @author HP
  */
-@WebServlet(name = "AddDiscountServlet", urlPatterns = {"/manager/discount/add-discount"})
-public class AddDiscountServlet extends HttpServlet {
+@WebServlet(name = "GetAllDiscountServlet", urlPatterns = {"/manager/discount/list"})
+public class GetAllDiscountServlet extends HttpServlet {
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -39,10 +37,10 @@ public class AddDiscountServlet extends HttpServlet {
             out.println("<!DOCTYPE html>");
             out.println("<html>");
             out.println("<head>");
-            out.println("<title>Servlet AddDiscountServlet</title>");
+            out.println("<title>Servlet ListDiscountServlet</title>");
             out.println("</head>");
             out.println("<body>");
-            out.println("<h1>Servlet AddDiscountServlet at " + request.getContextPath() + "</h1>");
+            out.println("<h1>Servlet ListDiscountServlet at " + request.getContextPath() + "</h1>");
             out.println("</body>");
             out.println("</html>");
         }
@@ -60,7 +58,11 @@ public class AddDiscountServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        request.getRequestDispatcher("/WEB-INF/View/manager/discount/add-discount.jsp").forward(request, response);
+        DiscountDAO dao = new DiscountDAO();
+        List<Discount> list = dao.getAll();
+        request.setAttribute("discounts", list);
+        request.setAttribute("totalDiscounts", list.size());
+        request.getRequestDispatcher("/WEB-INF/View/manager/discount/list-discount.jsp").forward(request, response);
     }
 
     /**
@@ -74,26 +76,7 @@ public class AddDiscountServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        try {
-            Discount d = new Discount();
-            d.setCode(request.getParameter("code"));
-            d.setDescription(request.getParameter("description"));
-            d.setType(request.getParameter("type"));
-            d.setValue(Double.parseDouble(request.getParameter("value")));
-            d.setStartDate(Date.valueOf(request.getParameter("start_date")));
-            d.setEndDate(Date.valueOf(request.getParameter("end_date")));
-            d.setMinInvoicePrice(Double.parseDouble(request.getParameter("min_invoice_price")));
-            d.setMaxDiscountAmount(Double.parseDouble(request.getParameter("max_discount_amount")));
-            d.setStatus(Boolean.parseBoolean(request.getParameter("status")));
-
-            DiscountDAO dao = new DiscountDAO();
-            dao.insert(d);
-            response.sendRedirect(request.getContextPath() + "/manager/discount/list");
-        } catch (Exception e) {
-            e.printStackTrace();
-            request.setAttribute("error", "Add discount failed: " + e.getMessage());
-            request.getRequestDispatcher("/WEB-INF/View/manager/discount/add-discount.jsp").forward(request, response);
-        }
+        processRequest(request, response);
     }
 
     /**

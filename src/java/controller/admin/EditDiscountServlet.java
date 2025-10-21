@@ -2,7 +2,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
  */
-package controller.admin;
+package controller.manager;
 
 import dal.DiscountDAO;
 import java.io.IOException;
@@ -90,23 +90,21 @@ public class EditDiscountServlet extends HttpServlet {
 
             DiscountDAO dao = new DiscountDAO();
             dao.update(d);
-
-            response.sendRedirect("discountList");
+            response.sendRedirect(request.getContextPath() + "/manager/discount/list");
         } catch (Exception e) {
             e.printStackTrace();
             request.setAttribute("error", "Edit discount failed: " + e.getMessage());
-            request.getRequestDispatcher("/${pageContext.request.contextPath}/views/admin/discount/detail-discount.jsp").forward(request, response);
+            request.getRequestDispatcher("/WEB-INF/View/manager/discount/detail-discount.jsp").forward(request, response);
         }
     }
 
-
-/**
- * Returns a short description of the servlet.
- *
- * @return a String containing servlet description
- */
-@Override
-public String getServletInfo() {
+    /**
+     * Returns a short description of the servlet.
+     *
+     * @return a String containing servlet description
+     */
+    @Override
+    public String getServletInfo() {
         return "Short description";
     }// </editor-fold>
 
