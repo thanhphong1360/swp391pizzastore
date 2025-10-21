@@ -2,7 +2,6 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
  */
-
 package controller;
 
 import dal.IngredientDAO;
@@ -15,6 +14,7 @@ import java.util.List;
 
 @WebServlet("/ingredients")
 public class IngredientServlet extends HttpServlet {
+
     private IngredientDAO dao = new IngredientDAO();
 
     @Override
@@ -22,25 +22,27 @@ public class IngredientServlet extends HttpServlet {
             throws ServletException, IOException {
 
         String action = req.getParameter("action");
-        if (action == null) action = "list";
+        if (action == null) {
+            action = "list";
+        }
 
         switch (action) {
             case "add":
-                req.getRequestDispatcher("/view/admin/ingredients/add.jsp").forward(req, resp);
+                req.getRequestDispatcher("WEB-INF/View/admin/ingredients/add.jsp").forward(req, resp);
                 break;
             case "edit":
                 int id = Integer.parseInt(req.getParameter("id"));
-                req.setAttribute("ingredients", dao.getById(id));
-                req.getRequestDispatcher("/view/admin/ingredients/edit.jsp").forward(req, resp);
+                req.setAttribute("ingredient", dao.getById(id));
+                req.getRequestDispatcher("WEB-INF/View/admin/ingredients/edit.jsp").forward(req, resp);
                 break;
             case "delete":
                 dao.delete(Integer.parseInt(req.getParameter("id")));
-                resp.sendRedirect("ingredients");
+                resp.sendRedirect("ingredients?message=deleted");
                 break;
             default:
                 List<Ingredient> list = dao.getAll();
                 req.setAttribute("list", list);
-                req.getRequestDispatcher("/view/admin/ingredients/list.jsp").forward(req, resp);
+                req.getRequestDispatcher("WEB-INF/View/admin/ingredients/list.jsp").forward(req, resp);
         }
     }
 
@@ -57,7 +59,8 @@ public class IngredientServlet extends HttpServlet {
             ing.setUnit(req.getParameter("unit"));
             ing.setQuantity(Double.parseDouble(req.getParameter("quantity")));
             dao.insert(ing);
-            resp.sendRedirect("ingredients");
+             req.setAttribute("successMessage", "✅ Ingredient added successfully!");
+        req.getRequestDispatcher("WEB-INF/View/admin/ingredients/add.jsp").forward(req, resp);
         } else if ("edit".equals(action)) {
             Ingredient ing = new Ingredient();
             ing.setIngredientId(Integer.parseInt(req.getParameter("id")));
@@ -66,10 +69,11 @@ public class IngredientServlet extends HttpServlet {
             ing.setUnit(req.getParameter("unit"));
             ing.setQuantity(Double.parseDouble(req.getParameter("quantity")));
             dao.update(ing);
-            resp.sendRedirect("ingredients");
+             req.setAttribute("successMessage", "✏ Ingredient updated successfully!");
+        req.setAttribute("ingredient", ing); // để hiển thị lại dữ liệu sau khi sửa
+        req.getRequestDispatcher("WEB-INF/View/admin/ingredients/edit.jsp").forward(req, resp);
         }
     }
-
 
     @Override
     public String getServletInfo() {
