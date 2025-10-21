@@ -13,13 +13,16 @@
     </head>
     <body>
         <jsp:include page="TopNav.jsp"></jsp:include>
-        <h1>Waiter Home</h1>
-        <div>
-            <form action="${pageContext.request.contextPath}/waiter/Table" method="GET">
+            <h1>Waiter Home</h1>
+            <div>
+                <form action="${pageContext.request.contextPath}/waiter/Table" method="GET">
                 <input type="hidden" name="action" value="open">
                 <input type="submit" value="Open Table">
             </form>
-            <a href="#">Create Order</a>
+            <form action="${pageContext.request.contextPath}/waiter/Order" method="GET">
+                <input type="hidden" name="action" value="open">
+                <input type="submit" value="Order Food">
+            </form>
         </div>
     </body>
 </html>
