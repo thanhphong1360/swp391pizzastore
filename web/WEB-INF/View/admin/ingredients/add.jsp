@@ -52,6 +52,22 @@
 <body>
 <div class="form-container">
     <h2>Add Ingredient</h2>
+    <c:if test="${not empty successMessage}">
+    <div style="background-color:#e6ffed; color:#006400; 
+                border-left:5px solid #28a745; padding:10px; 
+                border-radius:6px; margin-bottom:10px;">
+        ${successMessage}
+    </div>
+</c:if>
+    <c:if test="${not empty errorMessage}">
+    <div style="background-color:#fff3cd; color:#856404; 
+                border-left:5px solid #ffc107; padding:10px; 
+                border-radius:6px; margin-bottom:10px;">
+        ${errorMessage}
+    </div>
+</c:if>
+
+
     <form action="ingredients" method="post">
         <input type="hidden" name="action" value="add" />
         <label>Name</label>
@@ -68,7 +84,7 @@
 
         <button type="submit">Save</button>
     </form>
-    <a href="${pageContext.request.contextPath}/view/admin/ingredients/list.jsp">← Back to list</a>
+    <a href="${pageContext.request.contextPath}/ingredients">← Back to list</a>
 </div>
 </body>
 </html>

@@ -49,29 +49,78 @@ public class IngredientServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
+
         req.setCharacterEncoding("UTF-8");
         String action = req.getParameter("action");
 
+        String idStr = req.getParameter("id");
+        String name = req.getParameter("name");
+        String description = req.getParameter("description");
+        String unit = req.getParameter("unit");
+        String quantityStr = req.getParameter("quantity");
+
+        String error = null;
+        double quantity = 0;
+
+        if (name == null || name.trim().isEmpty() || name.length() > 50) {
+            error = "❌ Name must be between 1–50 characters.";
+        } else if (description != null && description.length() > 200) {
+            error = "❌ Description cannot exceed 200 characters.";
+        } else if (unit == null || unit.trim().isEmpty() || unit.length() > 10) {
+            error = "❌ Unit must be between 1–10 characters.";
+        } else {
+            try {
+                quantity = Double.parseDouble(quantityStr);
+                if (quantity < 0) {
+                    error = "❌ Quantity must be a positive number.";
+                }
+            } catch (NumberFormatException e) {
+                error = "❌ Invalid quantity value.";
+            }
+        }
+
+        if (error != null) {
+            req.setAttribute("errorMessage", error);
+            if ("edit".equals(action)) {
+                int id = Integer.parseInt(idStr);
+                req.setAttribute("ingredient", dao.getById(id));
+                req.getRequestDispatcher("WEB-INF/View/admin/ingredients/edit.jsp").forward(req, resp);
+            } else {
+                req.getRequestDispatcher("WEB-INF/View/admin/ingredients/add.jsp").forward(req, resp);
+            }
+            return;
+        }
+
+        Ingredient ing = new Ingredient();
+        ing.setName(name.trim());
+        ing.setDescription(description != null ? description.trim() : "");
+        ing.setUnit(unit.trim());
+        ing.setQuantity(quantity);
+
         if ("add".equals(action)) {
-            Ingredient ing = new Ingredient();
-            ing.setName(req.getParameter("name"));
-            ing.setDescription(req.getParameter("description"));
-            ing.setUnit(req.getParameter("unit"));
-            ing.setQuantity(Double.parseDouble(req.getParameter("quantity")));
+
+            if (dao.existsByName(name)) {
+                req.setAttribute("errorMessage", "❌ Ingredient name already exists!");
+                req.getRequestDispatcher("WEB-INF/View/admin/ingredients/add.jsp").forward(req, resp);
+                return;
+            }
+
             dao.insert(ing);
-             req.setAttribute("successMessage", "✅ Ingredient added successfully!");
-        req.getRequestDispatcher("WEB-INF/View/admin/ingredients/add.jsp").forward(req, resp);
+            resp.sendRedirect("ingredients?message=added");
+
         } else if ("edit".equals(action)) {
-            Ingredient ing = new Ingredient();
-            ing.setIngredientId(Integer.parseInt(req.getParameter("id")));
-            ing.setName(req.getParameter("name"));
-            ing.setDescription(req.getParameter("description"));
-            ing.setUnit(req.getParameter("unit"));
-            ing.setQuantity(Double.parseDouble(req.getParameter("quantity")));
+            int id = Integer.parseInt(idStr);
+            ing.setIngredientId(id);
+
+            if (dao.existsByNameExceptId(name, id)) {
+                req.setAttribute("errorMessage", "❌ Ingredient name already exists!");
+                req.setAttribute("ingredient", dao.getById(id));
+                req.getRequestDispatcher("WEB-INF/View/admin/ingredients/edit.jsp").forward(req, resp);
+                return;
+            }
+
             dao.update(ing);
-             req.setAttribute("successMessage", "✏ Ingredient updated successfully!");
-        req.setAttribute("ingredient", ing); // để hiển thị lại dữ liệu sau khi sửa
-        req.getRequestDispatcher("WEB-INF/View/admin/ingredients/edit.jsp").forward(req, resp);
+            resp.sendRedirect("ingredients?message=updated");
         }
     }
 

@@ -71,6 +71,36 @@ public class IngredientDAO {
             return ps.executeUpdate() > 0;
         } catch (SQLException e) { e.printStackTrace(); return false; }
     }
+    
+    public boolean existsByName(String name) {
+    String sql = "SELECT COUNT(*) FROM Ingredients WHERE name = ?";
+    try (PreparedStatement ps = conn.prepareStatement(sql)) {
+        ps.setString(1, name);
+        ResultSet rs = ps.executeQuery();
+        if (rs.next()) {
+            return rs.getInt(1) > 0;
+        }
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+    return false;
+}
+public boolean existsByNameExceptId(String name, int id) {
+    String sql = "SELECT COUNT(*) FROM Ingredients WHERE name = ? AND ingredient_id <> ?";
+    try (PreparedStatement ps = conn.prepareStatement(sql)) {
+        ps.setString(1, name);
+        ps.setInt(2, id);
+        ResultSet rs = ps.executeQuery();
+        if (rs.next()) {
+            return rs.getInt(1) > 0;
+        }
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+    return false;
+}
+
+
 
     public boolean delete(int id) {
         String sql = "DELETE FROM Ingredients WHERE ingredient_id = ?";
