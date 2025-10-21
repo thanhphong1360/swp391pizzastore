@@ -18,7 +18,7 @@
             <a href="#">Staff Accounts</a>
             <a href="#">Restaurant's Menu</a>
             <a href="#">Tables</a>
-            <a href="#">Ingredients</a>
+            <a href="${pageContext.request.contextPath}/ingredients">Ingredients</a>
             <a href="#">Restaurant's Statistics</a>
         </div>
     </body>

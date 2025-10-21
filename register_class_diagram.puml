@@ -1,0 +1,27 @@
+@startuml
+
+class RegisterServlet {
+  +doGet(request, response)
+  +doPost(request, response)
+}
+
+class UserDAO {
+  +checkEmailExists(email): boolean
+  +insertUser(user): boolean
+}
+
+class User {
+  -id: int
+  -roleId: int
+  -email: String
+  -password: String
+  -name: String
+  -otherFields: ...
+  +User(...)
+}
+
+RegisterServlet --> UserDAO : uses
+RegisterServlet --> User : creates
+UserDAO --> User : manages
+
+@enduml
