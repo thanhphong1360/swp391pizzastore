@@ -53,7 +53,7 @@ public class RegisterServlet extends HttpServlet {
         }
 
        
-        User newUser = new User(0, 1, email, password, name, null);
+        User newUser = new User(0, 6, email, password, name, null);
         boolean success = userDAO.insertUser(newUser);
 
         if (success) {
