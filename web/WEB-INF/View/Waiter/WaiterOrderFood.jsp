@@ -130,6 +130,10 @@
         </style>
     </head>
     <body>
+        <form action="${pageContext.request.contextPath}/Order" method="GET">
+            <input type="hidden" name="action" value="open">
+            <input type="submit" value="Quay lại">
+        </form>
         <div class="container">
             <!-- Main content -->
             <main>
@@ -137,12 +141,12 @@
                 <div class="menu">
                     <h3>Thực đơn</h3>
                     <div class="menu-grid">
-                        <c:forEach var="food" items="${foods}">
+                        <c:forEach var="food" items="${foodList}">
                             <div class="food-item">
-                                <img src="${pageContext.request.contextPath}/images/${food.image}" alt="${food.name}">
+                                <!--                                <img src="{pageContext.request.contextPath}/images/{food.image}" alt="{food.name}">-->
                                 <p><b>${food.name}</b></p>
                                 <p>${food.price} đ</p>
-                                <button onclick="addToOrder('${food.id}', '${food.name}', ${food.price})">Thêm</button>
+                                <button onclick="addToOrder('${food.foodId}', '${food.name}', ${food.price})">Thêm</button>
                             </div>
                         </c:forEach>
                     </div>
@@ -150,7 +154,7 @@
 
                 <!-- Order panel -->
                 <div class="order-panel">
-                    <h3>Order hiện tại - Bàn ${param.tableId}</h3>
+                    <h3>Order hiện tại - Bàn ${tableNumber}</h3>
                     <table id="orderTable">
                         <tr><th>Món</th><th>SL</th><th>Giá</th><th>Tổng</th><th></th></tr>
                     </table>
@@ -160,7 +164,11 @@
         </div>
 
         <footer>
-            <button class="btn-confirm" onclick="confirmOrder()">Xác nhận Order</button>
+            <form id="orderForm" action="${pageContext.request.contextPath}/waiter/Order" method="POST">
+                <input type="hidden" name="action" value="sendOrder">
+                <input type="hidden" name="tableId" value="${tableId}">
+                <button type="button" onclick="submitOrder()">Xác nhận Order</button>
+            </form>
         </footer>
 
         <script>
@@ -176,56 +184,88 @@
                 renderOrder();
             }
 
-            function removeItem(id) {
-                order = order.filter(item => item.id !== id);
+            function removeItemByIndex(index) {
+                order.splice(index, 1);
+                renderOrder();
+            }
+
+            function increaseQty(index) {
+                order[index].qty++;
+                renderOrder();
+            }
+
+            function decreaseQty(index) {
+                order[index].qty--;
+                if (order[index].qty <= 0) {
+                    order.splice(index, 1);
+                }
                 renderOrder();
             }
 
             function renderOrder() {
-                let table = document.getElementById("orderTable");
-                let rows = `<tr><th>Món</th><th>SL</th><th>Giá</th><th>Tổng</th><th></th></tr>`;
+                const table = document.getElementById("orderTable");
+                let rows = `
+        <tr>
+            <th>Món</th>
+            <th>SL</th>
+            <th>Giá</th>
+            <th>Tổng</th>
+            <th></th>
+        </tr>
+    `;
                 let total = 0;
-                order.forEach(item => {
-                    let sub = item.price * item.qty;
+
+                order.forEach((item, i) => {
+                    const sub = item.price * item.qty;
                     total += sub;
-                    rows += `
-                      <tr>
-                        <td>${item.name}</td>
-                        <td>${item.qty}</td>
-                        <td>${item.price}</td>
-                        <td>${sub}</td>
-                        <td><button onclick="removeItem('${item.id}')">X</button></td>
-                      </tr>
-                    `;
+
+                    rows += "<tr>"
+                            + "<td>" + item.name + "</td>"
+                            + "<td>"
+                            + "<button onclick='decreaseQty(" + i + ")'>−</button>"
+                            + "<span style='margin: 0 6px;'>" + item.qty + "</span>"
+                            + "<button onclick='increaseQty(" + i + ")'>+</button>"
+                            + "</td>"
+                            + "<td>" + item.price + "</td>"
+                            + "<td>" + sub + "</td>"
+                            + "<td><button onclick='removeItemByIndex(" + i + ")'>X</button></td>"
+                            + "</tr>";
                 });
+
                 table.innerHTML = rows;
                 document.getElementById("totalPrice").innerText = total;
             }
 
-            function confirmOrder() {
+            function submitOrder() {
                 if (order.length === 0) {
                     alert("Vui lòng chọn ít nhất 1 món!");
                     return;
                 }
-                if (confirm("Xác nhận order này?")) {
-                    fetch('${pageContext.request.contextPath}/waiter/OrderFood', {
-                        method: 'POST',
-                        headers: {'Content-Type': 'application/json'},
-                        body: JSON.stringify({
-                            tableId: '${param.tableId}',
-                            order: order
-                        })
-                    }).then(r => {
-                        if (r.ok) {
-                            alert("Đặt món thành công!");
-                            order = [];
-                            renderOrder();
-                        } else {
-                            alert("Lỗi khi gửi order!");
-                        }
-                    });
-                }
+
+                const form = document.getElementById("orderForm");
+
+                // Xóa các input cũ (tránh trùng lặp khi bấm lại)
+                form.querySelectorAll("input[name='foodId'], input[name='quantity']").forEach(el => el.remove());
+
+                // Thêm input ẩn cho từng món
+                order.forEach(item => {
+                    const idInput = document.createElement("input");
+                    idInput.type = "hidden";
+                    idInput.name = "foodId";
+                    idInput.value = item.id;
+                    form.appendChild(idInput);
+
+                    const qtyInput = document.createElement("input");
+                    qtyInput.type = "hidden";
+                    qtyInput.name = "quantity";
+                    qtyInput.value = item.qty;
+                    form.appendChild(qtyInput);
+                });
+
+                form.submit();
             }
         </script>
+
+
     </body>
 </html>
