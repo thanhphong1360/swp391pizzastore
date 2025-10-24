@@ -39,4 +39,28 @@ public class FoodDAO {
         }
         return list.isEmpty() ? null : list;
     }
+    
+    public static Food getFoodById(int foodId) {
+        ArrayList<Food> list = new ArrayList<>();
+        DBContext dbc = DBContext.getInstance();
+        String sql = "SELECT * FROM Foods WHERE food_id = ?";
+        try {
+            PreparedStatement statement = dbc.getConnection().prepareStatement(sql);
+            statement.setInt(1, foodId);
+            ResultSet rs = statement.executeQuery();
+            while (rs.next()) {
+                Food food = new Food(rs.getInt("food_id"),
+                                    rs.getInt("category_id"),
+                                    rs.getString("name"),
+                                    rs.getString("description"),
+                                    rs.getBigDecimal("price"),
+                                    rs.getString("status"));
+                list.add(food);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+        return list.isEmpty() ? null : list.get(0);
+    }
 }

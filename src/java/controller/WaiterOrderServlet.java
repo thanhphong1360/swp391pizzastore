@@ -16,6 +16,15 @@ import model.Table;
 import model.Food;
 import dal.FoodDAO;
 import dal.TableDAO;
+import model.Order;
+import dal.OrderDAO;
+import model.Invoice;
+import dal.InvoiceDAO;
+import model.OrderFood;
+import dal.OrderFoodDAO;
+import jakarta.servlet.http.HttpSession;
+import java.math.BigDecimal;
+import model.User;
 
 /**
  *
@@ -107,23 +116,54 @@ public class WaiterOrderServlet extends HttpServlet {
             throws ServletException, IOException {
         String action = request.getParameter("action");
         if ("sendOrder".equals(action)) {
+            HttpSession session = request.getSession();
+            User waiter = (User) session.getAttribute("user");
             request.setCharacterEncoding("UTF-8");
-
-            String tableId = request.getParameter("tableId");
-
-            // Nhận danh sách foodId và quantity
+            //lay table id
+            int tableId = Integer.parseInt(request.getParameter("tableId"));
+            //lay invoice id
+            Invoice invoice = InvoiceDAO.getPendingInvoiceByTableId(tableId);
+            //tao order
+            Order order = new Order();
+            order.setInvoiceId(invoice.getInvoiceId());
+            order.setWaiterId(waiter.getUserId());
+            order.setTableId(tableId);
+            order.setPrice(BigDecimal.valueOf(0));
+            int orderId = OrderDAO.createOrder(order);
+            // nhan danh sach food id va so luong
             String[] foodIds = request.getParameterValues("foodId");
             String[] quantities = request.getParameterValues("quantity");
-
+            BigDecimal orderPrice = BigDecimal.ZERO;
             if (foodIds != null && quantities != null) {
                 for (int i = 0; i < foodIds.length; i++) {
-                    System.out.println("Food ID: " + foodIds[i] + ", Quantity: " + quantities[i]);
-                    // TODO: lưu vào DB
+                    //tinh tien theo mon
+                    BigDecimal quantity = new BigDecimal(quantities[i]);
+                    BigDecimal foodPrice = FoodDAO.getFoodById(Integer.parseInt(foodIds[i])).getPrice();
+                    BigDecimal price = foodPrice.multiply(quantity);
+                    //tinh tien vao order
+                    orderPrice = orderPrice.add(price);
+                    OrderFood orderFood = new OrderFood(orderId,
+                                                Integer.parseInt(foodIds[i]), 
+                                                Integer.parseInt(quantities[i]), 
+                                                price);
+                    orderFood = OrderFoodDAO.createOrderFood(orderFood);
                 }
             }
-
-            response.sendRedirect(request.getContextPath() + "/OrderSuccess.jsp");
-        }
+            order.setOrderId(orderId);
+            order.setPrice(orderPrice);
+            order = OrderDAO.updateOrderPrice(order);
+            //tro ve
+            //Lay tat ca ban
+            ArrayList<Table> tableListOccupied = new ArrayList<>();
+            ArrayList<Table> tableList = TableDAO.getAllTable();
+            //Lay ban dang duoc mo
+            for (Table table : tableList) {
+                if ("occupied".equals(table.getStatus())) {
+                    tableListOccupied.add(table);
+                }
+            }
+            request.setAttribute("tableList", tableListOccupied);
+            request.getRequestDispatcher("/WEB-INF/View/Waiter/WaiterTableListToOrder.jsp").forward(request, response);        }
     }
 
     /**

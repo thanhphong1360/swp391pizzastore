@@ -156,7 +156,7 @@
                 <div class="order-panel">
                     <h3>Order hiện tại - Bàn ${tableNumber}</h3>
                     <table id="orderTable">
-                        <tr><th>Món</th><th>SL</th><th>Giá</th><th>Tổng</th><th></th></tr>
+                        <tr><th>Món</th><th>SL</th><th>Giá (VND)</th><th>Tổng</th><th></th></tr>
                     </table>
                     <p class="total">Tổng cộng: <span id="totalPrice">0</span> đ</p>
                 </div>
@@ -208,7 +208,7 @@
         <tr>
             <th>Món</th>
             <th>SL</th>
-            <th>Giá</th>
+            <th>Giá (VND)</th>
             <th>Tổng</th>
             <th></th>
         </tr>
