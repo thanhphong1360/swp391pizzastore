@@ -12,6 +12,7 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import model.Discount;
 
 /**
  *
@@ -61,11 +62,17 @@ public class DeleteDiscountServlet extends HttpServlet {
         try {
             int id = Integer.parseInt(request.getParameter("id"));
             DiscountDAO dao = new DiscountDAO();
-            dao.delete(id);
-            response.sendRedirect(request.getContextPath() + "/manager/discount/list");
+            Discount d = dao.getDiscountById(id);
+            if (d != null) {
+                request.setAttribute("discount", d);
+                request.getRequestDispatcher("/WEB-INF/View/manager/discount/confirm-delete-discount.jsp").forward(request, response);
+            } else {
+                request.setAttribute("error", "Discount not found!");
+                request.getRequestDispatcher("/WEB-INF/View/manager/discount/list-discount.jsp").forward(request, response);
+            }
         } catch (Exception e) {
             e.printStackTrace();
-            request.setAttribute("error", "Delete discount failed: " + e.getMessage());
+            request.setAttribute("error", "Error retrieving discount: " + e.getMessage());
             request.getRequestDispatcher("/WEB-INF/View/manager/discount/list-discount.jsp").forward(request, response);
         }
     }
@@ -81,7 +88,17 @@ public class DeleteDiscountServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        processRequest(request, response);
+
+        try {
+            int id = Integer.parseInt(request.getParameter("id"));
+            DiscountDAO dao = new DiscountDAO();
+            dao.delete(id);
+            response.sendRedirect(request.getContextPath() + "/manager/discount/list");
+        } catch (Exception e) {
+            e.printStackTrace();
+            request.setAttribute("error", "Delete discount failed: " + e.getMessage());
+            request.getRequestDispatcher("/WEB-INF/View/manager/discount/list-discount.jsp").forward(request, response);
+        }
     }
 
     /**

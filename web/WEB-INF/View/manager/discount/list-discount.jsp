@@ -2,6 +2,7 @@
 <%@ page import="java.util.List" %>
 <%@ page import="model.Discount" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 
 <main id="content" role="main" class="main">
     <div class="content container-fluid">
@@ -37,8 +38,8 @@
                                 <td>${discount.value}</td>
                                 <td>${discount.startDate}</td>
                                 <td>${discount.endDate}</td>
-                                <td>$${discount.minInvoicePrice}</td>
-                                <td>$${discount.maxDiscountAmount}</td>
+                                <td><fmt:formatNumber value="${discount.minInvoicePrice}" pattern="#,###" /> VND</td>
+                                <td><fmt:formatNumber value="${discount.maxDiscountAmount}" pattern="#,###" /> VND</td>
                                 <td>${discount.status ? 'Active' : 'Inactive'}</td>
                                 <td>
                                     <div class="btn-group" role="group">
@@ -55,7 +56,7 @@
                                                 <i class="tio-edit"></i> Edit
                                             </button>
                                         </form>
-                                        <form action="${pageContext.request.contextPath}/DeleteDiscountServlet" method="POST" style="display: inline;">
+                                        <form action="${pageContext.request.contextPath}/DeleteDiscountServlet" method="POST" style="display: inline;" onsubmit="return confirm('Bạn chắc chắn muốn xóa mã giảm giá này?');">
                                             <input type="hidden" name="id" value="${discount.discountId}">
                                             <button type="submit" class="btn btn-sm btn-danger">
                                                 <i class="tio-delete"></i> Delete

@@ -117,4 +117,22 @@ public class DiscountDAO extends DBContext {
         }
     }
 
+    public boolean checkIfCodeExists(String code) {
+        if (code == null || code.trim().isEmpty()) {
+            return false;
+        }
+
+        String sql = "SELECT COUNT(*) FROM Discounts WHERE TRIM(code) = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setString(1, code.trim());
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1) > 0;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
 }

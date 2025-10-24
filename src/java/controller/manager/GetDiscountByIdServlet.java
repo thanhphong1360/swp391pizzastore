@@ -59,12 +59,19 @@ public class GetDiscountByIdServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        try {
+       try {
             int id = Integer.parseInt(request.getParameter("id"));
             DiscountDAO dao = new DiscountDAO();
             Discount d = dao.getDiscountById(id);
 
             if (d != null) {
+                // Auto-update status if expired
+                java.sql.Date currentDate = new java.sql.Date(System.currentTimeMillis());
+                if (d.isStatus() && d.getEndDate().before(currentDate)) {
+                    d.setStatus(false);
+                    dao.update(d);
+                }
+
                 request.setAttribute("discount", d);
                 String action = request.getParameter("action");
                 if ("edit".equals(action)) {

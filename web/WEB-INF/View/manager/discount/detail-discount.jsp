@@ -14,47 +14,39 @@
                 </div>
             </div>
         </div>
-        <form method="POST" action="${pageContext.request.contextPath}/EditDiscountServlet" class="needs-validation" novalidate>
+        <form method="POST" action="${pageContext.request.contextPath}/EditDiscountServlet" class="js-validate" novalidate>
             <input type="hidden" name="discount_id" value="${discount.discountId}">
             <div class="form-group">
                 <label>Code:</label>
                 <input type="text" class="form-control" name="code" value="${discount.code}" required>
-                <div class="invalid-feedback">Please provide a valid code.</div>
             </div>
             <div class="form-group">
                 <label>Description:</label>
                 <textarea class="form-control" name="description" rows="3" required>${discount.description}</textarea>
-                <div class="invalid-feedback">Please provide a description.</div>
             </div>
             <div class="form-group">
                 <label>Type:</label>
                 <input type="text" class="form-control" name="type" value="${discount.type}" required>
-                <div class="invalid-feedback">Please provide a valid type.</div>
             </div>
             <div class="form-group">
                 <label>Value:</label>
                 <input type="number" step="0.01" class="form-control" name="value" value="${discount.value}" required>
-                <div class="invalid-feedback">Please provide a valid value.</div>
             </div>
             <div class="form-group">
                 <label>Start Date:</label>
                 <input type="date" class="form-control" name="start_date" value="${discount.startDate}" required>
-                <div class="invalid-feedback">Please provide a valid date.</div>
             </div>
             <div class="form-group">
                 <label>End Date:</label>
                 <input type="date" class="form-control" name="end_date" value="${discount.endDate}" required>
-                <div class="invalid-feedback">Please provide a valid date.</div>
             </div>
             <div class="form-group">
                 <label>Min Invoice Price:</label>
-                <input type="number" step="0.01" class="form-control" name="min_invoice_price" value="${discount.minInvoicePrice}" required>
-                <div class="invalid-feedback">Please provide a valid price.</div>
+                <input type="number" step="1" class="form-control" name="min_invoice_price" value="${discount.minInvoicePrice.intValue()}" required>
             </div>
             <div class="form-group">
                 <label>Max Discount Amount:</label>
-                <input type="number" step="0.01" class="form-control" name="max_discount_amount" value="${discount.maxDiscountAmount}" required>
-                <div class="invalid-feedback">Please provide a valid amount.</div>
+                <input type="number" step="1" class="form-control" name="max_discount_amount" value="${discount.maxDiscountAmount.intValue()}" required>
             </div>
             <div class="form-group">
                 <label>Status:</label>
@@ -62,9 +54,23 @@
                     <option value="true" ${discount.status == true ? 'selected' : ''}>Active</option>
                     <option value="false" ${discount.status == false ? 'selected' : ''}>Inactive</option>
                 </select>
-                <div class="invalid-feedback">Please select a status.</div>
             </div>
             <button type="submit" class="btn btn-primary">Update</button>
         </form>
     </div>
 </main>
+<script>
+    (function () {
+        'use strict'
+        var forms = document.querySelectorAll('.js-validate')
+        Array.prototype.slice.call(forms).forEach(function (form) {
+            form.addEventListener('submit', function (event) {
+                if (!form.checkValidity()) {
+                    event.preventDefault()
+                    event.stopPropagation()
+                }
+                form.classList.add('was-validated')
+            }, false)
+        })
+    })()
+</script>

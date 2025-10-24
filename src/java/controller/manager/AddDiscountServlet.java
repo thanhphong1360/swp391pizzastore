@@ -75,8 +75,17 @@ public class AddDiscountServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         try {
+            String code = request.getParameter("code");
+            DiscountDAO dao = new DiscountDAO();
+
+            if (dao.checkIfCodeExists(code)) {
+                request.setAttribute("error", "Discount has already exits!");
+                request.getRequestDispatcher("/WEB-INF/View/manager/discount/add-discount.jsp").forward(request, response);
+                return;
+            }
+
             Discount d = new Discount();
-            d.setCode(request.getParameter("code"));
+            d.setCode(code);
             d.setDescription(request.getParameter("description"));
             d.setType(request.getParameter("type"));
             d.setValue(Double.parseDouble(request.getParameter("value")));
@@ -86,12 +95,12 @@ public class AddDiscountServlet extends HttpServlet {
             d.setMaxDiscountAmount(Double.parseDouble(request.getParameter("max_discount_amount")));
             d.setStatus(Boolean.parseBoolean(request.getParameter("status")));
 
-            DiscountDAO dao = new DiscountDAO();
             dao.insert(d);
             response.sendRedirect(request.getContextPath() + "/manager/discount/list");
         } catch (Exception e) {
             e.printStackTrace();
             request.setAttribute("error", "Add discount failed: " + e.getMessage());
+            request.setAttribute("formData", request.getParameterMap());
             request.getRequestDispatcher("/WEB-INF/View/manager/discount/add-discount.jsp").forward(request, response);
         }
     }

@@ -60,6 +60,16 @@ public class GetAllDiscountServlet extends HttpServlet {
             throws ServletException, IOException {
         DiscountDAO dao = new DiscountDAO();
         List<Discount> list = dao.getAll();
+
+        // Auto-update status for expired discounts
+        java.sql.Date currentDate = new java.sql.Date(System.currentTimeMillis());
+        for (Discount d : list) {
+            if (d.isStatus() && d.getEndDate().before(currentDate)) {
+                d.setStatus(false);
+                dao.update(d);
+            }
+        }
+
         request.setAttribute("discounts", list);
         request.setAttribute("totalDiscounts", list.size());
         request.getRequestDispatcher("/WEB-INF/View/manager/discount/list-discount.jsp").forward(request, response);
