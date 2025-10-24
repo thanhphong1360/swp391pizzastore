@@ -4,6 +4,7 @@
  */
 package model;
 
+import dal.TableDAO;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
@@ -21,6 +22,9 @@ public class Order {
     private BigDecimal price;
     private String note;
     private LocalDateTime created_at;
+    
+    private Table table;
+    
 
     public Order() {
     }
@@ -107,6 +111,15 @@ public class Order {
 
     public void setCreated_at(LocalDateTime created_at) {
         this.created_at = created_at;
+    }
+    
+    
+    public void includeTable(){
+        this.table = TableDAO.getTableById(this.tableId);
+    }
+
+    public Table getTable() {
+        return table;
     }
     
     

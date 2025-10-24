@@ -28,6 +28,10 @@
         <servlet-name>WaiterOrderServlet</servlet-name>
         <servlet-class>controller.WaiterOrderServlet</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>ChefOrderServlet</servlet-name>
+        <servlet-class>controller.ChefOrderServlet</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>HomeServlet</servlet-name>
         <url-pattern>/Home</url-pattern>
@@ -47,5 +51,9 @@
     <servlet-mapping>
         <servlet-name>WaiterOrderServlet</servlet-name>
         <url-pattern>/waiter/Order</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>ChefOrderServlet</servlet-name>
+        <url-pattern>/chef/Order</url-pattern>
     </servlet-mapping>
 </web-app>

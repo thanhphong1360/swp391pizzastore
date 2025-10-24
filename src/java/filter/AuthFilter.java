@@ -41,27 +41,27 @@ public class AuthFilter implements Filter {
 
         // Kiểm tra quyền
         if (uri.contains("/manager/") && !"Manager".equals(role)) {
-            res.sendRedirect(req.getContextPath() + "/access-denied.jsp");
+            request.getRequestDispatcher("/WEB-INF/View/AccessDenied.jsp").forward(request, response);
             return;
         }
         if (uri.contains("/cashier/") && !"Cashier".equals(role)) {
-            res.sendRedirect(req.getContextPath() + "/access-denied.jsp");
+            request.getRequestDispatcher("/WEB-INF/View/AccessDenied.jsp").forward(request, response);
             return;
         }
         if (uri.contains("/chef/") && !"Chef".equals(role)) {
-            res.sendRedirect(req.getContextPath() + "/access-denied.jsp");
+            request.getRequestDispatcher("/WEB-INF/View/AccessDenied.jsp").forward(request, response);
             return;
         }
         if (uri.contains("/waiter/") && !"Waiter".equals(role)) {
-            res.sendRedirect(req.getContextPath() + "/access-denied.jsp");
+            request.getRequestDispatcher("/WEB-INF/View/AccessDenied.jsp").forward(request, response);
             return;
         }
         if (uri.contains("/deliverystaff/") && !"DeliveryStaff".equals(role)) {
-            res.sendRedirect(req.getContextPath() + "/access-denied.jsp");
+            request.getRequestDispatcher("/WEB-INF/View/AccessDenied.jsp").forward(request, response);
             return;
         }
         if (uri.contains("/customer/") && !"Customer".equals(role)) {
-            res.sendRedirect(req.getContextPath() + "/access-denied.jsp");
+            request.getRequestDispatcher("/WEB-INF/View/AccessDenied.jsp").forward(request, response);
             return;
         }
 

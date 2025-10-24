@@ -13,9 +13,12 @@
     </head>
     <body>
         <jsp:include page="TopNav.jsp"></jsp:include>
-        <h1>Chef Home</h1>
-        <div>
-            <a href="#">Food orders</a>
+            <h1>Chef Home</h1>
+            <div>
+                <form action="${pageContext.request.contextPath}/chef/Order" method="GET">
+                <input type="hidden" name="action" value="browse">
+                <input type="submit" value="Food orders">
+            </form>
             <a href="#">Restaurant's Ingredients</a>
         </div>
     </body>

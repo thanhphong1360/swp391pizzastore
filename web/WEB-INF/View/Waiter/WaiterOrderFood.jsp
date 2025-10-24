@@ -3,7 +3,7 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>Order Món Ăn | PizzaStore Manager</title>
+        <title>Order Food</title>
         <link rel="stylesheet" href="${pageContext.request.contextPath}/css/style.css">
         <style>
             body {
@@ -167,6 +167,12 @@
             <form id="orderForm" action="${pageContext.request.contextPath}/waiter/Order" method="POST">
                 <input type="hidden" name="action" value="sendOrder">
                 <input type="hidden" name="tableId" value="${tableId}">
+                <div style="margin-bottom: 10px;">
+                    <label for="note"><b>Ghi chú cho order:</b></label><br>
+                    <textarea id="note" name="note" rows="3" cols="40" 
+                              placeholder="Ghi chú ý cho order"
+                              style="resize: none; padding: 5px; border-radius: 5px; border: 1px solid #ccc;"></textarea>
+                </div>
                 <button type="button" onclick="submitOrder()">Xác nhận Order</button>
             </form>
         </footer>

@@ -9,6 +9,9 @@ import java.sql.PreparedStatement;
 import model.Invoice;
 import model.Order;
 import java.sql.ResultSet;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import model.Table;
 
 /**
  *
@@ -85,5 +88,58 @@ public class OrderDAO {
             return null;
         }
         return rs == 0 ? null : order;
+    }
+    
+    public static ArrayList<Order> getAllOrder() {
+        ArrayList<Order> list = new ArrayList<>();
+        DBContext dbc = DBContext.getInstance();
+        String sql = "SELECT * FROM Orders";
+        try {
+            PreparedStatement statement = dbc.getConnection().prepareStatement(sql);
+            ResultSet rs = statement.executeQuery();
+            while (rs.next()) {
+                Order order = new Order(rs.getInt("order_id"),
+                                        rs.getInt("invoice_id"),
+                                        rs.getInt("waiter_id"),
+                                        rs.getInt("chef_id"),
+                                        rs.getInt("table_id"),
+                                        rs.getString("status"),
+                                        rs.getBigDecimal("price"),
+                                        rs.getString("note"),
+                                        rs.getTimestamp("created_at") == null ? null : rs.getTimestamp("created_at").toLocalDateTime());
+                list.add(order);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+        return list.isEmpty() ? null : list;
+    }
+    
+    public static ArrayList<Order> getOrdersByStatus(String status) {
+        ArrayList<Order> list = new ArrayList<>();
+        DBContext dbc = DBContext.getInstance();
+        String sql = "SELECT * FROM Orders WHERE status = ?";
+        try {
+            PreparedStatement statement = dbc.getConnection().prepareStatement(sql);
+            statement.setString(1, status);
+            ResultSet rs = statement.executeQuery();
+            while (rs.next()) {
+                Order order = new Order(rs.getInt("order_id"),
+                                        rs.getInt("invoice_id"),
+                                        rs.getInt("waiter_id"),
+                                        rs.getInt("chef_id"),
+                                        rs.getInt("table_id"),
+                                        rs.getString("status"),
+                                        rs.getBigDecimal("price"),
+                                        rs.getString("note"),
+                                        rs.getTimestamp("created_at") == null ? null : rs.getTimestamp("created_at").toLocalDateTime());
+                list.add(order);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+        return list.isEmpty() ? null : list;
     }
 }

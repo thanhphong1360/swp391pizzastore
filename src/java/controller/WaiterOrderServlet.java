@@ -123,12 +123,15 @@ public class WaiterOrderServlet extends HttpServlet {
             int tableId = Integer.parseInt(request.getParameter("tableId"));
             //lay invoice id
             Invoice invoice = InvoiceDAO.getPendingInvoiceByTableId(tableId);
+            //lay note
+            String note = request.getParameter("note");
             //tao order
             Order order = new Order();
             order.setInvoiceId(invoice.getInvoiceId());
             order.setWaiterId(waiter.getUserId());
             order.setTableId(tableId);
             order.setPrice(BigDecimal.valueOf(0));
+            order.setNote(note);
             int orderId = OrderDAO.createOrder(order);
             // nhan danh sach food id va so luong
             String[] foodIds = request.getParameterValues("foodId");
