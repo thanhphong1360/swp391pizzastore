@@ -14,12 +14,32 @@
     <body>
         <jsp:include page="TopNav.jsp"></jsp:include>
             <h1>Chef Home</h1>
+            <h3>Orders</h3>
             <div>
                 <form action="${pageContext.request.contextPath}/chef/Order" method="GET">
                 <input type="hidden" name="action" value="browse">
-                <input type="submit" value="Food orders">
-            </form>
-            <a href="#">Restaurant's Ingredients</a>
-        </div>
+                <input type="hidden" name="status" value="pending">
+                <input type="submit" value="Pending orders">
+                </form>
+                <form action="${pageContext.request.contextPath}/chef/Order" method="GET">
+                <input type="hidden" name="action" value="browse">
+                <input type="hidden" name="status" value="doing">
+                <input type="submit" value="Doing orders">
+                </form>
+                <form action="${pageContext.request.contextPath}/chef/Order" method="GET">
+                <input type="hidden" name="action" value="browse">
+                <input type="hidden" name="status" value="completed">
+                <input type="submit" value="Completed orders">
+                </form>
+                <form action="${pageContext.request.contextPath}/chef/Order" method="GET">
+                <input type="hidden" name="action" value="browse">
+                <input type="hidden" name="status" value="rejected">
+                <input type="submit" value="Rejected orders">
+                </form>
+            </div>
+            <h3>Ingredients</h3>
+            <div>
+                <a href="#">Restaurant's Ingredients</a>
+            </div> 
     </body>
 </html>

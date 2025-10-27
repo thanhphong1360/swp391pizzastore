@@ -4,6 +4,8 @@
  */
 package model;
 
+import dal.FoodDAO;
+import dal.OrderDAO;
 import java.math.BigDecimal;
 
 /**
@@ -15,6 +17,9 @@ public class OrderFood {
     private int foodId;
     private int quantity;
     private BigDecimal price;
+    
+    private Order order;
+    private Food food;
 
     public OrderFood() {
     }
@@ -58,5 +63,19 @@ public class OrderFood {
         this.price = price;
     }
     
+    public void includeOrder(){
+        this.order = OrderDAO.getOrderById(this.orderId);
+    }
     
+    public Order getOrder(){
+        return this.order;
+    }
+    
+    public void includeFood(){
+        this.food = FoodDAO.getFoodById(this.foodId);
+    }
+    
+    public Food getFood(){
+        return this.food;
+    }
 }

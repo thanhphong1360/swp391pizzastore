@@ -142,4 +142,71 @@ public class OrderDAO {
         }
         return list.isEmpty() ? null : list;
     }
+    
+    public static Order getOrderById(int id) {
+        ArrayList<Order> list = new ArrayList<>();
+        DBContext dbc = DBContext.getInstance();
+        String sql = "SELECT * FROM Orders WHERE order_id = ?";
+        try {
+            PreparedStatement statement = dbc.getConnection().prepareStatement(sql);
+            statement.setInt(1, id);
+            ResultSet rs = statement.executeQuery();
+            while (rs.next()) {
+                Order order = new Order(rs.getInt("order_id"),
+                                        rs.getInt("invoice_id"),
+                                        rs.getInt("waiter_id"),
+                                        rs.getInt("chef_id"),
+                                        rs.getInt("table_id"),
+                                        rs.getString("status"),
+                                        rs.getBigDecimal("price"),
+                                        rs.getString("note"),
+                                        rs.getTimestamp("created_at") == null ? null : rs.getTimestamp("created_at").toLocalDateTime());
+                list.add(order);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+        return list.isEmpty() ? null : list.get(0);
+    }
+    
+    public static Order updateOrderStatus(Order order) {
+        DBContext dbc = DBContext.getInstance();
+        int rs = 0;
+        String sql = """
+        UPDATE [dbo].[Orders] 
+        SET status = ?
+        WHERE order_id = ?
+    """;
+        try {
+            PreparedStatement statement = dbc.getConnection().prepareStatement(sql);
+            statement.setString(1, order.getStatus());
+            statement.setInt(2, order.getOrderId());
+            rs = statement.executeUpdate();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+        return rs == 0 ? null : order;
+    }
+    
+    public static Order updateOrderNoteAppending(Order order, String appendingString) {
+        DBContext dbc = DBContext.getInstance();
+        int rs = 0;
+        String sql = """
+        UPDATE [dbo].[Orders] 
+        SET note = ?
+        WHERE order_id = ?
+    """;
+        try {
+            PreparedStatement statement = dbc.getConnection().prepareStatement(sql);
+            statement.setString(1, order.getNote() + appendingString);
+            statement.setInt(2, order.getOrderId());
+            rs = statement.executeUpdate();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+        return rs == 0 ? null : order;
+    }
 }

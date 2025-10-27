@@ -6,6 +6,9 @@ package dal;
 
 import java.math.BigDecimal;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.util.ArrayList;
+import model.Order;
 import model.OrderFood;
 
 /**
@@ -32,5 +35,35 @@ public class OrderFoodDAO {
             return null;
         }
         return rs == 0 ? null : orderFood;
+    }
+    
+    public static ArrayList<OrderFood> getOrderFoodsByOrderId(int id) {
+        ArrayList<OrderFood> list = new ArrayList<>();
+        DBContext dbc = DBContext.getInstance();
+        String sql = "SELECT * FROM OrderFoods WHERE order_id = ?";
+        try {
+            PreparedStatement statement = dbc.getConnection().prepareStatement(sql);
+            statement.setInt(1, id);
+            ResultSet rs = statement.executeQuery();
+            while (rs.next()) {
+                OrderFood orderFood = new OrderFood(rs.getInt("order_id"),
+                                                    rs.getInt("food_id"),
+                                                    rs.getInt("quantity"),
+                                                    rs.getBigDecimal("price"));
+                
+                list.add(orderFood);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+        return list.isEmpty() ? null : list;
+    }
+    
+    public static void main(String[] args) {
+        ArrayList<OrderFood> list = getOrderFoodsByOrderId(6);
+        for(OrderFood orderFood : list){
+            System.out.println("orderId = "+orderFood.getOrderId()+"foodId = "+orderFood.getFoodId()+"");
+        }
     }
 }

@@ -7,6 +7,7 @@ package model;
 import dal.TableDAO;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import dal.UserDAO;
 
 /**
  *
@@ -24,7 +25,8 @@ public class Order {
     private LocalDateTime created_at;
     
     private Table table;
-    
+    private User waiter;
+    private User chef;
 
     public Order() {
     }
@@ -122,5 +124,20 @@ public class Order {
         return table;
     }
     
+    public void includeWaiter(){
+        this.waiter = UserDAO.getUserById(this.waiterId);
+    }
+
+    public User getWaiter() {
+        return this.waiter;
+    }
+    
+    public void includeChef(){
+        this.chef = UserDAO.getUserById(this.chefId);
+    }
+
+    public User getChef() {
+        return this.chef;
+    }
     
 }

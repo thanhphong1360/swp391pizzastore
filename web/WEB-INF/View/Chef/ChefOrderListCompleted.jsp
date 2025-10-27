@@ -1,6 +1,6 @@
 <%-- 
-    Document   : OrderList
-    Created on : Oct 24, 2025, 12:53:50 PM
+    Document   : ChefOrderListCompleted
+    Created on : Oct 27, 2025, 9:06:16 PM
     Author     : cungp
 --%>
 
@@ -11,22 +11,39 @@
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <title>Order List</title>
+        <style>
+            table, th, td {
+                border: 1px solid #ccc;
+                border-collapse: collapse;
+                padding: 6px 10px;
+            }
+            th {
+                background-color: #f0f0f0;
+            }
+            button, input[type=submit] {
+                padding: 4px 10px;
+                border-radius: 4px;
+                border: 1px solid #ccc;
+                cursor: pointer;
+            }
+            input[type=submit]:hover {
+                background-color: #e0e0e0;
+            }
+        </style>
     </head>
     <body>
         <form action="${pageContext.request.contextPath}/Home" method="GET">
             <input type="submit" value="Về trang chủ">
         </form>
+
         <div>
-            <h3>Danh sách order chờ duyệt</h3>
+            <h3>Danh sách order đã xong</h3>
             <table>
                 <tr>
                     <th>Order ID</th>
                     <th>Bàn</th>
                     <th>Trạng thái</th>
                     <th>Thời gian</th>
-                    <th>Chi tiết</th>
-                    <th>Nhận đơn</th>
-                    <th>Hủy đơn</th>
                 </tr>
                 <c:forEach items="${orderList}" var="order">
                     <tr>
@@ -41,21 +58,7 @@
                                 <input type="submit" value="Chi tiết">
                             </form>
                         </td>
-                        <td>
-                            <form action="${pageContext.request.contextPath}/chef/Order" method="POST">
-                                <input type="hidden" name="approve">
-                                <input type="hidden" name="orderId" value="${order.orderId}">
-                                <input type="submit" value="Nhận">
-                            </form>
-                        </td>
-                        <td>
-                            <form action="${pageContext.request.contextPath}/chef/Order" method="POST">
-                                <input type="hidden" name="reject">
-                                <input type="hidden" name="orderId" value="${order.orderId}">
-                                <input type="submit" value="Hủy">
-                            </form>
-                        </td>
-                    </tr><!--  -->
+                    </tr>
                 </c:forEach>
             </table>
         </div>
