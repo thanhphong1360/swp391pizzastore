@@ -16,7 +16,7 @@
         <h1>Manager Home</h1>
         <div>
             <a href="#">Staff Accounts</a>
-            <a href="#">Restaurant's Menu</a>
+            <a href="${pageContext.request.contextPath}/manager/ListMenuServlet">Restaurant's Menu</a>
             <a href="#">Tables</a>
             <a href="#">Ingredients</a>
             <a href="#">Restaurant's Statistics</a>
