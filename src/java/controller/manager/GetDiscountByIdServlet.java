@@ -59,25 +59,23 @@ public class GetDiscountByIdServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-       try {
+        try {
             int id = Integer.parseInt(request.getParameter("id"));
+            String action = request.getParameter("action");
+
             DiscountDAO dao = new DiscountDAO();
             Discount d = dao.getDiscountById(id);
 
             if (d != null) {
-                // Auto-update status if expired
-                java.sql.Date currentDate = new java.sql.Date(System.currentTimeMillis());
-                if (d.isStatus() && d.getEndDate().before(currentDate)) {
-                    d.setStatus(false);
-                    dao.update(d);
-                }
-
                 request.setAttribute("discount", d);
-                String action = request.getParameter("action");
+
                 if ("edit".equals(action)) {
                     request.getRequestDispatcher("/WEB-INF/View/manager/discount/detail-discount.jsp").forward(request, response);
                 } else {
-                    request.getRequestDispatcher("/WEB-INF/View/manager/discount/detail-discount.jsp").forward(request, response); // View mode
+                    boolean readonly = "view".equals(action);
+                    request.setAttribute("readonly", readonly);
+                    request.getRequestDispatcher("/WEB-INF/View/manager/discount/detail-discount.jsp")
+                            .forward(request, response);
                 }
             } else {
                 request.setAttribute("error", "Discount not found!");
@@ -89,6 +87,12 @@ public class GetDiscountByIdServlet extends HttpServlet {
             request.getRequestDispatcher("/WEB-INF/View/manager/discount/list-discount.jsp").forward(request, response);
         }
 
+        //                // Auto-update status if expired
+//                java.sql.Date currentDate = new java.sql.Date(System.currentTimeMillis());
+//                if (d.isStatus() && d.getEndDate().before(currentDate)) {
+//                    d.setStatus(false);
+//                    dao.update(d);
+//                }
     }
 
     /**

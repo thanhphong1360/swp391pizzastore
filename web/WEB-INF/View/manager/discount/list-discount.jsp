@@ -45,9 +45,11 @@
                                     <div class="btn-group" role="group">
                                         <form action="${pageContext.request.contextPath}/GetDiscountByIdServlet" method="GET" style="display: inline;">
                                             <input type="hidden" name="id" value="${discount.discountId}">
+                                            <input type="hidden" name="action" value="view">
                                             <button type="submit" class="btn btn-sm btn-dark" style="margin-right: 5px;">
-                                                <i class="tio-edit"></i> View
+                                                <i class="tio-eye"></i> View
                                             </button>
+                                        </form>
                                         </form>
                                         <form action="${pageContext.request.contextPath}/GetDiscountByIdServlet" method="GET" style="display: inline;">
                                             <input type="hidden" name="id" value="${discount.discountId}">

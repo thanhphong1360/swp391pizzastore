@@ -76,24 +76,69 @@ public class EditDiscountServlet extends HttpServlet {
             throws ServletException, IOException {
         try {
             int id = Integer.parseInt(request.getParameter("discount_id"));
-            Discount d = new Discount();
-            d.setDiscountId(id);
-            d.setCode(request.getParameter("code"));
-            d.setDescription(request.getParameter("description"));
-            d.setType(request.getParameter("type"));
-            d.setValue(Double.parseDouble(request.getParameter("value")));
-            d.setStartDate(Date.valueOf(request.getParameter("start_date")));
-            d.setEndDate(Date.valueOf(request.getParameter("end_date")));
-            d.setMinInvoicePrice(Double.parseDouble(request.getParameter("min_invoice_price")));
-            d.setMaxDiscountAmount(Double.parseDouble(request.getParameter("max_discount_amount")));
-            d.setStatus(Boolean.parseBoolean(request.getParameter("status")));
-
             DiscountDAO dao = new DiscountDAO();
+            Discount d = dao.getDiscountById(id);
+
+            if (d == null) {
+                request.setAttribute("error", "Discount not found!");
+                request.getRequestDispatcher("/WEB-INF/View/manager/discount/detail-discount.jsp").forward(request, response);
+                return;
+            }
+
+            String code = request.getParameter("code");
+            String description = request.getParameter("description");
+            String type = request.getParameter("type");
+            String valueStr = request.getParameter("value");
+            String startDateStr = request.getParameter("start_date");
+            String endDateStr = request.getParameter("end_date");
+            String minInvoiceStr = request.getParameter("min_invoice_price");
+            String maxDiscountStr = request.getParameter("max_discount_amount");
+            String statusStr = request.getParameter("status");
+
+            if (code == null || code.trim().isEmpty() ||
+                description == null || description.trim().isEmpty() ||
+                type == null || type.trim().isEmpty() ||
+                valueStr == null || valueStr.trim().isEmpty() ||
+                startDateStr == null || endDateStr == null ||
+                minInvoiceStr == null || maxDiscountStr == null ||
+                statusStr == null) {
+                request.setAttribute("error", "Please fill out all required fields.");
+                request.setAttribute("discount", d);
+                request.getRequestDispatcher("/WEB-INF/View/manager/discount/detail-discount.jsp").forward(request, response);
+                return;
+            }
+
+            double value = Double.parseDouble(valueStr);
+            java.sql.Date startDate = Date.valueOf(startDateStr);
+            java.sql.Date endDate = Date.valueOf(endDateStr);
+            double minInvoicePrice = Double.parseDouble(minInvoiceStr);
+            double maxDiscountAmount = Double.parseDouble(maxDiscountStr);
+            boolean status = Boolean.parseBoolean(statusStr);
+
+            // Check for negative values
+            if (value < 0 || minInvoicePrice < 0 || maxDiscountAmount < 0) {
+                request.setAttribute("error", "Value, Minimum Invoice Price, and Maximum Discount Amount must be non-negative.");
+                request.setAttribute("discount", d);
+                request.getRequestDispatcher("/WEB-INF/View/manager/discount/detail-discount.jsp").forward(request, response);
+                return;
+            }
+
+            d.setCode(code);
+            d.setDescription(description);
+            d.setType(type);
+            d.setValue(value);
+            d.setStartDate(startDate);
+            d.setEndDate(endDate);
+            d.setMinInvoicePrice(minInvoicePrice);
+            d.setMaxDiscountAmount(maxDiscountAmount);
+            d.setStatus(status);
+
             dao.update(d);
             response.sendRedirect(request.getContextPath() + "/manager/discount/list");
         } catch (Exception e) {
             e.printStackTrace();
             request.setAttribute("error", "Edit discount failed: " + e.getMessage());
+            request.setAttribute("discount", new Discount()); // Placeholder to avoid null
             request.getRequestDispatcher("/WEB-INF/View/manager/discount/detail-discount.jsp").forward(request, response);
         }
     }

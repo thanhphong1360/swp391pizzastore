@@ -74,33 +74,67 @@ public class AddDiscountServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        try {
-            String code = request.getParameter("code");
-            DiscountDAO dao = new DiscountDAO();
+        String code = request.getParameter("code");
+        String description = request.getParameter("description");
+        String type = request.getParameter("type");
+        String valueStr = request.getParameter("value");
+        String startDateStr = request.getParameter("start_date");
+        String endDateStr = request.getParameter("end_date");
+        String minInvoiceStr = request.getParameter("min_invoice_price");
+        String maxDiscountStr = request.getParameter("max_discount_amount");
+        String statusStr = request.getParameter("status");
+        DiscountDAO dao = new DiscountDAO();
 
-            if (dao.checkIfCodeExists(code)) {
-                request.setAttribute("error", "Discount has already exits!");
+        if (code == null || code.trim().isEmpty()
+                || description == null || description.trim().isEmpty()
+                || type == null || type.trim().isEmpty()
+                || valueStr == null || valueStr.trim().isEmpty()
+                || startDateStr == null || endDateStr == null
+                || minInvoiceStr == null || maxDiscountStr == null
+                || statusStr == null) {
+            request.setAttribute("error", "Please fill out all required fields.");
+            request.getRequestDispatcher("/WEB-INF/View/manager/discount/add-discount.jsp").forward(request, response);
+            return;
+        }
+
+        if (dao.checkIfCodeExists(code)) {
+            request.setAttribute("error", "Discount has already exits!");
+            request.getRequestDispatcher("/WEB-INF/View/manager/discount/add-discount.jsp").forward(request, response);
+            return;
+        }
+
+        try {
+            double value = Double.parseDouble(valueStr);
+            java.sql.Date startDate = java.sql.Date.valueOf(startDateStr);
+            java.sql.Date endDate = java.sql.Date.valueOf(endDateStr);
+            double minInvoicePrice = Double.parseDouble(minInvoiceStr);
+            double maxDiscountAmount = Double.parseDouble(maxDiscountStr);
+            boolean status = Boolean.parseBoolean(statusStr);
+
+            // Check for negative values
+            if (value < 0 || minInvoicePrice < 0 || maxDiscountAmount < 0) {
+                request.setAttribute("error", "Value, Minimum Invoice Price, and Maximum Discount Amount must be non-negative.");
                 request.getRequestDispatcher("/WEB-INF/View/manager/discount/add-discount.jsp").forward(request, response);
                 return;
             }
 
-            Discount d = new Discount();
-            d.setCode(code);
-            d.setDescription(request.getParameter("description"));
-            d.setType(request.getParameter("type"));
-            d.setValue(Double.parseDouble(request.getParameter("value")));
-            d.setStartDate(Date.valueOf(request.getParameter("start_date")));
-            d.setEndDate(Date.valueOf(request.getParameter("end_date")));
-            d.setMinInvoicePrice(Double.parseDouble(request.getParameter("min_invoice_price")));
-            d.setMaxDiscountAmount(Double.parseDouble(request.getParameter("max_discount_amount")));
-            d.setStatus(Boolean.parseBoolean(request.getParameter("status")));
+            Discount discount = new Discount();
+            discount.setCode(code);
+            discount.setDescription(description);
+            discount.setType(type);
+            discount.setValue(value);
+            discount.setStartDate(startDate);
+            discount.setEndDate(endDate);
+            discount.setMinInvoicePrice(minInvoicePrice);
+            discount.setMaxDiscountAmount(maxDiscountAmount);
+            discount.setStatus(status);
 
-            dao.insert(d);
+            dao.insert(discount);
+
             response.sendRedirect(request.getContextPath() + "/manager/discount/list");
+
         } catch (Exception e) {
-            e.printStackTrace();
-            request.setAttribute("error", "Add discount failed: " + e.getMessage());
-            request.setAttribute("formData", request.getParameterMap());
+            request.setAttribute("error", "Invalid input: " + e.getMessage());
             request.getRequestDispatcher("/WEB-INF/View/manager/discount/add-discount.jsp").forward(request, response);
         }
     }

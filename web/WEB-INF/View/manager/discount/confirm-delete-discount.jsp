@@ -15,12 +15,12 @@
             </div>
         </div>
         <div class="alert alert-warning">
-            Bạn chắc chắn muốn xóa mã giảm giá <strong>${discount.code}</strong>?
+            Are you sure you want to delete the discount code <strong>${discount.code}</strong>?
         </div>
         <form action="${pageContext.request.contextPath}/DeleteDiscountServlet" method="POST" style="display: inline;">
             <input type="hidden" name="id" value="${discount.discountId}">
-            <button type="submit" class="btn btn-danger">Có</button>
-            <a href="${pageContext.request.contextPath}/manager/discount/list" class="btn btn-secondary">Không</a>
+            <button type="submit" class="btn btn-danger">Yes</button>
+            <a href="${pageContext.request.contextPath}/manager/discount/list" class="btn btn-secondary">Cancel</a>
         </form>
     </div>
 </main>
