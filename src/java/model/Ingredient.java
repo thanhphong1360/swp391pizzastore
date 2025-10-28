@@ -13,17 +13,26 @@ public class Ingredient {
     private String unit;
     private double quantity;
     private Timestamp updatedAt;
+    private boolean status;
 
     public Ingredient() {}
 
-    public Ingredient(int ingredientId, String name, String description, String unit, double quantity, Timestamp updatedAt) {
+    public Ingredient(int ingredientId, String name, String description, String unit, double quantity, Timestamp updatedAt,boolean status) {
         this.ingredientId = ingredientId;
         this.name = name;
         this.description = description;
         this.unit = unit;
         this.quantity = quantity;
         this.updatedAt = updatedAt;
+        this.status = status;
     }
+    public boolean isStatus() {
+    return status;
+}
+
+public void setStatus(boolean status) {
+    this.status = status;
+}
 
     public int getIngredientId() { return ingredientId; }
     public void setIngredientId(int ingredientId) { this.ingredientId = ingredientId; }

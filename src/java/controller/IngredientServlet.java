@@ -35,10 +35,33 @@ public class IngredientServlet extends HttpServlet {
                 req.setAttribute("ingredient", dao.getById(id));
                 req.getRequestDispatcher("WEB-INF/View/admin/ingredients/edit.jsp").forward(req, resp);
                 break;
-            case "delete":
-                dao.delete(Integer.parseInt(req.getParameter("id")));
-                resp.sendRedirect("ingredients?message=deleted");
+
+            case "toggle": {
+                // Bọc trong block, đặt tên biến rõ ràng
+                int toggleId = Integer.parseInt(req.getParameter("id"));
+                Ingredient target = dao.getById(toggleId);
+
+                if (target == null) {
+                    // nếu không tìm thấy -> redirect với lỗi
+                    resp.sendRedirect("ingredients?message=error");
+                    break;
+                }
+
+                boolean currentStatus = target.isStatus();
+                boolean updated = dao.updateStatus(toggleId, !currentStatus); // đảm bảo dao có method updateStatus
+
+                if (updated) {
+                    if (currentStatus) {
+                        resp.sendRedirect("ingredients?message=deactivated");
+                    } else {
+                        resp.sendRedirect("ingredients?message=restored");
+                    }
+                } else {
+                    resp.sendRedirect("ingredients?message=error");
+                }
                 break;
+            }
+
             default:
                 List<Ingredient> list = dao.getAll();
                 req.setAttribute("list", list);
@@ -58,6 +81,7 @@ public class IngredientServlet extends HttpServlet {
         String description = req.getParameter("description");
         String unit = req.getParameter("unit");
         String quantityStr = req.getParameter("quantity");
+        String statusStr = req.getParameter("status"); // 🔹 thêm dòng này
 
         String error = null;
         double quantity = 0;
@@ -91,12 +115,37 @@ public class IngredientServlet extends HttpServlet {
             return;
         }
 
+        // 🔹 Xử lý object Ingredient
         Ingredient ing = new Ingredient();
         ing.setName(name.trim());
         ing.setDescription(description != null ? description.trim() : "");
         ing.setUnit(unit.trim());
         ing.setQuantity(quantity);
+        // Nếu đang edit, giữ lại status hiện có trong DB khi form không gửi status
+        if ("edit".equals(action)) {
+            int id = Integer.parseInt(idStr);
+            Ingredient existing = dao.getById(id);
+            boolean keepStatus = (statusStr == null); // true nếu form không gửi status
+            if (existing != null) {
+                if (keepStatus) {
+                    ing.setStatus(existing.isStatus()); // giữ nguyên
+                } else {
+                    ing.setStatus("1".equals(statusStr));
+                }
+            } else {
+                // fallback: nếu không tìm thấy existing thì mặc định active
+                ing.setStatus("1".equals(statusStr));
+            }
+        } else {
+            // add case: nếu không có status field, mặc định active
+            if (statusStr == null) {
+                ing.setStatus(true);
+            } else {
+                ing.setStatus("1".equals(statusStr));
+            }
+        }
 
+        // 🔸 Thêm mới
         if ("add".equals(action)) {
 
             if (dao.existsByName(name)) {
@@ -108,6 +157,7 @@ public class IngredientServlet extends HttpServlet {
             dao.insert(ing);
             resp.sendRedirect("ingredients?message=added");
 
+            // 🔸 Sửa
         } else if ("edit".equals(action)) {
             int id = Integer.parseInt(idStr);
             ing.setIngredientId(id);
