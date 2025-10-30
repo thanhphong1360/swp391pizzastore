@@ -32,48 +32,55 @@
 
         <div>
             <h3>Danh sách order chờ duyệt</h3>
-            <table>
-                <tr>
-                    <th>Order ID</th>
-                    <th>Bàn</th>
-                    <th>Trạng thái</th>
-                    <th>Thời gian</th>
-                    <th>Chi tiết</th>
-                    <th>Nhận đơn</th>
-                    <th>Hủy đơn</th>
-                </tr>
-                <c:forEach items="${orderList}" var="order">
-                    <tr>
-                        <td>${order.orderId}</td>
-                        <td>${order.table.tableNumber}</td>
-                        <td>${order.status}</td>
-                        <td>${order.created_at}</td>
-                        <td>
-                            <form action="${pageContext.request.contextPath}/chef/Order" method="GET">
-                                <input type="hidden" name="action" value="detail">
-                                <input type="hidden" name="orderId" value="${order.orderId}">
-                                <input type="submit" value="Chi tiết">
-                            </form>
-                        </td>
-                        <td>
-                            <form action="${pageContext.request.contextPath}/chef/Order" method="POST" onsubmit="return confirmApprove(${order.orderId})">
-                                <input type="hidden" name="action" value="approve">
-                                <input type="hidden" name="orderId" value="${order.orderId}">
-                                <input type="submit" value="Nhận">
-                            </form>
-                        </td>
-                        <td>
-                            <form action="${pageContext.request.contextPath}/chef/Order" method="POST" onsubmit="return confirmReject(this, ${order.orderId})">
-                                <input type="hidden" name="action" value="reject">
-                                <input type="hidden" name="orderId" value="${order.orderId}">
-                                <input type="hidden" name="pageStatus" value="pending">
-                                <input type="hidden" name="reason" value="">
-                                <input type="submit" value="Hủy">
-                            </form>
-                        </td>
-                    </tr>
-                </c:forEach>
-            </table>
+            <c:choose>
+                <c:when test="${not empty orderList}">
+                    <table>
+                        <tr>
+                            <th>Order ID</th>
+                            <th>Bàn</th>
+                            <th>Trạng thái</th>
+                            <th>Thời gian</th>
+                            <th>Chi tiết</th>
+                            <th>Nhận đơn</th>
+                            <th>Hủy đơn</th>
+                        </tr>
+                        <c:forEach items="${orderList}" var="order">
+                            <tr>
+                                <td>${order.orderId}</td>
+                                <td>${order.table.tableNumber}</td>
+                                <td>${order.status}</td>
+                                <td>${order.created_at}</td>
+                                <td>
+                                    <form action="${pageContext.request.contextPath}/chef/Order" method="GET">
+                                        <input type="hidden" name="action" value="detail">
+                                        <input type="hidden" name="orderId" value="${order.orderId}">
+                                        <input type="submit" value="Chi tiết">
+                                    </form>
+                                </td>
+                                <td>
+                                    <form action="${pageContext.request.contextPath}/chef/Order" method="POST" onsubmit="return confirmApprove(${order.orderId})">
+                                        <input type="hidden" name="action" value="approve">
+                                        <input type="hidden" name="orderId" value="${order.orderId}">
+                                        <input type="submit" value="Nhận">
+                                    </form>
+                                </td>
+                                <td>
+                                    <form action="${pageContext.request.contextPath}/chef/Order" method="POST" onsubmit="return confirmReject(this, ${order.orderId})">
+                                        <input type="hidden" name="action" value="reject">
+                                        <input type="hidden" name="orderId" value="${order.orderId}">
+                                        <input type="hidden" name="pageStatus" value="pending">
+                                        <input type="hidden" name="reason" value="">
+                                        <input type="submit" value="Hủy">
+                                    </form>
+                                </td>
+                            </tr>
+                        </c:forEach>
+                    </table>
+                </c:when>
+                <c:otherwise>
+                    <h3>Không có order nào chờ duyệt!</h3>
+                </c:otherwise>
+            </c:choose>
         </div>
 
         <!-- ✅ Script xác nhận -->

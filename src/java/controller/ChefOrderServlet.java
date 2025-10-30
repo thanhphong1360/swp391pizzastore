@@ -66,38 +66,46 @@ public class ChefOrderServlet extends HttpServlet {
             String status = request.getParameter("status");
             if (status == null || "pending".equals(status)) {
                 ArrayList<Order> pendingOrderList = OrderDAO.getOrdersByStatus("pending");
-                for(Order order : pendingOrderList){
-                    order.includeTable();
+                if (pendingOrderList != null) {
+                    for (Order order : pendingOrderList) {
+                        order.includeTable();
+                    }
                 }
                 request.setAttribute("orderList", pendingOrderList);
                 request.getRequestDispatcher("/WEB-INF/View/Chef/ChefOrderListPending.jsp").forward(request, response);
-            }else if("doing".equals(status)){
+            } else if ("doing".equals(status)) {
                 ArrayList<Order> doingOrderList = OrderDAO.getOrdersByStatus("doing");
-                for(Order order : doingOrderList){
-                    order.includeTable();
+                if (doingOrderList != null) {
+                    for (Order order : doingOrderList) {
+                        order.includeTable();
+                    }
                 }
                 request.setAttribute("orderList", doingOrderList);
                 request.getRequestDispatcher("/WEB-INF/View/Chef/ChefOrderListDoing.jsp").forward(request, response);
-            }else if("completed".equals(status)){
+            } else if ("completed".equals(status)) {
                 ArrayList<Order> completedOrderList = OrderDAO.getOrdersByStatus("completed");
-                for(Order order : completedOrderList){
-                    order.includeTable();
+                if (completedOrderList != null) {
+                    for (Order order : completedOrderList) {
+                        order.includeTable();
+                    }
                 }
                 request.setAttribute("orderList", completedOrderList);
                 request.getRequestDispatcher("/WEB-INF/View/Chef/ChefOrderListCompleted.jsp").forward(request, response);
-            }else if("rejected".equals(status)){
+            } else if ("rejected".equals(status)) {
                 ArrayList<Order> rejectedOrderList = OrderDAO.getOrdersByStatus("rejected");
-                for(Order order : rejectedOrderList){
-                    order.includeTable();
+                if (rejectedOrderList != null) {
+                    for (Order order : rejectedOrderList) {
+                        order.includeTable();
+                    }
                 }
                 request.setAttribute("orderList", rejectedOrderList);
                 request.getRequestDispatcher("/WEB-INF/View/Chef/ChefOrderListRejected.jsp").forward(request, response);
             }
-        }else if("detail".equals(action)){
+        } else if ("detail".equals(action)) {
             int orderId = Integer.parseInt(request.getParameter("orderId"));
             Order order = OrderDAO.getOrderById(orderId);
             ArrayList<OrderFood> orderFoodList = OrderFoodDAO.getOrderFoodsByOrderId(orderId);
-            for(OrderFood orderFood : orderFoodList){
+            for (OrderFood orderFood : orderFoodList) {
                 orderFood.includeFood();
                 orderFood.includeOrder();
             }
@@ -106,7 +114,7 @@ public class ChefOrderServlet extends HttpServlet {
             order.includeChef();
             request.setAttribute("order", order);
             request.setAttribute("orderFoodList", orderFoodList);
-            
+
             //url tro lai list
             String referer = request.getHeader("referer");
             request.setAttribute("backUrl", referer);
@@ -126,62 +134,62 @@ public class ChefOrderServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         String action = request.getParameter("action");
-        if("approve".equals(action)){
+        if ("approve".equals(action)) {
             //change order status
             int orderId = Integer.parseInt(request.getParameter("orderId"));
             Order order = OrderDAO.getOrderById(orderId);
             order.setStatus("doing");
             order = OrderDAO.updateOrderStatus(order);
-            
+
             //view pending orders list
             ArrayList<Order> pendingOrderList = OrderDAO.getOrdersByStatus("pending");
-                for(Order orderSample : pendingOrderList){
-                    orderSample.includeTable();
-                }
-                request.setAttribute("orderList", pendingOrderList);
-                request.getRequestDispatcher("/WEB-INF/View/Chef/ChefOrderListPending.jsp").forward(request, response);
-        }else if("reject".equals(action)){
+            for (Order orderSample : pendingOrderList) {
+                orderSample.includeTable();
+            }
+            request.setAttribute("orderList", pendingOrderList);
+            request.getRequestDispatcher("/WEB-INF/View/Chef/ChefOrderListPending.jsp").forward(request, response);
+        } else if ("reject".equals(action)) {
             //change order status
             int orderId = Integer.parseInt(request.getParameter("orderId"));
             Order order = OrderDAO.getOrderById(orderId);
             order.setStatus("rejected");
             order = OrderDAO.updateOrderStatus(order);
-            
+
             //add reject note
             String reason = request.getParameter("reason");
             order = OrderDAO.updateOrderNoteAppending(order, "Rejected: " + reason);
-            
+
             //view pending or doing orders list
             String pageStatus = request.getParameter("pageStatus");
-            if("pending".equals(pageStatus)){
+            if ("pending".equals(pageStatus)) {
                 ArrayList<Order> pendingOrderList = OrderDAO.getOrdersByStatus("pending");
-                for(Order orderSample : pendingOrderList){
+                for (Order orderSample : pendingOrderList) {
                     orderSample.includeTable();
                 }
                 request.setAttribute("orderList", pendingOrderList);
                 request.getRequestDispatcher("/WEB-INF/View/Chef/ChefOrderListPending.jsp").forward(request, response);
-            }else{
+            } else {
                 ArrayList<Order> pendingOrderList = OrderDAO.getOrdersByStatus("doing");
-                for(Order orderSample : pendingOrderList){
+                for (Order orderSample : pendingOrderList) {
                     orderSample.includeTable();
                 }
                 request.setAttribute("orderList", pendingOrderList);
                 request.getRequestDispatcher("/WEB-INF/View/Chef/ChefOrderListDoing.jsp").forward(request, response);
             }
-        }else if("complete".equals(action)){
+        } else if ("complete".equals(action)) {
             //change order status
             int orderId = Integer.parseInt(request.getParameter("orderId"));
             Order order = OrderDAO.getOrderById(orderId);
             order.setStatus("completed");
             order = OrderDAO.updateOrderStatus(order);
-            
+
             //view doing orders list
             ArrayList<Order> pendingOrderList = OrderDAO.getOrdersByStatus("doing");
-                for(Order orderSample : pendingOrderList){
-                    orderSample.includeTable();
-                }
-                request.setAttribute("orderList", pendingOrderList);
-                request.getRequestDispatcher("/WEB-INF/View/Chef/ChefOrderListDoing.jsp").forward(request, response);
+            for (Order orderSample : pendingOrderList) {
+                orderSample.includeTable();
+            }
+            request.setAttribute("orderList", pendingOrderList);
+            request.getRequestDispatcher("/WEB-INF/View/Chef/ChefOrderListDoing.jsp").forward(request, response);
         }
     }
 
