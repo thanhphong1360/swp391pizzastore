@@ -4,10 +4,12 @@
  */
 package model;
 
+import dal.OrderFoodDAO;
 import dal.TableDAO;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import dal.UserDAO;
+import java.util.ArrayList;
 
 /**
  *
@@ -27,6 +29,8 @@ public class Order {
     private Table table;
     private User waiter;
     private User chef;
+    
+    private ArrayList<OrderFood> orderFoodList;
 
     public Order() {
     }
@@ -138,6 +142,14 @@ public class Order {
 
     public User getChef() {
         return this.chef;
+    }
+    
+    public void includeOrderFood(){
+        this.orderFoodList = OrderFoodDAO.getOrderFoodsByOrderId(this.orderId);
+    }
+    
+    public ArrayList<OrderFood> getOrderFoodList(){
+        return this.orderFoodList;
     }
     
 }

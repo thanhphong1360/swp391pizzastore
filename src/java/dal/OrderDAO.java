@@ -209,4 +209,38 @@ public class OrderDAO {
         }
         return rs == 0 ? null : order;
     }
+    
+    public static ArrayList<Order> getOrdersByInvoiceId(int invoiceId) {
+        ArrayList<Order> list = new ArrayList<>();
+        DBContext dbc = DBContext.getInstance();
+        String sql = "SELECT * FROM Orders WHERE invoice_id = ?";
+        try {
+            PreparedStatement statement = dbc.getConnection().prepareStatement(sql);
+            statement.setInt(1, invoiceId);
+            ResultSet rs = statement.executeQuery();
+            while (rs.next()) {
+                Order order = new Order(rs.getInt("order_id"),
+                                        rs.getInt("invoice_id"),
+                                        rs.getInt("waiter_id"),
+                                        rs.getInt("chef_id"),
+                                        rs.getInt("table_id"),
+                                        rs.getString("status"),
+                                        rs.getBigDecimal("price"),
+                                        rs.getString("note"),
+                                        rs.getTimestamp("created_at") == null ? null : rs.getTimestamp("created_at").toLocalDateTime());
+                list.add(order);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+        return list.isEmpty() ? null : list;
+    }
+    
+    public static void main(String[] args) {
+        ArrayList<Order> list = getOrdersByInvoiceId(3);
+        for(Order order : list){
+            System.out.println(order.getOrderId()+" "+order.getPrice());
+        }
+    }
 }

@@ -5,7 +5,11 @@
 package dal;
 
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.util.ArrayList;
 import model.InvoiceTable;
+import model.Order;
+import model.Table;
 
 /**
  *
@@ -29,5 +33,33 @@ public class InvoiceTableDAO {
             return null;
         }
         return rs == 0 ? null : invoiceTable;
+    }
+    
+    public static ArrayList<InvoiceTable> getTableIdsByInvoiceId(int invoiceId) {
+        ArrayList<InvoiceTable> list = new ArrayList<>();
+        DBContext dbc = DBContext.getInstance();
+        String sql = "SELECT * FROM InvoiceTables WHERE invoice_id = ?";
+        try {
+            PreparedStatement statement = dbc.getConnection().prepareStatement(sql);
+            statement.setInt(1, invoiceId);
+            ResultSet rs = statement.executeQuery();
+            while (rs.next()) {
+                InvoiceTable invoiceTable = new InvoiceTable();
+                invoiceTable.setInvoiceId(rs.getInt("invoice_id"));
+                invoiceTable.setTableId(rs.getInt("table_id"));
+                list.add(invoiceTable);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+        return list.isEmpty() ? null : list;
+    }
+    
+    public static void main(String[] args) {
+        ArrayList<InvoiceTable> list = getTableIdsByInvoiceId(4);
+        for(InvoiceTable ivt : list){
+            System.out.println(" n "+ ivt.getTableId());
+        }
     }
 }

@@ -23,6 +23,8 @@ public class Invoice {
     private LocalDateTime createdAt;
     private LocalDateTime paidAt;
     private String note;
+    
+    private String tableNumbers;
 
     public Invoice() {
     }
@@ -129,6 +131,14 @@ public class Invoice {
 
     public void setNote(String note) {
         this.note = note;
+    }
+
+    public String getTableNumbers() {
+        return tableNumbers;
+    }
+
+    public void setTableNumbers(String tableNumbers) {
+        this.tableNumbers = tableNumbers;
     }
     
     
