@@ -61,6 +61,11 @@ public class IngredientServlet extends HttpServlet {
                 }
                 break;
             }
+            case "chef":
+                List<Ingredient> listChef = dao.getAll();
+                req.setAttribute("list", listChef);
+                req.getRequestDispatcher("WEB-INF/View/admin/ingredients/chefview.jsp").forward(req, resp);
+                break;
 
             default:
                 List<Ingredient> list = dao.getAll();
@@ -76,6 +81,28 @@ public class IngredientServlet extends HttpServlet {
         req.setCharacterEncoding("UTF-8");
         String action = req.getParameter("action");
 
+        if ("updateQuantity".equals(action)) {
+            try {
+                int id = Integer.parseInt(req.getParameter("id"));
+                double newQuantity = Double.parseDouble(req.getParameter("quantity"));
+
+                if (newQuantity < 0) {
+                    resp.sendRedirect("ingredients?message=invalidQuantity");
+                    return;
+                }
+
+                boolean updated = dao.updateQuantity(id, newQuantity);
+                if (updated) {
+                    resp.sendRedirect("ingredients?action=chef&message=quantityUpdated");
+                } else {
+                    resp.sendRedirect("ingredients?action=chef&message=error");
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                resp.sendRedirect("ingredients?action=chef&message=error");
+            }
+            return; // ⚠️ Dừng lại, không cho chạy tiếp các phần add/edit
+        }
         String idStr = req.getParameter("id");
         String name = req.getParameter("name");
         String description = req.getParameter("description");

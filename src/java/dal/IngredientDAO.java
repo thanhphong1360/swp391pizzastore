@@ -5,6 +5,7 @@ import java.util.*;
 import model.Ingredient;
 
 public class IngredientDAO {
+
     private Connection conn;
 
     public IngredientDAO() {
@@ -16,8 +17,7 @@ public class IngredientDAO {
         List<Ingredient> list = new ArrayList<>();
         String sql = "SELECT * FROM Ingredients ORDER BY ingredient_id DESC";
 
-        try (PreparedStatement ps = conn.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
+        try (PreparedStatement ps = conn.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
 
             while (rs.next()) {
                 Ingredient ing = new Ingredient(
@@ -66,7 +66,7 @@ public class IngredientDAO {
     // ➕ Thêm mới nguyên liệu
     public boolean insert(Ingredient ing) {
         String sql = "INSERT INTO Ingredients(name, description, unit, quantity, status, updated_at) "
-                   + "VALUES (?, ?, ?, ?, ?, GETDATE())";
+                + "VALUES (?, ?, ?, ?, ?, GETDATE())";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, ing.getName());
             ps.setString(2, ing.getDescription());
@@ -82,8 +82,8 @@ public class IngredientDAO {
 
     public boolean update(Ingredient ing) {
         String sql = "UPDATE Ingredients "
-                   + "SET name = ?, description = ?, unit = ?, quantity = ?, status = ?, updated_at = GETDATE() "
-                   + "WHERE ingredient_id = ?";
+                + "SET name = ?, description = ?, unit = ?, quantity = ?, status = ?, updated_at = GETDATE() "
+                + "WHERE ingredient_id = ?";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, ing.getName());
             ps.setString(2, ing.getDescription());
@@ -129,18 +129,28 @@ public class IngredientDAO {
         return false;
     }
 
-    
     public boolean updateStatus(int id, boolean newStatus) {
-    String sql = "UPDATE Ingredients SET status = ?, updated_at = GETDATE() WHERE ingredient_id = ?";
-    try (PreparedStatement ps = conn.prepareStatement(sql)) {
-        ps.setBoolean(1, newStatus);
-        ps.setInt(2, id);
-        return ps.executeUpdate() > 0;
-    } catch (SQLException e) {
-        e.printStackTrace();
-        return false;
+        String sql = "UPDATE Ingredients SET status = ?, updated_at = GETDATE() WHERE ingredient_id = ?";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setBoolean(1, newStatus);
+            ps.setInt(2, id);
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
     }
-}
 
+    public boolean updateQuantity(int ingredientId, double newQuantity) {
+        String sql = "UPDATE Ingredients SET quantity = ? WHERE ingredient_id = ?";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setDouble(1, newQuantity);
+            ps.setInt(2, ingredientId);
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            System.err.println("❌ Update quantity failed: " + e.getMessage());
+            return false;
+        }
+    }
 
 }

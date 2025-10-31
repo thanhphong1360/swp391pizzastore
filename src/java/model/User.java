@@ -1,26 +1,18 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package model;
 
-/**
- *
- * @author HP
- */
 import java.util.Date;
 
 public class User {
-
     private int userId;
     private int roleId;
+    private String roleName; // 🆕 thêm nếu cần hiển thị tên role
     private String email;
     private String password;
     private String name;
     private Date createdAt;
+    private boolean status; // 🆕 thêm trạng thái (true = active, false = inactive)
 
-    public User() {
-    }
+    public User() {}
 
     public User(int userId, int roleId, String email, String password, String name, Date createdAt) {
         this.userId = userId;
@@ -31,6 +23,7 @@ public class User {
         this.createdAt = createdAt;
     }
 
+    // ✅ Getter & Setter đầy đủ
     public int getUserId() {
         return userId;
     }
@@ -45,6 +38,14 @@ public class User {
 
     public void setRoleId(int roleId) {
         this.roleId = roleId;
+    }
+
+    public String getRoleName() {
+        return roleName;
+    }
+
+    public void setRoleName(String roleName) {
+        this.roleName = roleName;
     }
 
     public String getEmail() {
@@ -79,4 +80,11 @@ public class User {
         this.createdAt = createdAt;
     }
 
+    public boolean isStatus() {
+        return status;
+    }
+
+    public void setStatus(boolean status) {
+        this.status = status;
+    }
 }
