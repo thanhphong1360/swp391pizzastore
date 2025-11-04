@@ -2,14 +2,14 @@ package controller;
 
 import dal.IngredientDAO;
 import jakarta.servlet.ServletException;
-import jakarta.servlet.annotation.WebServlet;
+
 import jakarta.servlet.http.*;
 import java.io.IOException;
 import java.util.List;
 import model.Ingredient;
 import util.AuditLogger;
 
-@WebServlet("/ingredients")
+
 public class IngredientServlet extends HttpServlet {
 
     private final IngredientDAO dao = new IngredientDAO();
@@ -26,13 +26,13 @@ public class IngredientServlet extends HttpServlet {
 
         switch (action) {
             case "add":
-                req.getRequestDispatcher("WEB-INF/View/admin/ingredients/add.jsp").forward(req, resp);
+                req.getRequestDispatcher("/WEB-INF/View/admin/ingredients/add.jsp").forward(req, resp);
                 break;
 
             case "edit":
                 int id = Integer.parseInt(req.getParameter("id"));
                 req.setAttribute("ingredient", dao.getById(id));
-                req.getRequestDispatcher("WEB-INF/View/admin/ingredients/edit.jsp").forward(req, resp);
+                req.getRequestDispatcher("/WEB-INF/View/admin/ingredients/edit.jsp").forward(req, resp);
                 break;
 
             case "toggle":
@@ -42,7 +42,7 @@ public class IngredientServlet extends HttpServlet {
             default:
                 List<Ingredient> list = dao.getAll();
                 req.setAttribute("list", list);
-                req.getRequestDispatcher("WEB-INF/View/admin/ingredients/list.jsp").forward(req, resp);
+                req.getRequestDispatcher("/WEB-INF/View/admin/ingredients/list.jsp").forward(req, resp);
         }
     }
 
@@ -112,9 +112,9 @@ public class IngredientServlet extends HttpServlet {
             if ("edit".equals(action)) {
                 int id = Integer.parseInt(idStr);
                 req.setAttribute("ingredient", dao.getById(id));
-                req.getRequestDispatcher("WEB-INF/View/admin/ingredients/edit.jsp").forward(req, resp);
+                req.getRequestDispatcher("/WEB-INF/View/admin/ingredients/edit.jsp").forward(req, resp);
             } else {
-                req.getRequestDispatcher("WEB-INF/View/admin/ingredients/add.jsp").forward(req, resp);
+                req.getRequestDispatcher("/WEB-INF/View/admin/ingredients/add.jsp").forward(req, resp);
             }
             return;
         }
@@ -138,7 +138,7 @@ public class IngredientServlet extends HttpServlet {
         if ("add".equals(action)) {
             if (dao.existsByName(name)) {
                 req.setAttribute("errorMessage", "❌ Ingredient name already exists!");
-                req.getRequestDispatcher("WEB-INF/View/admin/ingredients/add.jsp").forward(req, resp);
+                req.getRequestDispatcher("/WEB-INF/View/admin/ingredients/add.jsp").forward(req, resp);
                 return;
             }
 
@@ -148,7 +148,7 @@ public class IngredientServlet extends HttpServlet {
                 resp.sendRedirect("ingredients?message=added");
             } else {
                 req.setAttribute("errorMessage", "❌ Insert failed!");
-                req.getRequestDispatcher("WEB-INF/View/admin/ingredients/add.jsp").forward(req, resp);
+                req.getRequestDispatcher("/WEB-INF/View/admin/ingredients/add.jsp").forward(req, resp);
             }
 
         // ✏️ EDIT
@@ -159,7 +159,7 @@ public class IngredientServlet extends HttpServlet {
             if (dao.existsByNameExceptId(name, id)) {
                 req.setAttribute("errorMessage", "❌ Ingredient name already exists!");
                 req.setAttribute("ingredient", dao.getById(id));
-                req.getRequestDispatcher("WEB-INF/View/admin/ingredients/edit.jsp").forward(req, resp);
+                req.getRequestDispatcher("/WEB-INF/View/admin/ingredients/edit.jsp").forward(req, resp);
                 return;
             }
 
@@ -168,7 +168,7 @@ public class IngredientServlet extends HttpServlet {
                 resp.sendRedirect("ingredients?message=updated");
             } else {
                 req.setAttribute("errorMessage", "❌ Update failed!");
-                req.getRequestDispatcher("WEB-INF/View/admin/ingredients/edit.jsp").forward(req, resp);
+                req.getRequestDispatcher("/WEB-INF/View/admin/ingredients/edit.jsp").forward(req, resp);
             }
         }
     }

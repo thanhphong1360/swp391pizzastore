@@ -2,14 +2,13 @@ package controller;
 
 import dal.UserDAO;
 import jakarta.servlet.ServletException;
-import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
 import java.io.IOException;
 import java.util.List;
 import model.User;
 import util.AuditLogger;
 
-@WebServlet("/users")
+
 public class UserServlet extends HttpServlet {
 
     private final UserDAO userDAO = new UserDAO();
@@ -26,13 +25,13 @@ public class UserServlet extends HttpServlet {
 
         switch (action) {
             case "add":
-                req.getRequestDispatcher("WEB-INF/View/admin/users/add.jsp").forward(req, resp);
+                req.getRequestDispatcher("/WEB-INF/View/admin/users/add.jsp").forward(req, resp);
                 break;
 
             case "edit":
                 int id = Integer.parseInt(req.getParameter("id"));
                 req.setAttribute("user", userDAO.getById(id));
-                req.getRequestDispatcher("WEB-INF/View/admin/users/edit.jsp").forward(req, resp);
+                req.getRequestDispatcher("/WEB-INF/View/admin/users/edit.jsp").forward(req, resp);
                 break;
 
             case "toggle":
@@ -42,7 +41,7 @@ public class UserServlet extends HttpServlet {
             default:
                 List<User> list = userDAO.getAll();
                 req.setAttribute("list", list);
-                req.getRequestDispatcher("WEB-INF/View/admin/users/list.jsp").forward(req, resp);
+                req.getRequestDispatcher("/WEB-INF/View/admin/users/list.jsp").forward(req, resp);
         }
     }
 
@@ -97,8 +96,8 @@ public class UserServlet extends HttpServlet {
 
             req.setAttribute("errorMessage", errorMessage);
             String page = "add".equals(action)
-                    ? "WEB-INF/View/admin/users/add.jsp"
-                    : "WEB-INF/View/admin/users/edit.jsp";
+                    ? "/WEB-INF/View/admin/users/add.jsp"
+                    : "/WEB-INF/View/admin/users/edit.jsp";
             req.getRequestDispatcher(page).forward(req, resp);
             return;
         }
@@ -107,8 +106,8 @@ public class UserServlet extends HttpServlet {
         if (!email.matches("^[\\w.%+-]+@[\\w.-]+\\.[a-zA-Z]{2,6}$")) {
             req.setAttribute("errorMessage", "⚠ Invalid email format.");
             String page = "add".equals(action)
-                    ? "WEB-INF/View/admin/users/add.jsp"
-                    : "WEB-INF/View/admin/users/edit.jsp";
+                    ? "/WEB-INF/View/admin/users/add.jsp"
+                    : "/WEB-INF/View/admin/users/edit.jsp";
             req.getRequestDispatcher(page).forward(req, resp);
             return;
         }
@@ -124,7 +123,7 @@ public class UserServlet extends HttpServlet {
         if ("add".equals(action)) {
             if (userDAO.existsByEmail(email)) {
                 req.setAttribute("errorMessage", "⚠ Email already exists!");
-                req.getRequestDispatcher("WEB-INF/View/admin/users/add.jsp").forward(req, resp);
+                req.getRequestDispatcher("/WEB-INF/View/admin/users/add.jsp").forward(req, resp);
                 return;
             }
 
@@ -134,7 +133,7 @@ public class UserServlet extends HttpServlet {
                 resp.sendRedirect("users?message=added");
             } else {
                 req.setAttribute("errorMessage", "❌ Insert failed!");
-                req.getRequestDispatcher("WEB-INF/View/admin/users/add.jsp").forward(req, resp);
+                req.getRequestDispatcher("/WEB-INF/View/admin/users/add.jsp").forward(req, resp);
             }
 
         // ✏️ EDIT
@@ -145,7 +144,7 @@ public class UserServlet extends HttpServlet {
             User old = userDAO.getById(userId);
             if (old != null && !old.getEmail().equalsIgnoreCase(email) && userDAO.existsByEmail(email)) {
                 req.setAttribute("errorMessage", "⚠ This email is already used by another user!");
-                req.getRequestDispatcher("WEB-INF/View/admin/users/edit.jsp").forward(req, resp);
+                req.getRequestDispatcher("/WEB-INF/View/admin/users/edit.jsp").forward(req, resp);
                 return;
             }
 
@@ -154,7 +153,7 @@ public class UserServlet extends HttpServlet {
                 resp.sendRedirect("users?message=updated");
             } else {
                 req.setAttribute("errorMessage", "❌ Update failed. Please try again.");
-                req.getRequestDispatcher("WEB-INF/View/admin/users/edit.jsp").forward(req, resp);
+                req.getRequestDispatcher("/WEB-INF/View/admin/users/edit.jsp").forward(req, resp);
             }
         }
     }

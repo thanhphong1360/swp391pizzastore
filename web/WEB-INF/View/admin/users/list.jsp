@@ -6,7 +6,7 @@
         <title>User Management</title>
         <!-- 🔙 Back to Home -->
     <div style="text-align:right; margin-bottom:15px;">
-        <a href="Home" class="home-btn">🏠 Back to Home</a>
+        <a href="${pageContext.request.contextPath}/Home" class="home-btn">🏠 Back to Home</a>
     </div>
     <style>
         body {
@@ -156,7 +156,7 @@
             <div class="alert alert-success">♻ User restored successfully!</div>
         </c:if>
 
-        <a href="users?action=add" class="add-btn">➕ Add User</a>
+        <a href="${pageContext.request.contextPath}/manager/users?action=add" class="add-btn">➕ Add User</a>
 
         <div style="overflow-x:auto;">
             <table>
@@ -189,15 +189,15 @@
                         <td>
                             <c:choose>
                                 <c:when test="${u.status}">
-                                    <a href="users?action=edit&id=${u.userId}" class="action edit">✏ Edit</a>
-                                    <a href="users?action=toggle&id=${u.userId}"
+                                    <a href="${pageContext.request.contextPath}/manager/users?action=edit&id=${u.userId}" class="action edit">✏ Edit</a>
+                                    <a href="${pageContext.request.contextPath}/manager/users?action=toggle&id=${u.userId}"
                                        class="action toggle"
                                        onclick="return confirm('Deactivate this user?');">
                                         📴 Deactivate
                                     </a>
                                 </c:when>
                                 <c:otherwise>
-                                    <a href="users?action=toggle&id=${u.userId}"
+                                    <a href="${pageContext.request.contextPath}/manager/users?action=toggle&id=${u.userId}"
                                        class="action restore"
                                        onclick="return confirm('Restore this user?');">
                                         ♻ Restore

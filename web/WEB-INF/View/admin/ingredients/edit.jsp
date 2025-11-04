@@ -86,7 +86,7 @@
 
                 <button type="submit">Update</button>
             </form>
-            <a href="${pageContext.request.contextPath}/ingredients">← Back to list</a>
+            <a href="${pageContext.request.contextPath}/manager/ingredients">← Back to list</a>
         </div>
     </body>
 </html>

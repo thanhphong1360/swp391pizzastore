@@ -5,7 +5,7 @@
         <title>Ingredient Management</title>
         <!-- 🔙 Back to Home -->
     <div style="text-align:right; margin-bottom:15px;">
-        <a href="Home" class="home-btn">🏠 Back to Home</a>
+        <a href="${pageContext.request.contextPath}/Home" class="home-btn">🏠 Back to Home</a>
     </div>
     <style>
         body {
@@ -148,7 +148,8 @@
             <div class="alert alert-success">♻ Ingredient restored successfully!</div>
         </c:if>
 
-        <a href="ingredients?action=add" class="add-btn">➕ Add Ingredient</a>
+     <a href="${pageContext.request.contextPath}/manager/ingredients?action=add" class="add-btn">➕ Add Ingredient</a>
+
        
 
         <table>
@@ -183,15 +184,15 @@
                     <td>
                         <c:choose>
                             <c:when test="${i.status}">
-                                <a href="ingredients?action=edit&id=${i.ingredientId}" class="action edit">✏ Edit</a>
-                                <a href="ingredients?action=toggle&id=${i.ingredientId}" 
+                                <a href="${pageContext.request.contextPath}/manager/ingredients?action=edit&id=${i.ingredientId}" class="action edit">✏ Edit</a>
+                               <a href="${pageContext.request.contextPath}/manager/ingredients?action=toggle&id=${i.ingredientId}" 
                                    class="action delete"
                                    onclick="return confirm('Are you sure you want to deactivate this ingredient?');">
                                     🗑 Deactivate
                                 </a>
                             </c:when>
                             <c:otherwise>
-                                <a href="ingredients?action=toggle&id=${i.ingredientId}" 
+                                <a href="${pageContext.request.contextPath}/manager/ingredients?action=toggle&id=${i.ingredientId}" 
                                    class="action restore"
                                    onclick="return confirm('Do you want to restore this ingredient?');">
                                     ♻ Restore
