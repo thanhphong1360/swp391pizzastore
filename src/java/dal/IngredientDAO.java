@@ -3,6 +3,7 @@ package dal;
 import java.sql.*;
 import java.util.*;
 import model.Ingredient;
+import java.sql.Statement;
 
 public class IngredientDAO {
 
@@ -12,7 +13,6 @@ public class IngredientDAO {
         this.conn = DBContext.getInstance().getConnection();
     }
 
-    // 🧾 Lấy tất cả nguyên liệu (chỉ lấy những cái đang active)
     public List<Ingredient> getAll() {
         List<Ingredient> list = new ArrayList<>();
         String sql = "SELECT * FROM Ingredients ORDER BY ingredient_id DESC";
@@ -38,7 +38,6 @@ public class IngredientDAO {
         return list;
     }
 
-    // 🔍 Lấy nguyên liệu theo ID
     public Ingredient getById(int id) {
         String sql = "SELECT * FROM Ingredients WHERE ingredient_id = ?";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -63,9 +62,9 @@ public class IngredientDAO {
         return null;
     }
 
-    // ➕ Thêm mới nguyên liệu
-    public boolean insert(Ingredient ing) {
+    public int insert(Ingredient ing) {
         String sql = "INSERT INTO Ingredients(name, description, unit, quantity, status, updated_at) "
+                + "OUTPUT INSERTED.ingredient_id "
                 + "VALUES (?, ?, ?, ?, ?, GETDATE())";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, ing.getName());
@@ -73,11 +72,15 @@ public class IngredientDAO {
             ps.setString(3, ing.getUnit());
             ps.setDouble(4, ing.getQuantity());
             ps.setBoolean(5, ing.isStatus());
-            return ps.executeUpdate() > 0;
+
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
         } catch (SQLException e) {
             System.err.println("❌ Insert ingredient failed: " + e.getMessage());
-            return false;
         }
+        return -1;
     }
 
     public boolean update(Ingredient ing) {
@@ -98,7 +101,6 @@ public class IngredientDAO {
         }
     }
 
-    // 🔎 Kiểm tra trùng tên khi thêm mới (chỉ kiểm tra với status = 1)
     public boolean existsByName(String name) {
         String sql = "SELECT COUNT(*) FROM Ingredients WHERE name = ? AND status = 1";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -113,7 +115,6 @@ public class IngredientDAO {
         return false;
     }
 
-    // 🔎 Kiểm tra trùng tên khi edit (ngoại trừ chính nó, và chỉ tính status = 1)
     public boolean existsByNameExceptId(String name, int id) {
         String sql = "SELECT COUNT(*) FROM Ingredients WHERE name = ? AND ingredient_id <> ? AND status = 1";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -141,16 +142,18 @@ public class IngredientDAO {
         }
     }
 
-    public boolean updateQuantity(int ingredientId, double newQuantity) {
-        String sql = "UPDATE Ingredients SET quantity = ? WHERE ingredient_id = ?";
-        try (PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setDouble(1, newQuantity);
-            ps.setInt(2, ingredientId);
-            return ps.executeUpdate() > 0;
-        } catch (SQLException e) {
-            System.err.println("❌ Update quantity failed: " + e.getMessage());
-            return false;
-        }
+public boolean updateQuantity(int ingredientId, double newQuantity) {
+    String sql = "UPDATE Ingredients SET quantity = ?, updated_at = GETDATE() WHERE ingredient_id = ?";
+    try (PreparedStatement ps = conn.prepareStatement(sql)) {
+        ps.setDouble(1, newQuantity);
+        ps.setInt(2, ingredientId);
+        return ps.executeUpdate() > 0;
+    } catch (SQLException e) {
+        System.err.println("❌ Update quantity failed: " + e.getMessage());
+        return false;
     }
+}
+
+
 
 }

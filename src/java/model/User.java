@@ -3,16 +3,18 @@ package model;
 import java.util.Date;
 
 public class User {
+
     private int userId;
     private int roleId;
-    private String roleName; // 🆕 thêm nếu cần hiển thị tên role
+    private String roleName;
     private String email;
     private String password;
     private String name;
     private Date createdAt;
-    private boolean status; // 🆕 thêm trạng thái (true = active, false = inactive)
+    private boolean status;
 
-    public User() {}
+    public User() {
+    }
 
     public User(int userId, int roleId, String email, String password, String name, Date createdAt) {
         this.userId = userId;
@@ -23,7 +25,6 @@ public class User {
         this.createdAt = createdAt;
     }
 
-    // ✅ Getter & Setter đầy đủ
     public int getUserId() {
         return userId;
     }

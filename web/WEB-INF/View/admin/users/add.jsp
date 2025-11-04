@@ -74,12 +74,11 @@
 
                 <label>Role ID:</label>
                 <select name="roleId" required>
-                    <option value="1">Manager</option>
                     <option value="2">Cashier</option>
                     <option value="3">Chef</option>
-                    <option value="3">Waiter</option>
-                    <option value="3">DeliveryStaff</option>
-                    <option value="3">Customer</option>
+                    <option value="4">Waiter</option>
+                    <option value="5">DeliveryStaff</option>
+                    <option value="6">Customer</option>
 
                 </select>
 

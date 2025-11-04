@@ -4,10 +4,6 @@
  */
 package dal;
 
-/**
- *
- * @author HP
- */
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -64,7 +60,7 @@ public class UserDAO {
             PreparedStatement ps = conn.prepareStatement(sql);
             ps.setString(1, email);
             ResultSet rs = ps.executeQuery();
-            return rs.next(); // nếu có kết quả tức là email tồn tại
+            return rs.next();
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -166,10 +162,10 @@ public class UserDAO {
         return null;
     }
 
-    // ✅ Thêm user mới
-    public boolean insert(User u) {
+    public int insert(User u) {
         String sql = """
         INSERT INTO Users (role_id, email, password, name, created_at, status)
+        OUTPUT INSERTED.user_id
         VALUES (?, ?, ?, ?, GETDATE(), 1)
     """;
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -177,15 +173,17 @@ public class UserDAO {
             ps.setString(2, u.getEmail());
             ps.setString(3, u.getPassword());
             ps.setString(4, u.getName());
-            return ps.executeUpdate() > 0;
+
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
         } catch (SQLException e) {
             System.err.println("❌ Insert user failed: " + e.getMessage());
-            e.printStackTrace();
-            return false;
         }
+        return -1;
     }
 
-    // ✅ Cập nhật user
     public boolean update(User u) {
         String sql = "UPDATE Users SET role_id=?, email=?, password=?, name=? WHERE user_id=?";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -201,7 +199,6 @@ public class UserDAO {
         return false;
     }
 
-    // ✅ Kiểm tra trùng email
     public boolean existsByEmail(String email) {
         String sql = "SELECT COUNT(*) FROM Users WHERE email = ?";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {

@@ -149,7 +149,7 @@
         </c:if>
 
         <a href="ingredients?action=add" class="add-btn">➕ Add Ingredient</a>
-        <a href="ingredients?action=chef" class="chef-btn">👨‍🍳 Update Quantity</a>
+       
 
         <table>
             <tr>

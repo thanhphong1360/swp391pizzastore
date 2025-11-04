@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
- */
 package controller;
 
 import dal.IngredientDAO;
@@ -9,62 +5,38 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
 import java.io.IOException;
-import model.Ingredient;
 import java.util.List;
+import model.Ingredient;
+import util.AuditLogger;
 
 @WebServlet("/ingredients")
 public class IngredientServlet extends HttpServlet {
 
-    private IngredientDAO dao = new IngredientDAO();
+    private final IngredientDAO dao = new IngredientDAO();
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
 
+        HttpSession session = req.getSession();
+        Integer currentUserId = (Integer) session.getAttribute("userId");
+
         String action = req.getParameter("action");
-        if (action == null) {
-            action = "list";
-        }
+        if (action == null) action = "list";
 
         switch (action) {
             case "add":
                 req.getRequestDispatcher("WEB-INF/View/admin/ingredients/add.jsp").forward(req, resp);
                 break;
+
             case "edit":
                 int id = Integer.parseInt(req.getParameter("id"));
                 req.setAttribute("ingredient", dao.getById(id));
                 req.getRequestDispatcher("WEB-INF/View/admin/ingredients/edit.jsp").forward(req, resp);
                 break;
 
-            case "toggle": {
-                // Bọc trong block, đặt tên biến rõ ràng
-                int toggleId = Integer.parseInt(req.getParameter("id"));
-                Ingredient target = dao.getById(toggleId);
-
-                if (target == null) {
-                    // nếu không tìm thấy -> redirect với lỗi
-                    resp.sendRedirect("ingredients?message=error");
-                    break;
-                }
-
-                boolean currentStatus = target.isStatus();
-                boolean updated = dao.updateStatus(toggleId, !currentStatus); // đảm bảo dao có method updateStatus
-
-                if (updated) {
-                    if (currentStatus) {
-                        resp.sendRedirect("ingredients?message=deactivated");
-                    } else {
-                        resp.sendRedirect("ingredients?message=restored");
-                    }
-                } else {
-                    resp.sendRedirect("ingredients?message=error");
-                }
-                break;
-            }
-            case "chef":
-                List<Ingredient> listChef = dao.getAll();
-                req.setAttribute("list", listChef);
-                req.getRequestDispatcher("WEB-INF/View/admin/ingredients/chefview.jsp").forward(req, resp);
+            case "toggle":
+                handleToggle(req, resp, currentUserId);
                 break;
 
             default:
@@ -74,45 +46,52 @@ public class IngredientServlet extends HttpServlet {
         }
     }
 
+    private void handleToggle(HttpServletRequest req, HttpServletResponse resp, Integer currentUserId)
+            throws IOException {
+        int toggleId = Integer.parseInt(req.getParameter("id"));
+        Ingredient target = dao.getById(toggleId);
+
+        if (target == null) {
+            resp.sendRedirect("ingredients?message=error");
+            return;
+        }
+
+        boolean currentStatus = target.isStatus();
+        boolean updated = dao.updateStatus(toggleId, !currentStatus);
+
+        if (updated) {
+            String actionType = currentStatus ? "DEACTIVATE" : "RESTORE";
+            String desc = (currentStatus ? "Deactivated " : "Restored ") + "ingredient: " + target.getName();
+            AuditLogger.log(currentUserId, actionType, "Ingredients", target.getIngredientId(), desc);
+
+            resp.sendRedirect("ingredients?message=" + (currentStatus ? "deactivated" : "restored"));
+        } else {
+            resp.sendRedirect("ingredients?message=error");
+        }
+    }
+
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
 
         req.setCharacterEncoding("UTF-8");
+        HttpSession session = req.getSession();
+        Integer currentUserId = (Integer) session.getAttribute("userId");
+
         String action = req.getParameter("action");
 
-        if ("updateQuantity".equals(action)) {
-            try {
-                int id = Integer.parseInt(req.getParameter("id"));
-                double newQuantity = Double.parseDouble(req.getParameter("quantity"));
-
-                if (newQuantity < 0) {
-                    resp.sendRedirect("ingredients?message=invalidQuantity");
-                    return;
-                }
-
-                boolean updated = dao.updateQuantity(id, newQuantity);
-                if (updated) {
-                    resp.sendRedirect("ingredients?action=chef&message=quantityUpdated");
-                } else {
-                    resp.sendRedirect("ingredients?action=chef&message=error");
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-                resp.sendRedirect("ingredients?action=chef&message=error");
-            }
-            return; // ⚠️ Dừng lại, không cho chạy tiếp các phần add/edit
-        }
+        // 🧾 Lấy dữ liệu từ form
         String idStr = req.getParameter("id");
         String name = req.getParameter("name");
         String description = req.getParameter("description");
         String unit = req.getParameter("unit");
         String quantityStr = req.getParameter("quantity");
-        String statusStr = req.getParameter("status"); // 🔹 thêm dòng này
+        String statusStr = req.getParameter("status");
 
         String error = null;
         double quantity = 0;
 
+        // 🔹 Validate input
         if (name == null || name.trim().isEmpty() || name.length() > 50) {
             error = "❌ Name must be between 1–50 characters.";
         } else if (description != null && description.length() > 200) {
@@ -122,9 +101,7 @@ public class IngredientServlet extends HttpServlet {
         } else {
             try {
                 quantity = Double.parseDouble(quantityStr);
-                if (quantity < 0) {
-                    error = "❌ Quantity must be a positive number.";
-                }
+                if (quantity < 0) error = "❌ Quantity must be positive.";
             } catch (NumberFormatException e) {
                 error = "❌ Invalid quantity value.";
             }
@@ -142,49 +119,39 @@ public class IngredientServlet extends HttpServlet {
             return;
         }
 
-        // 🔹 Xử lý object Ingredient
+        // 🔹 Tạo đối tượng ingredient
         Ingredient ing = new Ingredient();
         ing.setName(name.trim());
         ing.setDescription(description != null ? description.trim() : "");
         ing.setUnit(unit.trim());
         ing.setQuantity(quantity);
-        // Nếu đang edit, giữ lại status hiện có trong DB khi form không gửi status
+
         if ("edit".equals(action)) {
             int id = Integer.parseInt(idStr);
             Ingredient existing = dao.getById(id);
-            boolean keepStatus = (statusStr == null); // true nếu form không gửi status
-            if (existing != null) {
-                if (keepStatus) {
-                    ing.setStatus(existing.isStatus()); // giữ nguyên
-                } else {
-                    ing.setStatus("1".equals(statusStr));
-                }
-            } else {
-                // fallback: nếu không tìm thấy existing thì mặc định active
-                ing.setStatus("1".equals(statusStr));
-            }
+            ing.setStatus(existing != null ? existing.isStatus() : true);
         } else {
-            // add case: nếu không có status field, mặc định active
-            if (statusStr == null) {
-                ing.setStatus(true);
-            } else {
-                ing.setStatus("1".equals(statusStr));
-            }
+            ing.setStatus(true);
         }
 
-        // 🔸 Thêm mới
+        // ➕ ADD
         if ("add".equals(action)) {
-
             if (dao.existsByName(name)) {
                 req.setAttribute("errorMessage", "❌ Ingredient name already exists!");
                 req.getRequestDispatcher("WEB-INF/View/admin/ingredients/add.jsp").forward(req, resp);
                 return;
             }
 
-            dao.insert(ing);
-            resp.sendRedirect("ingredients?message=added");
+            int newId = dao.insert(ing);
+            if (newId > 0) {
+                AuditLogger.log(currentUserId, "ADD", "Ingredients", newId, "Added ingredient: " + name);
+                resp.sendRedirect("ingredients?message=added");
+            } else {
+                req.setAttribute("errorMessage", "❌ Insert failed!");
+                req.getRequestDispatcher("WEB-INF/View/admin/ingredients/add.jsp").forward(req, resp);
+            }
 
-            // 🔸 Sửa
+        // ✏️ EDIT
         } else if ("edit".equals(action)) {
             int id = Integer.parseInt(idStr);
             ing.setIngredientId(id);
@@ -196,14 +163,18 @@ public class IngredientServlet extends HttpServlet {
                 return;
             }
 
-            dao.update(ing);
-            resp.sendRedirect("ingredients?message=updated");
+            if (dao.update(ing)) {
+                AuditLogger.log(currentUserId, "UPDATE", "Ingredients", id, "Updated ingredient: " + name);
+                resp.sendRedirect("ingredients?message=updated");
+            } else {
+                req.setAttribute("errorMessage", "❌ Update failed!");
+                req.getRequestDispatcher("WEB-INF/View/admin/ingredients/edit.jsp").forward(req, resp);
+            }
         }
     }
 
     @Override
     public String getServletInfo() {
-        return "Short description";
-    }// </editor-fold>
-
+        return "Ingredient management with audit logging (clean version)";
+    }
 }

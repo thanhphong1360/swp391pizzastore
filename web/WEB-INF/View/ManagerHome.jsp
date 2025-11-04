@@ -20,6 +20,7 @@
             <a href="#">Tables</a>
             <a href="${pageContext.request.contextPath}/ingredients">Ingredients</a>
             <a href="#">Restaurant's Statistics</a>
+            <a href="${pageContext.request.contextPath}/auditlog">AuditLog</a>
         </div>
     </body>
 </html>

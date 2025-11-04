@@ -7,57 +7,66 @@ import jakarta.servlet.http.*;
 import java.io.IOException;
 import java.util.List;
 import model.User;
+import util.AuditLogger;
 
 @WebServlet("/users")
 public class UserServlet extends HttpServlet {
 
-    private UserDAO dao = new UserDAO();
+    private final UserDAO userDAO = new UserDAO();
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
 
+        HttpSession session = req.getSession();
+        Integer currentUserId = (Integer) session.getAttribute("userId");
+
         String action = req.getParameter("action");
-        if (action == null) {
-            action = "list";
-        }
+        if (action == null) action = "list";
 
         switch (action) {
             case "add":
                 req.getRequestDispatcher("WEB-INF/View/admin/users/add.jsp").forward(req, resp);
                 break;
+
             case "edit":
                 int id = Integer.parseInt(req.getParameter("id"));
-                req.setAttribute("user", dao.getById(id));
+                req.setAttribute("user", userDAO.getById(id));
                 req.getRequestDispatcher("WEB-INF/View/admin/users/edit.jsp").forward(req, resp);
                 break;
+
             case "toggle":
-                int toggleId = Integer.parseInt(req.getParameter("id"));
-                User target = dao.getById(toggleId);
-
-                if (target == null) {
-                    resp.sendRedirect("users?message=error");
-                    break;
-                }
-
-                boolean currentStatus = target.isStatus();
-                boolean updated = dao.updateStatus(toggleId, !currentStatus);
-
-                if (updated) {
-                    if (currentStatus) {
-                        resp.sendRedirect("users?message=deactivated");
-                    } else {
-                        resp.sendRedirect("users?message=restored");
-                    }
-                } else {
-                    resp.sendRedirect("users?message=error");
-                }
+                handleToggle(req, resp, currentUserId);
                 break;
 
             default:
-                List<User> list = dao.getAll();
+                List<User> list = userDAO.getAll();
                 req.setAttribute("list", list);
                 req.getRequestDispatcher("WEB-INF/View/admin/users/list.jsp").forward(req, resp);
+        }
+    }
+
+    private void handleToggle(HttpServletRequest req, HttpServletResponse resp, Integer currentUserId)
+            throws IOException {
+        int toggleId = Integer.parseInt(req.getParameter("id"));
+        User target = userDAO.getById(toggleId);
+
+        if (target == null) {
+            resp.sendRedirect("users?message=error");
+            return;
+        }
+
+        boolean currentStatus = target.isStatus();
+        boolean updated = userDAO.updateStatus(toggleId, !currentStatus);
+
+        if (updated) {
+            String actionType = currentStatus ? "DEACTIVATE" : "RESTORE";
+            String desc = (currentStatus ? "Deactivated " : "Restored ") + "user: " + target.getEmail();
+            AuditLogger.log(currentUserId, actionType, "Users", target.getUserId(), desc);
+
+            resp.sendRedirect("users?message=" + (currentStatus ? "deactivated" : "restored"));
+        } else {
+            resp.sendRedirect("users?message=error");
         }
     }
 
@@ -66,18 +75,27 @@ public class UserServlet extends HttpServlet {
             throws ServletException, IOException {
 
         req.setCharacterEncoding("UTF-8");
-        String action = req.getParameter("action");
+        HttpSession session = req.getSession();
+        Integer currentUserId = (Integer) session.getAttribute("userId");
 
+        String action = req.getParameter("action");
         String idStr = req.getParameter("userId");
         String name = req.getParameter("name");
         String email = req.getParameter("email");
         String password = req.getParameter("password");
-        int roleId = Integer.parseInt(req.getParameter("roleId"));
-        // --- Validate cơ bản ---
-        if (name == null || name.trim().isEmpty()
+        String roleStr = req.getParameter("roleId");
+
+        // 🧾 Validate input
+        if (name == null || name.trim().isEmpty() || name.length() > 20
                 || email == null || email.trim().isEmpty()
                 || password == null || password.length() < 4) {
-            req.setAttribute("errorMessage", "⚠ Please fill all required fields (password ≥ 4 chars).");
+
+            String errorMessage = "⚠ Please fill all required fields (password ≥ 4 chars).";
+            if (name != null && name.length() > 20) {
+                errorMessage = "⚠ Name must not exceed 20 characters.";
+            }
+
+            req.setAttribute("errorMessage", errorMessage);
             String page = "add".equals(action)
                     ? "WEB-INF/View/admin/users/add.jsp"
                     : "WEB-INF/View/admin/users/edit.jsp";
@@ -85,7 +103,7 @@ public class UserServlet extends HttpServlet {
             return;
         }
 
-        // --- Validate email định dạng ---
+        // Validate email format
         if (!email.matches("^[\\w.%+-]+@[\\w.-]+\\.[a-zA-Z]{2,6}$")) {
             req.setAttribute("errorMessage", "⚠ Invalid email format.");
             String page = "add".equals(action)
@@ -95,43 +113,54 @@ public class UserServlet extends HttpServlet {
             return;
         }
 
+        int roleId = Integer.parseInt(roleStr);
         User u = new User();
         u.setName(name);
         u.setEmail(email);
         u.setPassword(password);
         u.setRoleId(roleId);
+
+        // ➕ ADD
         if ("add".equals(action)) {
-            // --- Kiểm tra trùng email ---
-            if (dao.existsByEmail(email)) {
+            if (userDAO.existsByEmail(email)) {
                 req.setAttribute("errorMessage", "⚠ Email already exists!");
                 req.getRequestDispatcher("WEB-INF/View/admin/users/add.jsp").forward(req, resp);
                 return;
             }
 
-            if (dao.insert(u)) {
+            int newUserId = userDAO.insert(u);
+            if (newUserId > 0) {
+                AuditLogger.log(currentUserId, "ADD", "Users", newUserId, "Added new user: " + email);
                 resp.sendRedirect("users?message=added");
             } else {
-                req.setAttribute("errorMessage", "❌ Insert failed. Please try again.");
+                req.setAttribute("errorMessage", "❌ Insert failed!");
                 req.getRequestDispatcher("WEB-INF/View/admin/users/add.jsp").forward(req, resp);
             }
 
+        // ✏️ EDIT
         } else if ("edit".equals(action)) {
-            u.setUserId(Integer.parseInt(idStr));
+            int userId = Integer.parseInt(idStr);
+            u.setUserId(userId);
 
-            // --- Check trùng email khi update (trừ khi giữ nguyên email cũ) ---
-            User old = dao.getById(u.getUserId());
-            if (old != null && !old.getEmail().equalsIgnoreCase(email) && dao.existsByEmail(email)) {
+            User old = userDAO.getById(userId);
+            if (old != null && !old.getEmail().equalsIgnoreCase(email) && userDAO.existsByEmail(email)) {
                 req.setAttribute("errorMessage", "⚠ This email is already used by another user!");
                 req.getRequestDispatcher("WEB-INF/View/admin/users/edit.jsp").forward(req, resp);
                 return;
             }
 
-            if (dao.update(u)) {
+            if (userDAO.update(u)) {
+                AuditLogger.log(currentUserId, "UPDATE", "Users", userId, "Updated user: " + email);
                 resp.sendRedirect("users?message=updated");
             } else {
                 req.setAttribute("errorMessage", "❌ Update failed. Please try again.");
                 req.getRequestDispatcher("WEB-INF/View/admin/users/edit.jsp").forward(req, resp);
             }
         }
+    }
+
+    @Override
+    public String getServletInfo() {
+        return "User management with audit logging (clean version)";
     }
 }
