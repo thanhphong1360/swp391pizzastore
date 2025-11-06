@@ -185,8 +185,10 @@ public class ChefOrderServlet extends HttpServlet {
 
             //view doing orders list
             ArrayList<Order> pendingOrderList = OrderDAO.getOrdersByStatus("doing");
-            for (Order orderSample : pendingOrderList) {
-                orderSample.includeTable();
+            if (pendingOrderList != null) {
+                for (Order orderSample : pendingOrderList) {
+                    orderSample.includeTable();
+                }
             }
             request.setAttribute("orderList", pendingOrderList);
             request.getRequestDispatcher("/WEB-INF/View/Chef/ChefOrderListDoing.jsp").forward(request, response);

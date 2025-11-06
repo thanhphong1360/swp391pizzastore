@@ -119,7 +119,7 @@ public class OrderDAO {
     public static ArrayList<Order> getOrdersByStatus(String status) {
         ArrayList<Order> list = new ArrayList<>();
         DBContext dbc = DBContext.getInstance();
-        String sql = "SELECT * FROM Orders WHERE status = ?";
+        String sql = "SELECT * FROM Orders WHERE status = ? ORDER BY created_at DESC";
         try {
             PreparedStatement statement = dbc.getConnection().prepareStatement(sql);
             statement.setString(1, status);
@@ -213,7 +213,7 @@ public class OrderDAO {
     public static ArrayList<Order> getOrdersByInvoiceId(int invoiceId) {
         ArrayList<Order> list = new ArrayList<>();
         DBContext dbc = DBContext.getInstance();
-        String sql = "SELECT * FROM Orders WHERE invoice_id = ?";
+        String sql = "SELECT * FROM Orders WHERE invoice_id = ? ORDER BY created_at DESC";
         try {
             PreparedStatement statement = dbc.getConnection().prepareStatement(sql);
             statement.setInt(1, invoiceId);
