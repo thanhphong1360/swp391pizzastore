@@ -6,6 +6,7 @@ import jakarta.servlet.http.*;
 import java.io.IOException;
 import java.util.List;
 import model.User;
+import org.mindrot.jbcrypt.BCrypt;
 import util.AuditLogger;
 
 
@@ -116,7 +117,7 @@ public class UserServlet extends HttpServlet {
         User u = new User();
         u.setName(name);
         u.setEmail(email);
-        u.setPassword(password);
+        u.setPassword(BCrypt.hashpw(password, BCrypt.gensalt(12)));
         u.setRoleId(roleId);
 
         // ➕ ADD
