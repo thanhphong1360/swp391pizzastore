@@ -24,7 +24,10 @@ public class AuthFilter implements Filter {
                 || uri.contains("/Home")
                 || uri.contains("register.jsp")
                 || uri.endsWith("/register")
-                || uri.contains("resetpass")
+               || uri.contains("/view/client/pages/forgot_password.jsp")
+|| uri.contains("/forgot-password")
+                || uri.contains("/change-password")
+
                 || uri.contains("/assets/")) {
             chain.doFilter(request, response);
             return;

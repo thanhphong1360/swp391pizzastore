@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 import model.User;
 import java.util.Scanner;
+import org.mindrot.jbcrypt.BCrypt;
 
 public class UserDAO {
 
@@ -21,36 +22,36 @@ public class UserDAO {
         this.conn = DBContext.getInstance().getConnection();
     }
 
-    public static User login(String email, String password) {
-        String sql = "SELECT user_id, role_id, email, password, name, created_at "
-                + "FROM Users WHERE email = ? AND password = ?";
+   public static User login(String email, String password) {
+    String sql = "SELECT user_id, role_id, email, password, name, created_at "
+               + "FROM Users WHERE email = ?";
+    try {
+        DBContext db = DBContext.getInstance();
+        Connection conn = db.connection;
+        PreparedStatement ps = conn.prepareStatement(sql);
+        ps.setString(1, email);
+        ResultSet rs = ps.executeQuery();
 
-        try {
-            DBContext db = DBContext.getInstance();
-            Connection conn = db.connection;
+        if (rs.next()) {
+            String hashed = rs.getString("password");
 
-            PreparedStatement ps = conn.prepareStatement(sql);
-            ps.setString(1, email);
-            ps.setString(2, password);
-
-            ResultSet rs = ps.executeQuery();
-
-            if (rs.next()) {
+            // ✅ Kiểm tra password người dùng nhập có đúng với hash không
+            if (BCrypt.checkpw(password, hashed)) {
                 User user = new User();
                 user.setUserId(rs.getInt("user_id"));
                 user.setRoleId(rs.getInt("role_id"));
                 user.setEmail(rs.getString("email"));
-                user.setPassword(rs.getString("password"));
+                user.setPassword(hashed);
                 user.setName(rs.getString("name"));
                 user.setCreatedAt(rs.getTimestamp("created_at"));
                 return user;
             }
-
-        } catch (SQLException e) {
-            e.printStackTrace();
         }
-        return null;
+    } catch (SQLException e) {
+        e.printStackTrace();
     }
+    return null;
+}
 
     public boolean checkEmailExists(String email) {
         String sql = "SELECT user_id FROM Users WHERE email = ?";
@@ -81,17 +82,17 @@ public class UserDAO {
         }
     }
 
-    public boolean updatePassword(String email, String newPassword) {
-        String sql = "UPDATE Users SET password = ? WHERE email = ?";
-        try (PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, newPassword);
-            ps.setString(2, email);
-            return ps.executeUpdate() > 0;
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return false;
-        }
+     public void updatePassword(String email, String newPassword) {
+    String hashed = BCrypt.hashpw(newPassword, BCrypt.gensalt(12));
+    String sql = "UPDATE Users SET password = ?, reset_token = NULL, token_expire = NULL WHERE email = ?";
+    try (PreparedStatement ps = conn.prepareStatement(sql)) {
+        ps.setString(1, hashed);
+        ps.setString(2, email);
+        ps.executeUpdate();
+    } catch (Exception e) {
+        e.printStackTrace();
     }
+}
 
     public List<User> getAll() {
         List<User> list = new ArrayList<>();
@@ -212,6 +213,53 @@ public class UserDAO {
         }
         return false;
     }
+    //forgotpassword
+      public boolean existsEmail(String email) {
+        String sql = "SELECT * FROM Users WHERE email = ?";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, email);
+            ResultSet rs = ps.executeQuery();
+            return rs.next();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+     public void saveResetToken(String email, String token) {
+        String sql = "UPDATE Users SET reset_token = ?, token_expire = DATEADD(MINUTE, 30, GETDATE()) WHERE email = ?";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, token);
+            ps.setString(2, email);
+            ps.executeUpdate();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public String getEmailByToken(String token) {
+        String sql = "SELECT email FROM Users WHERE reset_token = ? AND token_expire > GETDATE()";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, token);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getString("email");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+// ✅ Xóa token sau khi đổi mật khẩu thành công
+public void clearResetToken(String email) {
+    String sql = "UPDATE Users SET reset_token = NULL, token_expire = NULL WHERE email = ?";
+    try (PreparedStatement ps = conn.prepareStatement(sql)) {
+        ps.setString(1, email);
+        ps.executeUpdate();
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+}
 
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);

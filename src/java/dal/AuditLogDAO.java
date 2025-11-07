@@ -60,5 +60,40 @@ public class AuditLogDAO {
         }
         return list;
     }
+    public List<AuditLog> searchByName(String keyword) {
+    List<AuditLog> list = new ArrayList<>();
+    String sql = """
+        SELECT l.log_id, l.user_id, u.name AS user_name,
+               l.action_type, l.target_table, l.target_id,
+               l.description, l.created_at
+        FROM AuditLog l
+        LEFT JOIN Users u ON l.user_id = u.user_id
+        WHERE u.name LIKE ? OR l.description LIKE ?
+        ORDER BY l.log_id DESC
+    """;
+    try (PreparedStatement ps = conn.prepareStatement(sql)) {
+        String searchPattern = "%" + keyword + "%";
+        ps.setString(1, searchPattern);
+        ps.setString(2, searchPattern);
+        ResultSet rs = ps.executeQuery();
+
+        while (rs.next()) {
+            AuditLog log = new AuditLog();
+            log.setLogId(rs.getInt("log_id"));
+            log.setUserId((Integer) rs.getObject("user_id"));
+            log.setUserName(rs.getString("user_name"));
+            log.setActionType(rs.getString("action_type"));
+            log.setTargetTable(rs.getString("target_table"));
+            log.setTargetId((Integer) rs.getObject("target_id"));
+            log.setDescription(rs.getString("description"));
+            log.setCreatedAt(rs.getTimestamp("created_at"));
+            list.add(log);
+        }
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+    return list;
+}
+
 
 }

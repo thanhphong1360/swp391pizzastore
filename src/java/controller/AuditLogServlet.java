@@ -16,9 +16,20 @@ public class AuditLogServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
-        List<AuditLog> logs = dao.getAll();
+       
+        String search = req.getParameter("search");
+        List<AuditLog> logs;
+
+        if (search != null && !search.trim().isEmpty()) {
+            logs = dao.searchByName(search.trim());
+        } else {
+            logs = dao.getAll();
+        }
+
         req.setAttribute("logs", logs);
+        req.setAttribute("search", search); // giữ lại input
         req.getRequestDispatcher("WEB-INF/View/admin/auditlog/list.jsp").forward(req, resp);
+    
     }
 
     @Override
