@@ -90,16 +90,19 @@ public class WaiterTableServlet extends HttpServlet {
             throws ServletException, IOException {
         String action = request.getParameter("action");
         if ("open".equals(action)) {
-            //lay du lieu ve dung
+            //lay thong tin cac ban
             boolean isError = false;
             HttpSession session = request.getSession();
             User waiter = (User) session.getAttribute("user");
-            int tableId = Integer.parseInt(request.getParameter("tableId"));
+            String[] selectedTableIdsString = request.getParameterValues("selectedTables");
             //thay doi trang thai table
-            Table tableToOpen = TableDAO.getTableById(tableId);
-            tableToOpen = TableDAO.updateTableStatus(tableToOpen, "occupied");
-            if(tableToOpen ==null){
-                isError = true;
+            for (String tableIdString : selectedTableIdsString) {
+                int tableId = Integer.parseInt(tableIdString);
+                Table tableToOpen = TableDAO.getTableById(tableId);
+                tableToOpen = TableDAO.updateTableStatus(tableToOpen, "occupied");
+                if (tableToOpen == null) {
+                    isError = true;
+                }
             }
             //tao invoice
             String invoiceCode = InvoiceCodeUtil.generateInvoiceCode();
@@ -107,17 +110,20 @@ public class WaiterTableServlet extends HttpServlet {
             invoice.setInvoiceCode(invoiceCode);
             invoice.setWaiterId(waiter.getUserId());
             InvoiceDAO.createInvoice(invoice);
-            if(invoice ==null){
+            if (invoice == null) {
                 isError = true;
             }
             //gan table vao invoice
             int invoiceId = InvoiceDAO.getInvoiceByCode(invoiceCode).getInvoiceId();
-            InvoiceTable invoiceTable = new InvoiceTable(invoiceId, tableId);
-            invoiceTable = InvoiceTableDAO.createInvoiceTable(invoiceTable);
-            if(invoiceTable ==null){
-                isError = true;
+            for (String tableIdString : selectedTableIdsString) {
+                int tableId = Integer.parseInt(tableIdString);
+                InvoiceTable invoiceTable = new InvoiceTable(invoiceId, tableId);
+                invoiceTable = InvoiceTableDAO.createInvoiceTable(invoiceTable);
+                if (invoiceTable == null) {
+                    isError = true;
+                }
             }
-            
+
             if (!isError) {
                 request.setAttribute("message", "Mở bàn thành công!");
             } else {

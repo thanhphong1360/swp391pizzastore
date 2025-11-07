@@ -10,7 +10,9 @@
                 background-color: #f4f6f8;
                 text-align: center;
             }
-            h1 { color: #333; }
+            h1 {
+                color: #333;
+            }
             .table-container {
                 display: flex;
                 flex-wrap: wrap;
@@ -30,9 +32,15 @@
                 justify-content: space-between;
                 align-items: center;
             }
-            .available { border: 2px solid #4CAF50; }
-            .occupied { border: 2px solid #f39c12; }
-            .unavailable { border: 2px solid #f44336; }
+            .available {
+                border: 2px solid #4CAF50;
+            }
+            .occupied {
+                border: 2px solid #f39c12;
+            }
+            .unavailable {
+                border: 2px solid #f44336;
+            }
             .btn {
                 padding: 6px 12px;
                 border: none;
@@ -41,9 +49,16 @@
                 color: white;
                 font-size: 14px;
             }
-            .btn-open { background-color: #4CAF50; }
-            .btn-order { background-color: #2196F3; }
-            .btn-disabled { background-color: #9e9e9e; cursor: not-allowed; }
+            .btn-open {
+                background-color: #4CAF50;
+            }
+            .btn-order {
+                background-color: #2196F3;
+            }
+            .btn-disabled {
+                background-color: #9e9e9e;
+                cursor: not-allowed;
+            }
             .alert {
                 background-color: #e1f5fe;
                 color: #0277bd;
@@ -52,12 +67,15 @@
                 margin: 15px auto;
                 width: 60%;
             }
-            form { display: inline-block; }
+            form {
+                display: inline-block;
+            }
         </style>
 
         <script>
-            function confirmOpenMultiple(form) {
-                const checked = document.querySelectorAll('input[name="selectedTables"]:checked');
+            function confirmOpenMultiple() {
+                const form = document.getElementById('openTablesForm');
+                const checked = form.querySelectorAll('input[name="selectedTables"]:checked');
                 if (checked.length === 0) {
                     alert("Vui lòng chọn ít nhất một bàn để mở!");
                     return;
@@ -66,6 +84,7 @@
                     form.submit();
                 }
             }
+
         </script>
     </head>
 
@@ -83,7 +102,7 @@
         <h1>Danh sách bàn</h1>
 
         <form action="${pageContext.request.contextPath}/waiter/Table" method="POST" id="openTablesForm">
-            <input type="hidden" name="action" value="openMultiple">
+            <input type="hidden" name="action" value="open">
 
             <div class="table-container">
                 <c:forEach var="t" items="${tableList}">
@@ -100,9 +119,10 @@
                             </c:when>
 
                             <c:when test="${t.status == 'occupied'}">
-                                <form action="${pageContext.request.contextPath}/waiter/Order" method="GET">
+                                <form action="${pageContext.request.contextPath}/waiter/Order" method="GET" style="display:inline;">
                                     <input type="hidden" name="tableId" value="${t.tableId}">
-                                    <button type="submit" class="btn btn-order">Đặt món</button>
+                                    <input type="hidden" name="action" value="order">
+                                    <input type="submit" value="Gọi món">
                                 </form>
                             </c:when>
 
@@ -115,9 +135,10 @@
             </div>
 
             <div style="margin-top: 20px;">
-                <button type="button" class="btn btn-open" onclick="confirmOpenMultiple(this.form)">
+                <button type="button" class="btn btn-open" onclick="confirmOpenMultiple()">
                     Mở bàn đã chọn
                 </button>
+
             </div>
         </form>
     </body>
