@@ -17,9 +17,11 @@ public class OrderFood {
     private int foodId;
     private int quantity;
     private BigDecimal price;
+    private String note;
     
     private Order order;
     private Food food;
+    private String foodName;
 
     public OrderFood() {
     }
@@ -78,4 +80,22 @@ public class OrderFood {
     public Food getFood(){
         return this.food;
     }
+
+    public String getNote() {
+        return note;
+    }
+
+    public void setNote(String note) {
+        this.note = note;
+    }
+
+    public String getFoodName() {
+        return foodName;
+    }
+
+    public void setFoodName(String foodName) {
+        this.foodName = foodName;
+    }
+    
+    
 }

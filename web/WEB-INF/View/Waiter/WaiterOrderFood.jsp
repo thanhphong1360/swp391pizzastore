@@ -3,8 +3,7 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>Order Food</title>
-        <link rel="stylesheet" href="${pageContext.request.contextPath}/css/style.css">
+        <title>Order Food - Waiter</title>
         <style>
             body {
                 font-family: Arial, sans-serif;
@@ -21,257 +20,258 @@
                 align-items: center;
             }
             .container {
-                display: flex;
-                height: calc(100vh - 60px);
-            }
-            .sidebar {
-                width: 220px;
-                background-color: #ffffff;
-                border-right: 1px solid #ddd;
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                grid-template-rows: auto auto;
+                gap: 15px;
                 padding: 15px;
-                overflow-y: auto;
             }
-            .sidebar h3 {
-                color: #1E90FF;
-                margin-bottom: 10px;
-            }
-            .sidebar ul {
-                list-style: none;
-                padding: 0;
-            }
-            .sidebar li {
-                margin: 8px 0;
-            }
-            .sidebar a {
-                text-decoration: none;
-                color: #333;
-                display: block;
-                padding: 6px 10px;
-                border-radius: 6px;
-            }
-            .sidebar a.available:hover {
-                background-color: #e0f0ff;
-                color: #1E90FF;
-            }
-            .sidebar a.occupied {
-                color: gray;
-                cursor: not-allowed;
-            }
-            main {
-                flex: 1;
-                padding: 20px;
-                display: flex;
-                gap: 20px;
-            }
-            .menu, .order-panel {
+            section {
                 background: white;
                 border-radius: 10px;
                 padding: 15px;
-                flex: 1;
                 box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+                overflow-y: auto;
+                max-height: 450px;
+            }
+            h3 {
+                color: #1E90FF;
+                margin-bottom: 10px;
+            }
+            .filter-bar {
+                display: flex;
+                justify-content: space-between;
+                margin-bottom: 10px;
+            }
+            .filter-bar input, .filter-bar select {
+                padding: 5px;
+                border-radius: 5px;
+                border: 1px solid #ccc;
             }
             .menu-grid {
                 display: grid;
-                grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+                grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
                 gap: 10px;
             }
             .food-item {
-                border: 1px solid #eee;
-                padding: 10px;
+                border: 1px solid #ddd;
+                border-radius: 8px;
+                padding: 8px;
                 text-align: center;
-                border-radius: 8px;
-                transition: 0.2s;
-            }
-            .food-item:hover {
-                box-shadow: 0 0 6px rgba(0,0,0,0.1);
-            }
-            .food-item img {
-                width: 100%;
-                height: 100px;
-                object-fit: cover;
-                border-radius: 8px;
             }
             .food-item button {
                 background-color: #1E90FF;
-                border: none;
                 color: white;
+                border: none;
                 padding: 6px 10px;
-                margin-top: 6px;
                 border-radius: 6px;
                 cursor: pointer;
             }
-            .order-panel table {
+            table {
                 width: 100%;
                 border-collapse: collapse;
             }
-            .order-panel th, .order-panel td {
-                padding: 8px;
+            th, td {
                 border-bottom: 1px solid #ddd;
+                padding: 6px;
+                text-align: center;
             }
-            .order-panel .total {
-                text-align: right;
-                margin-top: 10px;
-                font-weight: bold;
-            }
-            footer {
-                padding: 10px;
-                text-align: right;
-                background: #fff;
-                border-top: 1px solid #ddd;
-            }
-            .btn-confirm {
-                background: #1E90FF;
-                border: none;
+            button.action {
+                background-color: #1E90FF;
                 color: white;
-                padding: 10px 15px;
-                border-radius: 6px;
+                border: none;
+                border-radius: 4px;
+                padding: 4px 8px;
                 cursor: pointer;
+            }
+            textarea {
+                width: 100%;
+                resize: none;
+                border-radius: 5px;
+                border: 1px solid #ccc;
+                padding: 4px;
+            }
+            .readonly {
+                background-color: #f4f4f4;
             }
         </style>
     </head>
     <body>
-        <form action="${pageContext.request.contextPath}/Order" method="GET">
-            <input type="hidden" name="action" value="open">
-            <input type="submit" value="Quay lại">
-        </form>
-        <div class="container">
-            <!-- Main content -->
-            <main>
-                <!-- Menu -->
-                <div class="menu">
-                    <h3>Thực đơn</h3>
-                    <div class="menu-grid">
-                        <c:forEach var="food" items="${foodList}">
-                            <div class="food-item">
-                                <!--                                <img src="{pageContext.request.contextPath}/images/{food.image}" alt="{food.name}">-->
-                                <p><b>${food.name}</b></p>
-                                <p>${food.price} đ</p>
-                                <button onclick="addToOrder('${food.foodId}', '${food.name}', ${food.price})">Thêm</button>
-                            </div>
-                        </c:forEach>
-                    </div>
-                </div>
 
-                <!-- Order panel -->
-                <div class="order-panel">
-                    <h3>Order hiện tại - Bàn ${tableNumber}</h3>
-                    <table id="orderTable">
-                        <tr><th>Món</th><th>SL</th><th>Giá (VND)</th><th>Tổng</th><th></th></tr>
-                    </table>
-                    <p class="total">Tổng cộng: <span id="totalPrice">0</span> đ</p>
+        <header>
+            <h2>Order - Bàn ${tableNumber}</h2>
+            <form action="${pageContext.request.contextPath}/waiter/Table" method="GET">
+                <input type="hidden" name="action" value="open">
+                <button type="submit" class="action">← Quay lại danh sách bàn</button>
+            </form>
+        </header>
+
+        <div class="container">
+
+            <!-- MENU MÓN ĂN -->
+            <section>
+                <h3>Thực đơn</h3>
+                <form id="filterForm" method="GET" action="${pageContext.request.contextPath}/waiter/Order" class="filter-bar">
+                    <input type="hidden" name="tableId" value="${tableId}">
+                    <input type="hidden" name="action" value="order">
+
+                    <!-- Các input draft tạm sẽ được thêm bằng JS trước khi submit -->
+                    <div id="draftInputs"></div>
+
+                    <select name="categoryId" onchange="submitWithDraft()">
+                        <option value="">-- Tất cả loại món --</option>
+                        <c:forEach var="c" items="${categoryList}">
+                            <option value="${c.categoryId}" ${param.categoryId == c.categoryId ? 'selected' : ''}>${c.name}</option>
+                        </c:forEach>
+                    </select>
+                    <input type="text" name="search" placeholder="Tìm món..." value="${param.search}">
+                    <button type="button" class="action" onclick="submitWithDraft()">Tìm</button>
+                </form>
+
+                <div class="menu-grid">
+                    <c:forEach var="f" items="${foodList}">
+                        <div class="food-item">
+                            <p><b>${f.name}</b></p>
+                            <p>${f.price} đ</p>
+                            <button type="button" onclick="addToOrder(${f.foodId}, '${f.name}', ${f.price})">Thêm</button>
+                        </div>
+                    </c:forEach>
                 </div>
-            </main>
+            </section>
+
+            <!-- DANH SÁCH MÓN ĐANG CHỌN -->
+            <section>
+                <h3>Đang chọn (chưa gửi)</h3>
+                <table id="draftTable">
+                    <tr><th>Món</th><th>SL</th><th>Ghi chú</th><th>Tổng</th><th></th></tr>
+                            <c:forEach var="d" items="${draft}">
+                        <tr>
+                            <td>${d.foodName}</td>
+                            <td>${d.quantity}</td>
+                            <td>${d.note}</td>
+                            <td>${d.price}</td>
+                        </tr>
+                    </c:forEach>
+                </table>
+                <p><b>Tổng: <span id="draftTotal">0</span> đ</b></p>
+                <button class="action" onclick="sendDraft()">Gửi order mới</button>
+            </section>
+
+            <!-- Các section pending / done giữ nguyên -->
+            <section>
+                <h3>Đang chờ duyệt (Pending)</h3>
+                <!-- ... -->
+            </section>
+
+            <section>
+                <h3>Món đã gửi</h3>
+                <!-- ... -->
+            </section>
         </div>
 
-        <footer>
-            <form id="orderForm" action="${pageContext.request.contextPath}/waiter/Order" method="POST">
-                <input type="hidden" name="action" value="sendOrder">
-                <input type="hidden" name="tableId" value="${tableId}">
-                <div style="margin-bottom: 10px;">
-                    <label for="note"><b>Ghi chú cho order:</b></label><br>
-                    <textarea id="note" name="note" rows="3" cols="40" 
-                              placeholder="Ghi chú ý cho order"
-                              style="resize: none; padding: 5px; border-radius: 5px; border: 1px solid #ccc;"></textarea>
-                </div>
-                <button type="button" onclick="submitOrder()">Xác nhận Order</button>
-            </form>
-        </footer>
-
         <script>
-            let order = [];
+            let draft = [];
+
+            <c:if test="${not empty draft}">
+            draft = [
+                <c:forEach var="d" items="${draft}" varStatus="st">
+            {id:${d.foodId}, name:'${d.foodName}', price:${d.price}, qty:${d.quantity}, note:'${d.note}'}
+                    <c:if test="${!st.last}">,</c:if>
+                </c:forEach>
+            ];
+            renderDraft();
+            </c:if>
 
             function addToOrder(id, name, price) {
-                let existing = order.find(item => item.id === id);
-                if (existing) {
-                    existing.qty++;
-                } else {
-                    order.push({id, name, price, qty: 1});
-                }
-                renderOrder();
+                let item = draft.find(f => f.id === id);
+                if (item)
+                    item.qty++;
+                else
+                    draft.push({id, name, price, qty: 1, note: ""});
+                renderDraft();
             }
 
-            function removeItemByIndex(index) {
-                order.splice(index, 1);
-                renderOrder();
-            }
-
-            function increaseQty(index) {
-                order[index].qty++;
-                renderOrder();
-            }
-
-            function decreaseQty(index) {
-                order[index].qty--;
-                if (order[index].qty <= 0) {
-                    order.splice(index, 1);
-                }
-                renderOrder();
-            }
-
-            function renderOrder() {
-                const table = document.getElementById("orderTable");
-                let rows = `
-        <tr>
-            <th>Món</th>
-            <th>SL</th>
-            <th>Giá (VND)</th>
-            <th>Tổng</th>
-            <th></th>
-        </tr>
-    `;
+            function renderDraft() {
+                const table = document.getElementById("draftTable");
+                let html = "<tr><th>Món</th><th>SL</th><th>Ghi chú</th><th>Tổng</th><th></th></tr>";
                 let total = 0;
-
-                order.forEach((item, i) => {
-                    const sub = item.price * item.qty;
+                draft.forEach((it, i) => {
+                    const sub = it.price * it.qty;
                     total += sub;
-
-                    rows += "<tr>"
-                            + "<td>" + item.name + "</td>"
-                            + "<td>"
-                            + "<button onclick='decreaseQty(" + i + ")'>−</button>"
-                            + "<span style='margin: 0 6px;'>" + item.qty + "</span>"
-                            + "<button onclick='increaseQty(" + i + ")'>+</button>"
-                            + "</td>"
-                            + "<td>" + item.price + "</td>"
-                            + "<td>" + sub + "</td>"
-                            + "<td><button onclick='removeItemByIndex(" + i + ")'>X</button></td>"
-                            + "</tr>";
+                    html += "<tr>" + "<td>" + it.name + "</td>" + "<td>" + "<button onclick='changeQty(" + i + ", -1)'>−</button>" + "<span>" + it.qty + "</span>" + "<button onclick='changeQty(" + i + ", 1)'>+</button>" + "</td>" + "<td><textarea maxlength='100' oninput='updateNote(" + i + ", this.value)' rows='2'>" + (it.note || "") + "</textarea></td>" + "<td>" + sub + "</td>" + "<td><button onclick='removeDraft(" + i + ")'>X</button></td>" + "</tr>";
                 });
-
-                table.innerHTML = rows;
-                document.getElementById("totalPrice").innerText = total;
+                table.innerHTML = html;
+                document.getElementById("draftTotal").innerText = total;
+                console.log("DRAFT :", draft);
             }
 
-            function submitOrder() {
-                if (order.length === 0) {
-                    alert("Vui lòng chọn ít nhất 1 món!");
-                    return;
-                }
+            function changeQty(i, delta) {
+                draft[i].qty += delta;
+                if (draft[i].qty <= 0)
+                    draft.splice(i, 1);
+                renderDraft();
+            }
 
-                const form = document.getElementById("orderForm");
+            function removeDraft(i) {
+                draft.splice(i, 1);
+                renderDraft();
+            }
+            function updateNote(i, note) {
+                draft[i].note = note;
+            }
 
-                // Xóa các input cũ (tránh trùng lặp khi bấm lại)
-                form.querySelectorAll("input[name='foodId'], input[name='quantity']").forEach(el => el.remove());
+            // Gửi draft kèm theo form tìm kiếm
+            function submitWithDraft() {
+                const container = document.getElementById("draftInputs");
+                container.innerHTML = "";
+                draft.forEach(it => {
+                    if (!it.id)
+                        return;
 
-                // Thêm input ẩn cho từng món
-                order.forEach(item => {
                     const idInput = document.createElement("input");
                     idInput.type = "hidden";
                     idInput.name = "foodId";
-                    idInput.value = item.id;
-                    form.appendChild(idInput);
+                    idInput.value = it.id;
+                    container.appendChild(idInput);
 
                     const qtyInput = document.createElement("input");
                     qtyInput.type = "hidden";
                     qtyInput.name = "quantity";
-                    qtyInput.value = item.qty;
-                    form.appendChild(qtyInput);
+                    qtyInput.value = it.qty;
+                    container.appendChild(qtyInput);
+
+                    const noteInput = document.createElement("input");
+                    noteInput.type = "hidden";
+                    noteInput.name = "note";
+                    noteInput.value = it.note || '';
+                    container.appendChild(noteInput);
                 });
 
+
+                document.getElementById("filterForm").submit();
+            }
+
+            // Gửi order thực tế
+            function sendDraft() {
+                if (draft.length === 0) {
+                    alert("Vui lòng chọn ít nhất 1 món!");
+                    return;
+                }
+                const form = document.createElement("form");
+                form.method = "POST";
+                form.action = "${pageContext.request.contextPath}/waiter/Order";
+                form.innerHTML += `<input type="hidden" name="action" value="sendDraft">
+                                   <input type="hidden" name="tableId" value="${tableId}">`;
+                draft.forEach(it => {
+                    form.innerHTML += `<input type="hidden" name="foodId" value="${it.id}">
+                                       <input type="hidden" name="quantity" value="${it.qty}">
+                                       <input type="hidden" name="note" value="${it.note}">`;
+                });
+                document.body.appendChild(form);
                 form.submit();
+                renderDraft();
             }
         </script>
-
 
     </body>
 </html>

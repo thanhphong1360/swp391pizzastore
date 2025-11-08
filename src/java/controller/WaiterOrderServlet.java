@@ -4,6 +4,9 @@
  */
 package controller;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import dal.CategoryDAO;
 import dal.TableDAO;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -24,6 +27,8 @@ import model.OrderFood;
 import dal.OrderFoodDAO;
 import jakarta.servlet.http.HttpSession;
 import java.math.BigDecimal;
+import java.util.List;
+import model.Category;
 import model.User;
 
 /**
@@ -71,33 +76,71 @@ public class WaiterOrderServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         String action = request.getParameter("action");
-        if ("open".equals(action)) {
-            //Lay tat ca ban
-            ArrayList<Table> tableListOccupied = new ArrayList<>();
-            ArrayList<Table> tableList = TableDAO.getAllTable();
-            //Lay ban dang duoc mo
-            for (Table table : tableList) {
-                if ("occupied".equals(table.getStatus())) {
-                    tableListOccupied.add(table);
-                }
-            }
-            request.setAttribute("tableList", tableListOccupied);
-            request.getRequestDispatcher("/WEB-INF/View/Waiter/WaiterTableListToOrder.jsp").forward(request, response);
-
-        } else if ("order".equals(action)) {
+        if ("order".equals(action)) { //form order food
+            HttpSession session = request.getSession();
             int tableId = Integer.parseInt(request.getParameter("tableId"));
             Table table = TableDAO.getTableById(tableId);
             String tableNumber = table.getTableNumber();
+            //search
+            int categoryId = 0;
+            if (request.getParameter("categoryId") != null && !request.getParameter("categoryId").isBlank()) {
+                categoryId = Integer.parseInt(request.getParameter("categoryId"));
+            }
+            String search = request.getParameter("search");
+
             request.setAttribute("tableId", tableId);
             request.setAttribute("tableNumber", tableNumber);
-            ArrayList<Food> foodList = FoodDAO.getAllFood();
-            ArrayList<Food> foodListAvailable = new ArrayList<>();
-            for (Food food : foodList) {
-                if ("available".equals(food.getStatus())) {
-                    foodListAvailable.add(food);
+            ArrayList<Food> foodList = FoodDAO.getFoodsSearch(categoryId, search);
+            ArrayList<Category> categoryList = CategoryDAO.getAllCategory();
+            //gui lai draft order
+            String[] foodIds = request.getParameterValues("foodId");
+            String[] quantities = request.getParameterValues("quantity");
+            String[] notes = request.getParameterValues("note");
+            //cap nhat draft tren session
+            if (foodIds != null && quantities != null) {
+                List<OrderFood> draftList = (List<OrderFood>) session.getAttribute("orderDraft_" + tableId);
+                if (draftList == null) {
+                    draftList = new ArrayList<>();
                 }
+
+                if (foodIds != null && quantities != null) {
+                    for (int i = 0; i < foodIds.length; i++) {
+                        if (foodIds[i] == null || foodIds[i].isEmpty()) {
+                            continue;
+                        }
+                        int id = Integer.parseInt(foodIds[i]);
+                        int qty = Integer.parseInt(quantities[i]);
+                        String note = (notes != null && notes.length > i) ? notes[i] : "";
+                        Food f = FoodDAO.getFoodById(id);
+
+                        // Kiểm tra nếu món đã tồn tại trong draft thì cập nhật SL
+                        boolean exists = false;
+                        for (OrderFood of : draftList) {
+                            if (of.getFoodId() == id) {
+                                of.setQuantity(qty);
+                                of.setNote(note);
+                                exists = true;
+                                break;
+                            }
+                        }
+                        if (!exists) {
+                            BigDecimal price = f.getPrice();
+                            OrderFood of = new OrderFood(0, id, qty, price);
+                            of.setFoodName(f.getName());
+                            of.setNote(note);
+                            draftList.add(of);
+                        }
+                    }
+                    session.setAttribute("orderDraft_" + tableId, draftList);
+                }
+
+                //gui draft den order view
+                List<OrderFood> draft = (List<OrderFood>) session.getAttribute("orderDraft_" + tableId);
+                request.setAttribute("draft", draft);
             }
-            request.setAttribute("foodList", foodListAvailable);
+            //gui danh sach mon de hien thi
+            request.setAttribute("foodList", foodList);
+            request.setAttribute("categoryList", categoryList);
             request.getRequestDispatcher("/WEB-INF/View/Waiter/WaiterOrderFood.jsp").forward(request, response);
 
         }
@@ -146,9 +189,9 @@ public class WaiterOrderServlet extends HttpServlet {
                     //tinh tien vao order
                     orderPrice = orderPrice.add(price);
                     OrderFood orderFood = new OrderFood(orderId,
-                                                Integer.parseInt(foodIds[i]), 
-                                                Integer.parseInt(quantities[i]), 
-                                                price);
+                            Integer.parseInt(foodIds[i]),
+                            Integer.parseInt(quantities[i]),
+                            price);
                     orderFood = OrderFoodDAO.createOrderFood(orderFood);
                 }
             }
@@ -166,7 +209,8 @@ public class WaiterOrderServlet extends HttpServlet {
                 }
             }
             request.setAttribute("tableList", tableListOccupied);
-            request.getRequestDispatcher("/WEB-INF/View/Waiter/WaiterTableListToOrder.jsp").forward(request, response);        }
+            request.getRequestDispatcher("/WEB-INF/View/Waiter/WaiterTableListToOrder.jsp").forward(request, response);
+        }
     }
 
     /**

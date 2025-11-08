@@ -24,6 +24,8 @@ import model.User;
 import dal.UserDAO;
 import model.InvoiceTable;
 import dal.InvoiceTableDAO;
+import dal.OrderDAO;
+import model.Order;
 
 /**
  *
@@ -123,7 +125,15 @@ public class WaiterTableServlet extends HttpServlet {
                     isError = true;
                 }
             }
-
+            //tao order, gan vao table trong invoice (1 table 1 order)
+            for(String tableIdString : selectedTableIdsString){
+                int tableId = Integer.parseInt(tableIdString);
+                Order order = new Order();
+                order.setInvoiceId(invoiceId);
+                order.setChefId(waiter.getUserId());
+                order.setTableId(tableId);               
+                int orderId = OrderDAO.createOrder(order);
+            }
             if (!isError) {
                 request.setAttribute("message", "Mở bàn thành công!");
             } else {
