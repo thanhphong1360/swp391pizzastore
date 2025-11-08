@@ -13,13 +13,14 @@
     </head>
     <body>
         <jsp:include page="TopNav.jsp"></jsp:include>
-        <h1>Manager Home</h1>
-        <div>
-            <a href="#">Staff Accounts</a>
-            <a href="${pageContext.request.contextPath}/manager/ListMenuServlet">Restaurant's Menu</a>
-            <a href="#">Tables</a>
-            <a href="#">Ingredients</a>
-            <a href="#">Restaurant's Statistics</a>
-        </div>
+            <h1>Manager Home</h1>
+            <div>
+                <a href="#">Staff Accounts</a>
+                <a href="${pageContext.request.contextPath}/manager/ListMenuServlet">Restaurant's Menu</a>
+                <a href="${pageContext.request.contextPath}/manager/ListCategoryServlet">Restaurant's Category</a>
+                <a href="#">Tables</a>
+                <a href="#">Ingredients</a>
+                <a href="#">Restaurant's Statistics</a>
+            </div>
     </body>
 </html>

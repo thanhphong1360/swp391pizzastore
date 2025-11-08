@@ -1,6 +1,8 @@
 package model;
 
-public class FoodWithCategory {
+import java.util.List;
+
+public class Menu {
 
     private int foodId;
     private int categoryId;
@@ -10,22 +12,31 @@ public class FoodWithCategory {
     private double price;
     private String status;
     private String categoryName;
-    private String categoryDescription;
+    private String categoryDescription;  
+    private String imgURL;
+    private String size;
+    
+    private List<Ingredient> ingredients;
 
-    public FoodWithCategory() {
+    public Menu() {
     }
 
-    public FoodWithCategory(int foodId, int categoryId, String foodName, String description,
-            double price, String status,
-             String categoryName, String categoryDescription) {
+    public Menu(int foodId, int categoryId, String foodName, String description, double price, String status, String categoryName, String categoryDescription, String imgURL, String size, List<Ingredient> ingredients) {
         this.foodId = foodId;
+        this.categoryId = categoryId;
         this.foodName = foodName;
         this.description = description;
         this.price = price;
         this.status = status;
-        this.categoryId = categoryId;
         this.categoryName = categoryName;
         this.categoryDescription = categoryDescription;
+        this.imgURL = imgURL;
+        this.size = size;
+        this.ingredients = ingredients;
+    }
+
+    public void setFoodId(int foodId) {
+        this.foodId = foodId;
     }
 
     public int getFoodId() {
@@ -87,4 +98,30 @@ public class FoodWithCategory {
     public void setCategoryDescription(String categoryDescription) {
         this.categoryDescription = categoryDescription;
     }
+
+    public String getImgURL() {
+        return imgURL;
+    }
+
+    public void setImgURL(String imgURL) {
+        this.imgURL = imgURL;
+    }
+
+    public String getSize() {
+        return size;
+    }
+
+    public void setSize(String size) {
+        this.size = size;
+    }
+
+    public List<Ingredient> getIngredients() {
+        return ingredients;
+    }
+
+    public void setIngredients(List<Ingredient> ingredients) {
+        this.ingredients = ingredients;
+    }
+
+    
 }

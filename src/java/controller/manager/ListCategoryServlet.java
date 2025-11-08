@@ -5,6 +5,7 @@
 
 package controller.manager;
 
+import dal.CategoryDAO;
 import dal.MenuDAO;
 import jakarta.servlet.RequestDispatcher;
 import java.io.IOException;
@@ -16,14 +17,15 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import java.util.List;
+import model.Category;
 import model.Menu;
 
 /**
  *
  * @author Dystopia
  */
-@WebServlet(name="EditMenuServlet", urlPatterns={"/manager/EditMenuServlet"})
-public class EditMenuServlet extends HttpServlet {
+@WebServlet(name="ListCategoryServlet", urlPatterns={"/manager/ListCategoryServlet"})
+public class ListCategoryServlet extends HttpServlet {
    
     /** 
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
@@ -40,10 +42,10 @@ public class EditMenuServlet extends HttpServlet {
             out.println("<!DOCTYPE html>");
             out.println("<html>");
             out.println("<head>");
-            out.println("<title>Servlet EditMenuServlet</title>");  
+            out.println("<title>Servlet ListCategoryServlet</title>");  
             out.println("</head>");
             out.println("<body>");
-            out.println("<h1>Servlet EditMenuServlet at " + request.getContextPath () + "</h1>");
+            out.println("<h1>Servlet ListCategoryServlet at " + request.getContextPath () + "</h1>");
             out.println("</body>");
             out.println("</html>");
         }
@@ -60,7 +62,15 @@ public class EditMenuServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
-        processRequest(request, response);
+        HttpSession session = request.getSession(false);
+        if (session.getAttribute("user") != null)
+        {   
+            List<Category> cate = CategoryDAO.getAllCategory();
+            request.setAttribute("cateList", cate);
+            
+            RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/View/manager/ListCate.jsp");
+            dispatcher.forward(request, response);
+        }
     } 
 
     /** 
@@ -73,12 +83,16 @@ public class EditMenuServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
-        HttpSession session = request.getSession(false);
-        if (session.getAttribute("user") != null)
-        {
-            
-            RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/View/manager/EditMenu.jsp");
-            dispatcher.forward(request, response);
-        }
+        processRequest(request, response);
     }
+
+    /** 
+     * Returns a short description of the servlet.
+     * @return a String containing servlet description
+     */
+    @Override
+    public String getServletInfo() {
+        return "Short description";
+    }// </editor-fold>
+
 }
