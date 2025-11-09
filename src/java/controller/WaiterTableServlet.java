@@ -130,7 +130,7 @@ public class WaiterTableServlet extends HttpServlet {
                 int tableId = Integer.parseInt(tableIdString);
                 Order order = new Order();
                 order.setInvoiceId(invoiceId);
-                order.setChefId(waiter.getUserId());
+                order.setWaiterId(waiter.getUserId());
                 order.setTableId(tableId);               
                 int orderId = OrderDAO.createOrder(order);
             }

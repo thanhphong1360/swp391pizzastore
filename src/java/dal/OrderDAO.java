@@ -23,17 +23,15 @@ public class OrderDAO {
         DBContext dbc = DBContext.getInstance();
         int newOrderId = 0;
         String sql = """
-        INSERT INTO [dbo].[Orders] (invoice_id, waiter_id, table_id, price, note) 
+        INSERT INTO [dbo].[Orders] (invoice_id, waiter_id, table_id) 
         OUTPUT INSERTED.order_id 
-        VALUES (?, ?, ?, ?, ?)              
+        VALUES (?, ?, ?)              
         """;
         try {
             PreparedStatement statement = dbc.getConnection().prepareStatement(sql);
             statement.setInt(1, order.getInvoiceId());
             statement.setInt(2, order.getWaiterId());
             statement.setInt(3, order.getTableId());
-            statement.setBigDecimal(4, order.getPrice());
-            statement.setString(5, order.getNote());
             ResultSet rs = statement.executeQuery();
             if (rs.next()) {
                 newOrderId = rs.getInt("order_id");
@@ -237,10 +235,42 @@ public class OrderDAO {
         return list.isEmpty() ? null : list;
     }
     
-    public static void main(String[] args) {
-        ArrayList<Order> list = getOrdersByInvoiceId(3);
-        for(Order order : list){
-            System.out.println(order.getOrderId()+" "+order.getPrice());
+    public static Order getPendingOrderByTableId(int tableId) {
+        ArrayList<Order> list = new ArrayList<>();
+        DBContext dbc = DBContext.getInstance();
+        String sql = """
+                     SELECT o.*
+                     FROM [Orders] o
+                     JOIN Invoices i ON o.invoice_id = i.invoice_id
+                     JOIN InvoiceTables it ON it.invoice_id = i.invoice_id
+                     WHERE it.table_id = ?
+                       AND i.status = 'pending';
+                     """;
+        try {
+            PreparedStatement statement = dbc.getConnection().prepareStatement(sql);
+            statement.setInt(1, tableId);
+            ResultSet rs = statement.executeQuery();
+            while (rs.next()) {
+                Order order = new Order(rs.getInt("order_id"),
+                                        rs.getInt("invoice_id"),
+                                        rs.getInt("waiter_id"),
+                                        rs.getInt("chef_id"),
+                                        rs.getInt("table_id"),
+                                        rs.getString("status"),
+                                        rs.getBigDecimal("price"),
+                                        rs.getString("note"),
+                                        rs.getTimestamp("created_at") == null ? null : rs.getTimestamp("created_at").toLocalDateTime());
+                list.add(order);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
         }
+        return list.isEmpty() ? null : list.get(0);
+    }
+    
+    public static void main(String[] args) {
+        Order order = getPendingOrderByTableId(6);
+        System.out.println("Order id: "+order.getOrderId());
     }
 }

@@ -16,12 +16,13 @@ import model.OrderFood;
  * @author cungp
  */
 public class OrderFoodDAO {
+
     public static OrderFood createOrderFood(OrderFood orderFood) {
         DBContext dbc = DBContext.getInstance();
         int rs = 0;
         String sql = """
-        INSERT INTO [dbo].[OrderFoods] (order_id, food_id, quantity, price)
-        VALUES (?, ?, ?, ?)
+        INSERT INTO [dbo].[OrderFoods] (order_id, food_id, quantity, price, note)
+        VALUES (?, ?, ?, ?,?)
         """;
         try {
             PreparedStatement statement = dbc.getConnection().prepareStatement(sql);
@@ -29,6 +30,7 @@ public class OrderFoodDAO {
             statement.setInt(2, orderFood.getFoodId());
             statement.setInt(3, orderFood.getQuantity());
             statement.setBigDecimal(4, orderFood.getPrice());
+            statement.setString(5, orderFood.getNote());
             rs = statement.executeUpdate();
         } catch (Exception e) {
             e.printStackTrace();
@@ -36,7 +38,7 @@ public class OrderFoodDAO {
         }
         return rs == 0 ? null : orderFood;
     }
-    
+
     public static ArrayList<OrderFood> getOrderFoodsByOrderId(int id) {
         ArrayList<OrderFood> list = new ArrayList<>();
         DBContext dbc = DBContext.getInstance();
@@ -46,11 +48,13 @@ public class OrderFoodDAO {
             statement.setInt(1, id);
             ResultSet rs = statement.executeQuery();
             while (rs.next()) {
-                OrderFood orderFood = new OrderFood(rs.getInt("order_id"),
-                                                    rs.getInt("food_id"),
-                                                    rs.getInt("quantity"),
-                                                    rs.getBigDecimal("price"));
-                
+                OrderFood orderFood = new OrderFood(rs.getInt("orderfood_id"),
+                                                rs.getInt("order_id"),
+                                                rs.getInt("food_id"),
+                                                rs.getInt("quantity"),
+                                                rs.getBigDecimal("price"),
+                                                rs.getString("note"));
+
                 list.add(orderFood);
             }
         } catch (Exception e) {
@@ -59,11 +63,70 @@ public class OrderFoodDAO {
         }
         return list.isEmpty() ? null : list;
     }
-    
-    public static void main(String[] args) {
-        ArrayList<OrderFood> list = getOrderFoodsByOrderId(6);
-        for(OrderFood orderFood : list){
-            System.out.println("orderId = "+orderFood.getOrderId()+"foodId = "+orderFood.getFoodId()+"");
+
+    public static ArrayList<OrderFood> getOrderFoodsByOrderIdAndStatus(int orderId, String status) {
+        ArrayList<OrderFood> list = new ArrayList<>();
+        DBContext dbc = DBContext.getInstance();
+        String sql = "SELECT * FROM OrderFoods WHERE order_id = ? AND status = ?";
+        try {
+            PreparedStatement statement = dbc.getConnection().prepareStatement(sql);
+            statement.setInt(1, orderId);
+            statement.setString(2, status);
+            ResultSet rs = statement.executeQuery();
+            while (rs.next()) {
+                OrderFood orderFood = new OrderFood(rs.getInt("orderfood_id"),
+                                                rs.getInt("order_id"),
+                                                rs.getInt("food_id"),
+                                                rs.getInt("quantity"),
+                                                rs.getBigDecimal("price"),
+                                                rs.getString("note"));
+
+                list.add(orderFood);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
         }
+        return list.isEmpty() ? null : list;
+    }
+
+    public static void deleteOrderFood(int orderFoodId) {
+        DBContext dbc = DBContext.getInstance();
+        int rs = 0;
+        String sql = """
+        DELETE FROM [dbo].[OrderFoods] WHERE orderfood_id = ?
+        """;
+        try {
+            PreparedStatement statement = dbc.getConnection().prepareStatement(sql);
+            statement.setInt(1, orderFoodId);
+            rs = statement.executeUpdate();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    
+    public static OrderFood updateOrderFoodQuantity(OrderFood orderFood) {
+        DBContext dbc = DBContext.getInstance();
+        int rs = 0;
+        String sql = """
+        UPDATE [dbo].[OrderFoods]
+        SET quantity = ?
+        WHERE orderfood_id = ?
+        """;
+        try {
+            PreparedStatement statement = dbc.getConnection().prepareStatement(sql);
+            statement.setInt(1, orderFood.getQuantity());
+            statement.setInt(2, orderFood.getOrderFoodId());
+            rs = statement.executeUpdate();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+        return rs == 0 ? null : orderFood;
+    }
+
+    public static void main(String[] args) {
+        OrderFood orderFood = new OrderFood(1, 0, 8, 5, new BigDecimal(10000), "");
+        orderFood = updateOrderFoodQuantity(orderFood);
     }
 }

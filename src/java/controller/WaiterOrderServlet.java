@@ -138,7 +138,25 @@ public class WaiterOrderServlet extends HttpServlet {
                 List<OrderFood> draft = (List<OrderFood>) session.getAttribute("orderDraft_" + tableId);
                 request.setAttribute("draft", draft);
             }
-            //gui danh sach mon de hien thi
+            //gui danh sach completed/rejected foods
+            Order order = OrderDAO.getPendingOrderByTableId(tableId);
+            ArrayList<OrderFood> doneFoods = OrderFoodDAO.getOrderFoodsByOrderIdAndStatus(order.getOrderId(), "completed");
+            if (doneFoods != null) {
+                doneFoods.addAll(OrderFoodDAO.getOrderFoodsByOrderIdAndStatus(order.getOrderId(), "rejected"));
+                for (OrderFood orderFood : doneFoods) {
+                    orderFood.includeFood();
+                }
+            }
+            request.setAttribute("doneFoods", doneFoods);
+            //gui danh sach pending foods
+            ArrayList<OrderFood> pendingFoods = OrderFoodDAO.getOrderFoodsByOrderIdAndStatus(order.getOrderId(), "pending");
+            if (pendingFoods != null) {
+                for (OrderFood orderFood : pendingFoods) {
+                    orderFood.includeFood();
+                }
+            }
+            request.setAttribute("pendingFoods", pendingFoods);
+            //gui danh sach menu
             request.setAttribute("foodList", foodList);
             request.setAttribute("categoryList", categoryList);
             request.getRequestDispatcher("/WEB-INF/View/Waiter/WaiterOrderFood.jsp").forward(request, response);
@@ -159,58 +177,165 @@ public class WaiterOrderServlet extends HttpServlet {
             throws ServletException, IOException {
         String action = request.getParameter("action");
         if ("sendOrder".equals(action)) {
+            request.setCharacterEncoding("UTF-8");
             HttpSession session = request.getSession();
             User waiter = (User) session.getAttribute("user");
-            request.setCharacterEncoding("UTF-8");
-            //lay table id
-            int tableId = Integer.parseInt(request.getParameter("tableId"));
-            //lay invoice id
-            Invoice invoice = InvoiceDAO.getPendingInvoiceByTableId(tableId);
-            //lay note
-            String note = request.getParameter("note");
-            //tao order
-            Order order = new Order();
-            order.setInvoiceId(invoice.getInvoiceId());
-            order.setWaiterId(waiter.getUserId());
-            order.setTableId(tableId);
-            order.setPrice(BigDecimal.valueOf(0));
-            order.setNote(note);
-            int orderId = OrderDAO.createOrder(order);
-            // nhan danh sach food id va so luong
+
+            // 1. Lấy tableId an toàn
+            String tableIdStr = request.getParameter("tableId");
+            if (tableIdStr == null || tableIdStr.isEmpty()) {
+                response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Thiếu tableId");
+                return;
+            }
+            int tableId = Integer.parseInt(tableIdStr);
+
+            // order pending
+            Order order = OrderDAO.getPendingOrderByTableId(tableId);
+
+            // 4. Nhận danh sách món
             String[] foodIds = request.getParameterValues("foodId");
             String[] quantities = request.getParameterValues("quantity");
-            BigDecimal orderPrice = BigDecimal.ZERO;
-            if (foodIds != null && quantities != null) {
+            String[] notes = request.getParameterValues("note");
+
+            if (foodIds == null || quantities == null) {
+                request.setAttribute("notification", "Không có món nào được gửi!");
+            } else {
+                BigDecimal orderPrice = BigDecimal.ZERO;
+
                 for (int i = 0; i < foodIds.length; i++) {
-                    //tinh tien theo mon
-                    BigDecimal quantity = new BigDecimal(quantities[i]);
-                    BigDecimal foodPrice = FoodDAO.getFoodById(Integer.parseInt(foodIds[i])).getPrice();
-                    BigDecimal price = foodPrice.multiply(quantity);
-                    //tinh tien vao order
+                    if (foodIds[i] == null || foodIds[i].isEmpty()) {
+                        continue;
+                    }
+
+                    int foodId = Integer.parseInt(foodIds[i]);
+                    int qty = Integer.parseInt(quantities[i]);
+                    String note = (notes != null && notes.length > i && notes[i] != null) ? notes[i] : "";
+
+                    Food food = FoodDAO.getFoodById(foodId);
+                    BigDecimal price = food.getPrice().multiply(new BigDecimal(qty));
+
                     orderPrice = orderPrice.add(price);
-                    OrderFood orderFood = new OrderFood(orderId,
-                            Integer.parseInt(foodIds[i]),
-                            Integer.parseInt(quantities[i]),
-                            price);
-                    orderFood = OrderFoodDAO.createOrderFood(orderFood);
+
+                    OrderFood orderFood = new OrderFood();
+                    orderFood.setOrderId(order.getOrderId());
+                    orderFood.setFoodId(foodId);
+                    orderFood.setQuantity(qty);
+                    orderFood.setPrice(food.getPrice());
+                    orderFood.setNote(note);
+
+                    OrderFoodDAO.createOrderFood(orderFood);
+                }
+
+                // 5. Cập nhật tổng tiền
+                order.setPrice(orderPrice);
+                OrderDAO.updateOrderPrice(order);
+                request.setAttribute("notification", "Gửi order thành công!");
+            }
+            //gui danh sach done foods
+            ArrayList<OrderFood> doneFoods = OrderFoodDAO.getOrderFoodsByOrderIdAndStatus(order.getOrderId(), "completed");
+            if (doneFoods != null) {
+                doneFoods.addAll(OrderFoodDAO.getOrderFoodsByOrderIdAndStatus(order.getOrderId(), "rejected"));
+                for (OrderFood orderFood : doneFoods) {
+                    orderFood.includeFood();
                 }
             }
-            order.setOrderId(orderId);
-            order.setPrice(orderPrice);
-            order = OrderDAO.updateOrderPrice(order);
-            //tro ve
-            //Lay tat ca ban
-            ArrayList<Table> tableListOccupied = new ArrayList<>();
-            ArrayList<Table> tableList = TableDAO.getAllTable();
-            //Lay ban dang duoc mo
-            for (Table table : tableList) {
-                if ("occupied".equals(table.getStatus())) {
-                    tableListOccupied.add(table);
+            request.setAttribute("doneFoods", doneFoods);
+            //gui danh sach pending foods
+            ArrayList<OrderFood> pendingFoods = OrderFoodDAO.getOrderFoodsByOrderIdAndStatus(order.getOrderId(), "pending");
+            if (pendingFoods != null) {
+                for (OrderFood orderFood : pendingFoods) {
+                    orderFood.includeFood();
                 }
             }
-            request.setAttribute("tableList", tableListOccupied);
-            request.getRequestDispatcher("/WEB-INF/View/Waiter/WaiterTableListToOrder.jsp").forward(request, response);
+            request.setAttribute("pendingFoods", pendingFoods);
+            // 6. Quay lại trang order JSP
+            ArrayList<Category> categoryList = CategoryDAO.getAllCategory();
+            ArrayList<Food> foodList = FoodDAO.getFoodsSearch(0, "");
+
+            request.setAttribute("foodList", foodList);
+            request.setAttribute("categoryList", categoryList);
+            request.setAttribute("tableId", tableId);
+
+            request.getRequestDispatcher("/WEB-INF/View/Waiter/WaiterOrderFood.jsp").forward(request, response);
+        } else if ("updatePending".equals(action)) {
+            request.setCharacterEncoding("UTF-8");
+
+            HttpSession session = request.getSession();
+            User waiter = (User) session.getAttribute("user");
+
+            int tableId = Integer.parseInt(request.getParameter("tableId"));
+
+            // Lấy order pending của bàn này
+            Order order = OrderDAO.getPendingOrderByTableId(tableId);
+            if (order == null) {
+                request.setAttribute("notification", "Không tìm thấy order đang chờ của bàn này!");
+                request.getRequestDispatcher("/WEB-INF/View/Waiter/WaiterOrderFood.jsp").forward(request, response);
+                return;
+            }
+
+            // Lấy danh sách orderFood hiện có trong order này
+            ArrayList<OrderFood> orderFoods = OrderFoodDAO.getOrderFoodsByOrderId(order.getOrderId());
+            BigDecimal totalPrice = BigDecimal.ZERO;
+
+            for (OrderFood of : orderFoods) {
+                int orderFoodId = of.getOrderFoodId();
+
+                // Nếu người dùng tick chọn xóa
+                if (request.getParameter("remove_" + orderFoodId) != null) {
+                    // Xóa món
+                    OrderFoodDAO.deleteOrderFood(orderFoodId);
+                    continue;
+                }
+
+                // Lấy số lượng mới (nếu có)
+                String qtyStr = request.getParameter("quantity_" + orderFoodId);
+                if (qtyStr != null && !qtyStr.isEmpty()) {
+                    int newQty = Integer.parseInt(qtyStr);
+
+                    // Cập nhật số lượng và giá
+                    Food food = FoodDAO.getFoodById(of.getFoodId());
+                    BigDecimal newPrice = food.getPrice().multiply(BigDecimal.valueOf(newQty));
+
+                    of.setQuantity(newQty);
+                    of.setPrice(food.getPrice()); // giá từng món
+                    OrderFoodDAO.updateOrderFoodQuantity(of);
+
+                    // Cộng vào tổng tiền order
+                    totalPrice = totalPrice.add(newPrice);
+                }
+            }
+
+            // Cập nhật lại tổng giá order
+            order.setPrice(totalPrice);
+            OrderDAO.updateOrderPrice(order);
+
+            // Gửi lại dữ liệu cho JSP
+            ArrayList<OrderFood> doneFoods = OrderFoodDAO.getOrderFoodsByOrderIdAndStatus(order.getOrderId(), "completed");
+            if (doneFoods != null) {
+                doneFoods.addAll(OrderFoodDAO.getOrderFoodsByOrderIdAndStatus(order.getOrderId(), "rejected"));
+                for (OrderFood orderFood : doneFoods) {
+                    orderFood.includeFood();
+                }
+            }
+            request.setAttribute("doneFoods", doneFoods);
+            ArrayList<OrderFood> pendingFoods = OrderFoodDAO.getOrderFoodsByOrderIdAndStatus(order.getOrderId(), "pending");
+            if (pendingFoods != null) {
+                for (OrderFood orderFood : pendingFoods) {
+                    orderFood.includeFood();
+                }
+            }
+            request.setAttribute("pendingFoods", pendingFoods);
+            ArrayList<Category> categoryList = CategoryDAO.getAllCategory();
+            ArrayList<Food> foodList = FoodDAO.getFoodsSearch(0, "");
+
+            request.setAttribute("categoryList", categoryList);
+            request.setAttribute("foodList", foodList);
+            request.setAttribute("tableId", tableId);
+            request.setAttribute("notification", "Cập nhật order thành công!");
+
+            request.getRequestDispatcher("/WEB-INF/View/Waiter/WaiterOrderFood.jsp").forward(request, response);
         }
+
     }
 
     /**

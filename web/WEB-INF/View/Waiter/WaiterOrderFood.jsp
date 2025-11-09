@@ -104,6 +104,7 @@
                 <input type="hidden" name="action" value="open">
                 <button type="submit" class="action">← Quay lại danh sách bàn</button>
             </form>
+            <h4>${notification}</h4>
         </header>
 
         <div class="container">
@@ -157,15 +158,41 @@
                 <button class="action" onclick="sendDraft()">Gửi order mới</button>
             </section>
 
-            <!-- Các section pending / done giữ nguyên -->
             <section>
                 <h3>Đang chờ duyệt (Pending)</h3>
-                <!-- ... -->
+                <form id="pendingForm" action="${pageContext.request.contextPath}/waiter/Order" method="POST">
+                    <input type="hidden" name="action" value="updatePending">
+                    <input type="hidden" name="tableId" value="${tableId}">
+                    <table>
+                        <tr><th>Món</th><th>SL</th><th>Tổng</th><th></th></tr>
+                                <c:forEach var="of" items="${pendingFoods}">
+                            <tr>
+                                <td>${of.food.name}</td>
+                                <td><input type="number" name="quantity_${of.orderFoodId}" value="${of.quantity}" min="1" style="width:50px;"></td>
+                                <td>${of.price * of.quantity}</td>
+                                <td><input type="checkbox" name="remove_${of.orderFoodId}"> Xóa</td>
+                            </tr>
+                        </c:forEach>
+                    </table>
+                    <c:if test="${not empty pendingFoods}"><button type="submit" class="action">Xác nhận thay đổi</button></c:if>
+                </form>
             </section>
 
             <section>
-                <h3>Món đã gửi</h3>
-                <!-- ... -->
+                <section>
+                    <h3>Món đã hoàn thành</h3>
+                    <table>
+                        <tr><th>Món</th><th>SL</th><th>Trạng thái</th><th>Ghi chú</th></tr>
+                                <c:forEach var="of" items="${doneFoods}">
+                            <tr>
+                                <td>${of.food.name}</td>
+                                <td>${of.quantity}</td>
+                                <td>${of.status}</td>
+                                <td>${of.note}</td>
+                            </tr>
+                        </c:forEach>
+                    </table>
+                </section>
             </section>
         </div>
 
@@ -257,20 +284,50 @@
                     alert("Vui lòng chọn ít nhất 1 món!");
                     return;
                 }
+
                 const form = document.createElement("form");
                 form.method = "POST";
                 form.action = "${pageContext.request.contextPath}/waiter/Order";
-                form.innerHTML += `<input type="hidden" name="action" value="sendDraft">
-                                   <input type="hidden" name="tableId" value="${tableId}">`;
+
+                // input cố định
+                const actionInput = document.createElement("input");
+                actionInput.type = "hidden";
+                actionInput.name = "action";
+                actionInput.value = "sendOrder";
+                form.appendChild(actionInput);
+
+                const tableInput = document.createElement("input");
+                tableInput.type = "hidden";
+                tableInput.name = "tableId";
+                tableInput.value = ${tableId};
+                form.appendChild(tableInput);
+
+                // các món trong draft
                 draft.forEach(it => {
-                    form.innerHTML += `<input type="hidden" name="foodId" value="${it.id}">
-                                       <input type="hidden" name="quantity" value="${it.qty}">
-                                       <input type="hidden" name="note" value="${it.note}">`;
+                    const foodId = document.createElement("input");
+                    foodId.type = "hidden";
+                    foodId.name = "foodId";
+                    foodId.value = it.id;
+                    form.appendChild(foodId);
+
+                    const qty = document.createElement("input");
+                    qty.type = "hidden";
+                    qty.name = "quantity";
+                    qty.value = it.qty;
+                    form.appendChild(qty);
+
+                    const note = document.createElement("input");
+                    note.type = "hidden";
+                    note.name = "note";
+                    note.value = it.note;
+                    form.appendChild(note);
                 });
+
                 document.body.appendChild(form);
+                console.log(form.innerHTML);
                 form.submit();
-                renderDraft();
             }
+
         </script>
 
     </body>
