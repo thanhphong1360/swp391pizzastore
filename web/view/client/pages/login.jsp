@@ -1,16 +1,10 @@
-<%-- 
-    Document   : login
-    Created on : Sep 28, 2025, 11:35:21 PM
-    Author     : HP
---%>
-
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 
 <div class="login-container">
     <div class="container" id="container">
         <div class="form-container sign-in-container">
-            <form action="${pageContext.request.contextPath}/Login" method="post">
+            <form action="${pageContext.request.contextPath}/Login" method="POST">
                 <h1>Login</h1>
                 Email: <br>
                 <input type="email" name="username" placeholder="Email" required /><p>
