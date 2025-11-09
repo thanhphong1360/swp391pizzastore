@@ -18,23 +18,7 @@
             <div>
                 <form action="${pageContext.request.contextPath}/chef/Order" method="GET">
                 <input type="hidden" name="action" value="browse">
-                <input type="hidden" name="status" value="pending">
-                <input type="submit" value="Pending orders">
-                </form>
-                <form action="${pageContext.request.contextPath}/chef/Order" method="GET">
-                <input type="hidden" name="action" value="browse">
-                <input type="hidden" name="status" value="doing">
-                <input type="submit" value="Doing orders">
-                </form>
-                <form action="${pageContext.request.contextPath}/chef/Order" method="GET">
-                <input type="hidden" name="action" value="browse">
-                <input type="hidden" name="status" value="completed">
-                <input type="submit" value="Completed orders">
-                </form>
-                <form action="${pageContext.request.contextPath}/chef/Order" method="GET">
-                <input type="hidden" name="action" value="browse">
-                <input type="hidden" name="status" value="rejected">
-                <input type="submit" value="Rejected orders">
+                <input type="submit" value="Orders">
                 </form>
             </div>
             <h3>Ingredients</h3>

@@ -19,6 +19,7 @@ public class OrderFood {
     private int quantity;
     private BigDecimal price;
     private String note;
+    private String status;
     
     private Order order;
     private Food food;
@@ -115,6 +116,14 @@ public class OrderFood {
 
     public void setOrderFoodId(int orderFoodId) {
         this.orderFoodId = orderFoodId;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
     
     

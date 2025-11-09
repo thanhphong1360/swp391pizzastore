@@ -63,6 +63,33 @@ public class OrderFoodDAO {
         }
         return list.isEmpty() ? null : list;
     }
+    
+    public static ArrayList<OrderFood> getOrderFoodsByStatus(String status) {
+        ArrayList<OrderFood> list = new ArrayList<>();
+        DBContext dbc = DBContext.getInstance();
+        String sql = "SELECT * FROM OrderFoods WHERE status = ?";
+        try {
+            PreparedStatement statement = dbc.getConnection().prepareStatement(sql);
+            statement.setString(1, status);
+            ResultSet rs = statement.executeQuery();
+            while (rs.next()) {
+                OrderFood orderFood = new OrderFood();
+                orderFood.setOrderFoodId(rs.getInt("orderfood_id"));
+                orderFood.setStatus(rs.getString("status"));
+                orderFood.setOrderId(rs.getInt("order_id"));
+                orderFood.setFoodId(rs.getInt("food_id"));
+                orderFood.setQuantity(rs.getInt("quantity"));
+                orderFood.setPrice(rs.getBigDecimal("price"));
+                orderFood.setNote(rs.getString("note"));
+
+                list.add(orderFood);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+        return list.isEmpty() ? null : list;
+    }
 
     public static ArrayList<OrderFood> getOrderFoodsByOrderIdAndStatus(int orderId, String status) {
         ArrayList<OrderFood> list = new ArrayList<>();
@@ -123,6 +150,24 @@ public class OrderFoodDAO {
             return null;
         }
         return rs == 0 ? null : orderFood;
+    }
+    
+    public static void updateOrderFoodStatus(int orderFoodId, String status) {
+        DBContext dbc = DBContext.getInstance();
+        int rs = 0;
+        String sql = """
+        UPDATE [dbo].[OrderFoods]
+        SET status = ?
+        WHERE orderfood_id = ?
+        """;
+        try {
+            PreparedStatement statement = dbc.getConnection().prepareStatement(sql);
+            statement.setString(1, status);
+            statement.setInt(2, orderFoodId);
+            rs = statement.executeUpdate();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public static void main(String[] args) {
