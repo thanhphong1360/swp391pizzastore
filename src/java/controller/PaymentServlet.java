@@ -58,10 +58,6 @@ public class PaymentServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        request.setAttribute("orderId", 3);
-        request.setAttribute("customerName", "Test User");
-        request.setAttribute("totalAmount", 447000.00);
-
         request.getRequestDispatcher("/WEB-INF/View/payment/checkout.jsp").forward(request, response);
     }
 
@@ -78,13 +74,14 @@ public class PaymentServlet extends HttpServlet {
             throws ServletException, IOException {
         String method = request.getParameter("method");
         String orderIdStr = request.getParameter("orderId");
-        String amountStr = request.getParameter("amount");
+        String amountStr = request.getParameter("totalAmount"); // ← Đổi tên cho rõ
+        String customerName = request.getParameter("customerName");
         String discountCode = request.getParameter("discountCode");
 
         // Validate
-        if (orderIdStr == null || amountStr == null || method == null) {
-            setError(request, "Thiếu thông tin thanh toán.");
-            forwardToCheckout(request, response, orderIdStr, "Khách hàng", amountStr);
+        if (orderIdStr == null || amountStr == null || method == null || customerName == null) {
+            request.setAttribute("error", "Thiếu thông tin thanh toán. Vui lòng thử lại.");
+            request.getRequestDispatcher("/WEB-INF/View/payment/checkout.jsp").forward(request, response);
             return;
         }
 
@@ -92,27 +89,15 @@ public class PaymentServlet extends HttpServlet {
             int orderId = Integer.parseInt(orderIdStr);
             BigDecimal totalAmount = new BigDecimal(amountStr);
 
-            // Áp dụng mã giảm giá
-            BigDecimal discountAmount = BigDecimal.ZERO;
-            String discountMsg = null;
+            // Xử lý discount...
+            BigDecimal finalAmount = totalAmount; // sau khi giảm
 
-            if (discountCode != null && !discountCode.trim().isEmpty()) {
-                if ("TEST10".equalsIgnoreCase(discountCode.trim())) {
-                    discountAmount = totalAmount.multiply(new BigDecimal("0.1"));
-                    discountMsg = "Giảm 10% thành công!";
-                } else {
-                    discountMsg = "Mã giảm giá không hợp lệ.";
-                }
-            }
-
-            BigDecimal finalAmount = totalAmount.subtract(discountAmount);
-
-            // Forward
+            // Forward với đầy đủ dữ liệu
             request.setAttribute("orderId", orderId);
+            request.setAttribute("customerName", customerName);
+            request.setAttribute("totalAmount", totalAmount);
             request.setAttribute("amount", finalAmount);
             request.setAttribute("gateway", method);
-            request.setAttribute("discountMsg", discountMsg);
-            request.setAttribute("originalAmount", totalAmount);
 
             String view = method.equalsIgnoreCase("VNPay")
                     ? "/WEB-INF/View/payment/vnpay.jsp"
@@ -121,8 +106,8 @@ public class PaymentServlet extends HttpServlet {
             request.getRequestDispatcher(view).forward(request, response);
 
         } catch (NumberFormatException e) {
-            setError(request, "Số tiền không hợp lệ.");
-            forwardToCheckout(request, response, orderIdStr, "Khách hàng", amountStr);
+            request.setAttribute("error", "Số tiền không hợp lệ.");
+            request.getRequestDispatcher("/WEB-INF/View/payment/checkout.jsp").forward(request, response);
         }
 
     }
