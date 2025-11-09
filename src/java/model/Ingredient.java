@@ -15,9 +15,10 @@ public class Ingredient {
     private Timestamp updatedAt;
     private boolean status;
 
-    public Ingredient() {}
+    public Ingredient() {
+    }
 
-    public Ingredient(int ingredientId, String name, String description, String unit, double quantity, Timestamp updatedAt,boolean status) {
+    public Ingredient(int ingredientId, String name, String description, String unit, double quantity, Timestamp updatedAt, boolean status) {
         this.ingredientId = ingredientId;
         this.name = name;
         this.description = description;
@@ -26,29 +27,60 @@ public class Ingredient {
         this.updatedAt = updatedAt;
         this.status = status;
     }
+
     public boolean isStatus() {
-    return status;
-}
+        return status;
+    }
 
-public void setStatus(boolean status) {
-    this.status = status;
-}
+    public void setStatus(boolean status) {
+        this.status = status;
+    }
 
-    public int getIngredientId() { return ingredientId; }
-    public void setIngredientId(int ingredientId) { this.ingredientId = ingredientId; }
+    public int getIngredientId() {
+        return ingredientId;
+    }
 
-    public String getName() { return name; }
-    public void setName(String name) { this.name = name; }
+    public void setIngredientId(int ingredientId) {
+        this.ingredientId = ingredientId;
+    }
 
-    public String getDescription() { return description; }
-    public void setDescription(String description) { this.description = description; }
+    public String getName() {
+        return name;
+    }
 
-    public String getUnit() { return unit; }
-    public void setUnit(String unit) { this.unit = unit; }
+    public void setName(String name) {
+        this.name = name;
+    }
 
-    public double getQuantity() { return quantity; }
-    public void setQuantity(double quantity) { this.quantity = quantity; }
+    public String getDescription() {
+        return description;
+    }
 
-    public Timestamp getUpdatedAt() { return updatedAt; }
-    public void setUpdatedAt(Timestamp updatedAt) { this.updatedAt = updatedAt; }
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public String getUnit() {
+        return unit;
+    }
+
+    public void setUnit(String unit) {
+        this.unit = unit;
+    }
+
+    public double getQuantity() {
+        return quantity;
+    }
+
+    public void setQuantity(double quantity) {
+        this.quantity = quantity;
+    }
+
+    public Timestamp getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(Timestamp updatedAt) {
+        this.updatedAt = updatedAt;
+    }
 }

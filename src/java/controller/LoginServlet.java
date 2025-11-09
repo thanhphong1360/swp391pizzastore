@@ -87,7 +87,7 @@ public class LoginServlet extends HttpServlet {
         if (email == null || email.isEmpty() || password == null || password.isEmpty()) {
             alertMsg = "Email and password can't be empty!";
             request.setAttribute("alert", alertMsg);
-            request.getRequestDispatcher("/view/client/pages/login.jsp").forward(request, response);
+            request.getRequestDispatcher("/WEB-INF/View/client/pages/login.jsp").forward(request, response);
             return;
         }
 
@@ -95,7 +95,7 @@ public class LoginServlet extends HttpServlet {
         if (!email.matches(emailRegex)) {
             alertMsg = "Invalid email format! Please enter a valid email address.";
             request.setAttribute("alert", alertMsg);
-            request.getRequestDispatcher("/views/client/pages/login.jsp").forward(request, response);
+            request.getRequestDispatcher("/WEB-INF/Views/client/pages/login.jsp").forward(request, response);
             return;
         }
 
