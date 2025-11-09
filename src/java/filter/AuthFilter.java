@@ -18,14 +18,17 @@ public class AuthFilter implements Filter {
 
         String uri = req.getRequestURI();
         HttpSession session = req.getSession(false);
+   
+        if (uri.contains("login.jsp")
+                || uri.contains("/Login")   
+                || uri.contains("/Home")
+                || uri.contains("register.jsp")
+                || uri.endsWith("/register")
+               || uri.contains("/view/client/pages/forgot_password.jsp")
+|| uri.contains("/forgot-password")
+                || uri.contains("/change-password")
 
-        // Cho phép vào trang login và resources tĩnh
-        if (uri.endsWith("login.jsp") || uri.endsWith("Login") || uri.contains("/assets/")) {
-            chain.doFilter(request, response);
-            return;
-        }
-        
-        if(uri.contains("login.jsp") || uri.contains("/Login") || uri.contains("/Home")){
+                || uri.contains("/assets/")) {
             chain.doFilter(request, response);
             return;
         }

@@ -11,7 +11,11 @@
                 Password:<br>
                 <input type="password" name="password" placeholder="Password" required /><p>
                 <button type="submit">Sign In</button>
-                <button type="submit">Sign Up</button>
+               <a href="${pageContext.request.contextPath}/register" class="button-link">Sign Up</a>
+<a href="${pageContext.request.contextPath}/view/client/pages/forgot_password.jsp" class="button-link">Forgot Password</a>
+
+
+               
                 <c:if test="${alert != null}">
                     <p style="color: red;">"${alert}"</p>
                 </c:if>
