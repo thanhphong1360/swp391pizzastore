@@ -1,23 +1,17 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package model;
 
-/**
- *
- * @author HP
- */
 import java.util.Date;
 
 public class User {
 
     private int userId;
     private int roleId;
+    private String roleName;
     private String email;
     private String password;
     private String name;
     private Date createdAt;
+    private boolean status;
 
     public User() {
     }
@@ -45,6 +39,14 @@ public class User {
 
     public void setRoleId(int roleId) {
         this.roleId = roleId;
+    }
+
+    public String getRoleName() {
+        return roleName;
+    }
+
+    public void setRoleName(String roleName) {
+        this.roleName = roleName;
     }
 
     public String getEmail() {
@@ -79,4 +81,11 @@ public class User {
         this.createdAt = createdAt;
     }
 
+    public boolean isStatus() {
+        return status;
+    }
+
+    public void setStatus(boolean status) {
+        this.status = status;
+    }
 }

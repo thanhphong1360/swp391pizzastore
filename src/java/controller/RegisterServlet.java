@@ -8,6 +8,7 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import model.User;
+import org.mindrot.jbcrypt.BCrypt;
 
 @WebServlet("/register") 
 public class RegisterServlet extends HttpServlet {
@@ -53,7 +54,8 @@ public class RegisterServlet extends HttpServlet {
         }
 
        
-        User newUser = new User(0, 6, email, password, name, null);
+        String hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt(12));
+User newUser = new User(0, 6, email, hashedPassword, name, null);
         boolean success = userDAO.insertUser(newUser);
 
         if (success) {
