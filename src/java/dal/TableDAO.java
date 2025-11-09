@@ -1,20 +1,20 @@
 package dal;
 
-import model.Table;
+import model.RestaurantTable;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public class TableDAO extends DBContext {
 
-    public List<Table> getAllTables() {
-        List<Table> list = new ArrayList<>();
-        String sql = "SELECT * FROM Tables";
+    public List<RestaurantTable> getAllTables() {
+        List<RestaurantTable> list = new ArrayList<>();
+        String sql = "SELECT * FROM RestaurantTables";
         try (PreparedStatement ps = connection.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
             while (rs.next()) {
-                list.add(new Table(
+                list.add(new RestaurantTable(
                         rs.getInt("table_id"),
-                        rs.getString("table_name"),
+                        rs.getString("table_number"),
                         rs.getInt("capacity"),
                         rs.getString("status"),
                         rs.getString("location")
@@ -26,15 +26,15 @@ public class TableDAO extends DBContext {
         return list;
     }
 
-    public Table getTableById(int id) {
-        String sql = "SELECT * FROM Tables WHERE table_id = ?";
+    public RestaurantTable getTableById(int id) {
+        String sql = "SELECT * FROM RestaurantTables WHERE table_id = ?";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setInt(1, id);
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
-                return new Table(
+                return new RestaurantTable(
                         rs.getInt("table_id"),
-                        rs.getString("table_name"),
+                        rs.getString("table_number"),
                         rs.getInt("capacity"),
                         rs.getString("status"),
                         rs.getString("location")
@@ -46,10 +46,10 @@ public class TableDAO extends DBContext {
         return null;
     }
 
-    public void addTable(Table t) {
-        String sql = "INSERT INTO Tables (table_name, capacity, status, location) VALUES (?, ?, ?, ?)";
+    public void addTable(RestaurantTable t) {
+        String sql = "INSERT INTO RestaurantTables (table_number, capacity, status, location) VALUES (?, ?, ?, ?)";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
-            ps.setString(1, t.getTableName());
+            ps.setString(1, t.getTableNumber());
             ps.setInt(2, t.getCapacity());
             ps.setString(3, t.getStatus());
             ps.setString(4, t.getLocation());
@@ -59,10 +59,10 @@ public class TableDAO extends DBContext {
         }
     }
 
-    public boolean updateTable(Table t) {
-        String sql = "UPDATE Tables SET table_name=?, capacity=?, status=?, location=? WHERE table_id=?";
+    public boolean updateTable(RestaurantTable t) {
+        String sql = "UPDATE RestaurantTables SET table_number=?, capacity=?, status=?, location=? WHERE table_id=?";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
-            ps.setString(1, t.getTableName());
+            ps.setString(1, t.getTableNumber());
             ps.setInt(2, t.getCapacity());
             ps.setString(3, t.getStatus());
             ps.setString(4, t.getLocation());
@@ -75,7 +75,7 @@ public class TableDAO extends DBContext {
     }
 
     public void deleteTable(int id) {
-        String sql = "DELETE FROM Tables WHERE table_id=?";
+        String sql = "DELETE FROM RestaurantTables WHERE table_id=?";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setInt(1, id);
             ps.executeUpdate();

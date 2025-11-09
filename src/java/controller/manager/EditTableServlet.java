@@ -12,7 +12,7 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import model.Table;
+import model.RestaurantTable;
 
 /**
  *
@@ -69,8 +69,8 @@ public class EditTableServlet extends HttpServlet {
 
         try {
             int id = Integer.parseInt(idParam);
-            Table table = new TableDAO().getTableById(id);
-            // SỬA: Xử lý Table not found
+            RestaurantTable table = new TableDAO().getTableById(id);
+            // SỬA: Xử lý RestaurantTable not found
             if (table == null) {
                 request.setAttribute("error", "Table not found!");
                 request.getRequestDispatcher("/manager/table/list").forward(request, response);
@@ -96,13 +96,13 @@ public class EditTableServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         String idStr = request.getParameter("table_id");
-        String name = request.getParameter("table_name");
+        String number = request.getParameter("table_number");
         String capacityStr = request.getParameter("capacity");
         String status = request.getParameter("status");
         String location = request.getParameter("location");
 
         // SỬA: Kiểm tra dữ liệu
-        if (idStr == null || name == null || name.trim().isEmpty() || capacityStr == null || capacityStr.trim().isEmpty()) {
+        if (idStr == null || number == null || number.trim().isEmpty() || capacityStr == null || capacityStr.trim().isEmpty()) {
             request.setAttribute("error", "Please fill out all required fields.");
             request.getRequestDispatcher("/WEB-INF/View/manager/table/edit-table.jsp").forward(request, response);
             return;
@@ -117,7 +117,7 @@ public class EditTableServlet extends HttpServlet {
                 return;
             }
 
-            Table t = new Table(id, name.trim(), capacity, status != null ? status : "Available", location);
+            RestaurantTable t = new RestaurantTable(id, number.trim(), capacity, status != null ? status : "Available", location);
             boolean success = new TableDAO().updateTable(t);
 
             if (success) {

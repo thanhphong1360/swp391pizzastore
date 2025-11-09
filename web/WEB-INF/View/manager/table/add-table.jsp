@@ -8,10 +8,10 @@
         <link rel="stylesheet" href="${pageContext.request.contextPath}/css/bootstrap.min.css">
         <script>
             function validateForm() {
-                let name = document.forms["addTableForm"]["table_name"].value.trim();
+                let number = document.forms["addTableForm"]["table_number"].value.trim();
                 let cap = document.forms["addTableForm"]["capacity"].value.trim();
 
-                if (name === "" || cap === "") {
+                if (number === "" || cap === "") {
                     alert("Please fill out all required fields.");
                     return false;
                 }
@@ -36,10 +36,10 @@
                   onsubmit="return validateForm()">
 
                 <div class="form-group mb-3">
-                    <label>Table Name <span class="text-danger">*</span></label>
+                    <label>Table Number <span class="text-danger">*</span></label>
                     <!-- SỬA: Giữ giá trị khi lỗi -->
-                    <input type="text" name="table_name" class="form-control"
-                           value="${not empty param.table_name ? param.table_name : ''}">
+                    <input type="text" name="table_number" class="form-control"
+                           value="${not empty param.table_number ? param.table_number : ''}">
                 </div>
 
                 <div class="form-group mb-3">

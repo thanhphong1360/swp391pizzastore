@@ -8,10 +8,10 @@
         <link rel="stylesheet" href="${pageContext.request.contextPath}/css/bootstrap.min.css">
         <script>
             function validateEditForm() {
-                let name = document.forms["editTableForm"]["table_name"].value.trim();
+                let number = document.forms["editTableForm"]["table_number"].value.trim();
                 let cap = document.forms["editTableForm"]["capacity"].value.trim();
 
-                if (name === "" || cap === "") {
+                if (number === "" || cap === "") {
                     alert("Please fill out all required fields.");
                     return false;
                 }
@@ -34,9 +34,9 @@
                 <input type="hidden" name="table_id" value="${table.tableId}">
 
                 <div class="form-group mb-3">
-                    <label>Table Name <span class="text-danger">*</span></label>
-                    <input type="text" name="table_name" class="form-control"
-                           value="${table.tableName}">
+                    <label>Table Number <span class="text-danger">*</span></label>
+                    <input type="text" name="table_number" class="form-control"
+                           value="${table.tableNumber}">
                 </div>
 
                 <div class="form-group mb-3">

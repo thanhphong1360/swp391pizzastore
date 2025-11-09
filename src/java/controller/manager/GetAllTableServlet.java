@@ -13,14 +13,14 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.util.List;
-import model.Table;
+import model.RestaurantTable;
 
 /**
  *
  * @author HP
  */
 @WebServlet(name = "ListTableServlet", urlPatterns = {"/manager/table/list"})
-public class ListTableServlet extends HttpServlet {
+public class GetAllTableServlet extends HttpServlet {
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -61,7 +61,7 @@ public class ListTableServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         TableDAO dao = new TableDAO();
-        List<Table> list = dao.getAllTables();
+        List<RestaurantTable> list = dao.getAllTables();
         
         request.setAttribute("tables", list);
         request.setAttribute("totalTables", list.size());

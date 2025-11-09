@@ -12,7 +12,7 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import model.Table;
+import model.RestaurantTable;
 
 /**
  *
@@ -73,13 +73,13 @@ public class AddTableServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        String name = request.getParameter("table_name");
+        String number = request.getParameter("table_number");
         String capacityStr = request.getParameter("capacity");
         String status = request.getParameter("status");
         String location = request.getParameter("location");
 
         // SỬA: Kiểm tra null + trim
-        if (name == null || name.trim().isEmpty() || capacityStr == null || capacityStr.trim().isEmpty()) {
+        if (number == null || number.trim().isEmpty() || capacityStr == null || capacityStr.trim().isEmpty()) {
             request.setAttribute("error", "Please fill out all required fields.");
             // SỬA: Giữ lại dữ liệu người dùng nhập
             request.setAttribute("param", request.getParameterMap());
@@ -97,7 +97,7 @@ public class AddTableServlet extends HttpServlet {
                 return;
             }
 
-            Table t = new Table(0, name.trim(), capacity, status != null ? status : "Available", location);
+            RestaurantTable t = new RestaurantTable(0, number.trim(), capacity, status != null ? status : "Available", location);
             new TableDAO().addTable(t);
 
             // SỬA: redirect đúng

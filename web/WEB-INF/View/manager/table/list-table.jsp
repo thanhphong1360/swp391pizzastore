@@ -14,7 +14,6 @@
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <h2>Table Management</h2>
 
-                <!-- SỬA: Dùng Servlet thay vì link trực tiếp JSP -->
                 <a href="${pageContext.request.contextPath}/manager/table/add" class="btn btn-success">
                     + Add New Table
                 </a>
@@ -36,7 +35,7 @@
                     <thead class="table-dark">
                         <tr>
                             <th>ID</th>
-                            <th>Table Name</th>
+                            <th>Table Number</th>
                             <th>Capacity</th>
                             <th>Status</th>
                             <th>Location</th>
@@ -47,7 +46,7 @@
                         <c:forEach var="t" items="${tables}">
                             <tr>
                                 <td>${t.tableId}</td>
-                                <td>${t.tableName}</td>
+                                <td>${t.tableNumber}</td>
                                 <td>${t.capacity}</td>
                                 <td>
                                     <c:choose>
@@ -64,7 +63,6 @@
                                 </td>
                                 <td>${t.location}</td>
                                 <td>
-                                    <!-- SỬA: Gọi Edit qua Servlet -->
                                     <form action="${pageContext.request.contextPath}/manager/table/edit"
                                           method="get"
                                           style="display:inline;">
@@ -72,11 +70,10 @@
                                         <button type="submit" class="btn btn-sm btn-primary">Edit</button>
                                     </form>
 
-                                    <!-- SỬA: Gọi confirm delete -->
                                     <form action="${pageContext.request.contextPath}/manager/table/delete"
                                           method="post"
                                           style="display:inline;"
-                                          onsubmit="return confirm('Are you sure you want to delete table `${t.tableName}`?');">
+                                          onsubmit="return confirm('Are you sure you want to delete table `${t.tableNumber}`?');">
                                         <input type="hidden" name="table_id" value="${t.tableId}">
                                         <button type="submit" class="btn btn-sm btn-danger">Delete</button>
                                     </form>
