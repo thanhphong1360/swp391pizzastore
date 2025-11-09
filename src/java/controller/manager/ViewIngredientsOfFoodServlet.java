@@ -5,33 +5,26 @@
 
 package controller.manager;
 
-import dal.CategoryDAO;
 import dal.MenuDAO;
 import jakarta.servlet.RequestDispatcher;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
-import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
-import jakarta.servlet.http.Part;
-import java.io.File;
-import java.nio.file.Paths;
 import java.util.List;
-import model.Category;
+import model.Ingredient;
 import model.Menu;
 
 /**
  *
  * @author Dystopia
  */
-@WebServlet(name="EditMenuServlet", urlPatterns={"/manager/EditMenuServlet"})
-@MultipartConfig
-
-public class EditMenuServlet extends HttpServlet {
+@WebServlet(name="ViewIngredientsOfFoodServlet", urlPatterns={"/manager/ViewIngredientsOfFoodServlet"})
+public class ViewIngredientsOfFoodServlet extends HttpServlet {
    
     /** 
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
@@ -48,10 +41,10 @@ public class EditMenuServlet extends HttpServlet {
             out.println("<!DOCTYPE html>");
             out.println("<html>");
             out.println("<head>");
-            out.println("<title>Servlet EditMenuServlet</title>");  
+            out.println("<title>Servlet ViewIngredientsOfFoodServlet</title>");  
             out.println("</head>");
             out.println("<body>");
-            out.println("<h1>Servlet EditMenuServlet at " + request.getContextPath () + "</h1>");
+            out.println("<h1>Servlet ViewIngredientsOfFoodServlet at " + request.getContextPath () + "</h1>");
             out.println("</body>");
             out.println("</html>");
         }
@@ -69,18 +62,25 @@ public class EditMenuServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
         HttpSession session = request.getSession(false);
-        if (session.getAttribute("user") != null)
-        {      
+        if (session.getAttribute("user") != null) {
+            // Lấy foodId từ tham số URL
             int foodId = Integer.parseInt(request.getParameter("foodId"));
+
+            // Lấy món ăn từ cơ sở dữ liệu
             Menu menu = MenuDAO.getFoodById(foodId);
-            CategoryDAO cateDAO = new CategoryDAO();
-            List<Category> cateList = cateDAO.getAllCategoryName();
-            
+
+            // Lấy nguyên liệu của món ăn
+            List<Ingredient> ingredients = MenuDAO.getIngredientsByFoodId(foodId);
+
+            // Chuyển dữ liệu món ăn và nguyên liệu vào request
             request.setAttribute("menu", menu);
-            request.setAttribute("categories", cateList);
-            RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/View/manager/EditMenu.jsp");
+            request.setAttribute("ingredients", ingredients);
+
+            // Chuyển tiếp đến trang quản lý nguyên liệu
+            RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/View/manager/ViewIngredientsOfFood.jsp");
             dispatcher.forward(request, response);
         }
+    
     } 
 
     /** 
@@ -93,35 +93,16 @@ public class EditMenuServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
-        HttpSession session = request.getSession(false);
-        if (session.getAttribute("user") != null)
-        {      
-         
-            int foodId = Integer.parseInt(request.getParameter("foodId"));
-            String foodName = request.getParameter("foodName");
-            String description = request.getParameter("description");
-            double price = Double.parseDouble(request.getParameter("price"));
-            String status = request.getParameter("status");
-            String size = request.getParameter("size");
-            int categoryId = Integer.parseInt(request.getParameter("category_id"));
-
-            String imageUrl = null;
-            Part filePart = request.getPart("imageUrl");
-            if (filePart != null && filePart.getSize() > 0) {
-                String fileName = Paths.get(filePart.getSubmittedFileName()).getFileName().toString();
-                String uploadPath = getServletContext().getRealPath("") + File.separator + "images" + File.separator + fileName;
-                File file = new File(uploadPath);
-
-                
-                if (!file.getParentFile().exists()) {
-                    file.getParentFile().mkdirs();
-                }
-                filePart.write(uploadPath);  
-                imageUrl = "images/" + fileName;  
-            }       
-            MenuDAO.updateFoodForMenu(foodId, foodName, description, price, imageUrl, status, size, categoryId);
-            response.sendRedirect(request.getContextPath() + "/manager/ListMenuServlet");
-        
-        }
+        processRequest(request, response);
     }
+
+    /** 
+     * Returns a short description of the servlet.
+     * @return a String containing servlet description
+     */
+    @Override
+    public String getServletInfo() {
+        return "Short description";
+    }// </editor-fold>
+
 }

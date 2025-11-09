@@ -4,6 +4,8 @@
  */
 package dal;
 
+import jakarta.servlet.RequestDispatcher;
+import jakarta.servlet.http.HttpSession;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -87,8 +89,57 @@ public class MenuDAO {
         }
     }
 
-    public static void editFoodForMenu() {
+    public static Menu getFoodById(int foodId) {
+        Menu menu = null;
+        String sql = "SELECT * FROM Foods WHERE food_id = ?";
+        PreparedStatement ps = null;
+        try {
+            DBContext db = DBContext.getInstance();
+            Connection conn = db.connection; // dùng connection của DBContext; KHÔNG close conn ở đây
+            ps = conn.prepareStatement(sql);
+            ps.setInt(1, foodId);
+            ResultSet rs = ps.executeQuery();
 
+            if (rs.next()) {
+                menu = new Menu();
+                menu.setFoodId(rs.getInt("food_id"));
+                menu.setFoodName(rs.getString("name"));
+                menu.setDescription(rs.getString("description"));
+                menu.setPrice(rs.getDouble("price"));
+                menu.setImgURL(rs.getString("image_url"));
+                menu.setStatus(rs.getString("status"));
+                menu.setSize(rs.getString("size"));
+                menu.setCategoryId(rs.getInt("category_id"));
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return menu;
+    }
+
+    public static void updateFoodForMenu(int foodId, String foodName, String description, double price,
+            String imageUrl, String status, String size, int categoryId) {
+        String sql = "UPDATE Foods SET name = ?, description = ?, price = ?, image_url = ?, status = ?, size = ?, category_id = ? "
+                + "WHERE food_id = ?";
+        PreparedStatement ps = null;
+        try {
+            DBContext db = DBContext.getInstance();
+            Connection conn = db.connection; 
+            ps = conn.prepareStatement(sql);
+            ps.setString(1, foodName);
+            ps.setString(2, description);
+            ps.setDouble(3, price);
+            ps.setString(4, imageUrl); // 
+            ps.setString(5, status);
+            ps.setString(6, size);
+            ps.setInt(7, categoryId);
+            ps.setInt(8, foodId); // 
+
+            ps.executeUpdate();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public static List<Ingredient> getIngredientsByFoodId(int foodId) {

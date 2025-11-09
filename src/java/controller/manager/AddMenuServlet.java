@@ -101,7 +101,6 @@ public class AddMenuServlet extends HttpServlet {
 
             String size = request.getParameter("size");
 
-            // Xử lý upload ảnh (nếu có)
             Part filePart = request.getPart("imageUrl");
             String imageUrl = null;
             if (filePart != null && filePart.getSize() > 0) {
@@ -109,20 +108,14 @@ public class AddMenuServlet extends HttpServlet {
                 String uploadPath = getServletContext().getRealPath("") + File.separator + "images" + File.separator + fileName;
                 File file = new File(uploadPath);
 
-                // Kiểm tra nếu thư mục không tồn tại thì tạo nó
                 if (!file.getParentFile().exists()) {
                     file.getParentFile().mkdirs();
                 }
 
-                filePart.write(uploadPath);  // Lưu ảnh vào thư mục images
-                imageUrl = "images/" + fileName;  // Lưu đường dẫn ảnh vào cơ sở dữ liệu
+                filePart.write(uploadPath);  
+                imageUrl = "images/" + fileName;  
             }
-
-            // Lưu món ăn vào cơ sở dữ liệu
-            MenuDAO.addFoodForMenu(foodName, description, price, imageUrl, status, size, categoryId);
-
-            // Sau khi lưu món ăn xong, chuyển hướng đến trang danh sách món ăn
-            
+            MenuDAO.addFoodForMenu(foodName, description, price, imageUrl, status, size, categoryId);         
             response.sendRedirect(request.getContextPath() + "/manager/ListMenuServlet");
         }
     }

@@ -62,8 +62,14 @@
                             </c:choose>
                         </td>
                         <td>
-                            <form method="post" action="${pageContext.request.contextPath}/manager/EditMenuServlet">
+                            <form method="get" action="${pageContext.request.contextPath}/manager/EditMenuServlet">
+                                <input type="hidden" name="foodId" value="${f.foodId}">
                                 <input type="submit" value="Edit" name="edit_food">
+                            </form>
+                            <!-- Nút xem công thức món -->
+                            <form method="get" action="${pageContext.request.contextPath}/manager/ViewIngredientsOfFoodServlet">
+                                <input type="hidden" name="foodId" value="${f.foodId}">
+                                <input type="submit" value="Xem Công Thức">
                             </form>
                         </td>
                     </tr>
