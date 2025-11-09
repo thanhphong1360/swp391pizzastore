@@ -6,12 +6,7 @@ package model;
 
 import java.sql.Timestamp;
 
-/**
- *
- * @author Dystopia
- */
 public class Ingredient {
-
     private int ingredientId;
     private String name;
     private String description;

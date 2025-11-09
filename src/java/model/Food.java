@@ -6,10 +6,6 @@ package model;
 
 import java.math.BigDecimal;
 
-/**
- *
- * @author Dystopia
- */
 public class Food {
     private int foodId;
     private int categoryId;
@@ -38,6 +34,9 @@ public class Food {
         return foodId;
     }
 
+    public void setFoodId(int foodId) {
+        this.foodId = foodId;
+    }
     public int getCategoryId() {
         return categoryId;
     }

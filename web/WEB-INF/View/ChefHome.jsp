@@ -16,7 +16,7 @@
         <h1>Chef Home</h1>
         <div>
             <a href="#">Food orders</a>
-            <a href="#">Restaurant's Ingredients</a>
+            <a href="${pageContext.request.contextPath}/chef-ingredients">Update Ingredients</a>
         </div>
     </body>
 </html>
