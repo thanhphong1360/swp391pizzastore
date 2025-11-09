@@ -4,6 +4,8 @@
  */
 package model;
 
+import java.math.BigDecimal;
+
 /**
  *
  * @author Dystopia
@@ -13,7 +15,7 @@ public class Food {
     private int categoryId;
     private String name;
     private String description;
-    private double price;
+    private BigDecimal price;
     private String status;
     private String imgURL;
     private String size;
@@ -21,7 +23,7 @@ public class Food {
     public Food() {
     }
 
-    public Food(int foodId, int categoryId, String name, String description, double price, String status, String imgURL, String size) {
+    public Food(int foodId, int categoryId, String name, String description, BigDecimal price, String status, String imgURL, String size) {
         this.foodId = foodId;
         this.categoryId = categoryId;
         this.name = name;
@@ -60,11 +62,11 @@ public class Food {
         this.description = description;
     }
 
-    public double getPrice() {
+    public BigDecimal getPrice() {
         return price;
     }
 
-    public void setPrice(double price) {
+    public void setPrice(BigDecimal price) {
         this.price = price;
     }
 
