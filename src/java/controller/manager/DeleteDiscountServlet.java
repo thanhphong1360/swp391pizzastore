@@ -90,14 +90,28 @@ public class DeleteDiscountServlet extends HttpServlet {
             throws ServletException, IOException {
 
         try {
-            int id = Integer.parseInt(request.getParameter("id"));
+            String idParam = request.getParameter("id");
+
+            // Kiểm tra id hợp lệ
+            if (idParam == null || idParam.trim().isEmpty()) {
+                response.sendRedirect(request.getContextPath() + "/manager/discount/list?error=invalid_id");
+                return;
+            }
+
+            int id = Integer.parseInt(idParam.trim());
+
             DiscountDAO dao = new DiscountDAO();
-            dao.delete(id);
-            response.sendRedirect(request.getContextPath() + "/manager/discount/list");
+            boolean success = dao.delete(id);
+
+            if (success) {
+                response.sendRedirect(request.getContextPath() + "/manager/discount/list?msg=deleted");
+            } else {
+                response.sendRedirect(request.getContextPath() + "/manager/discount/list?error=delete_failed");
+            }
+
         } catch (Exception e) {
             e.printStackTrace();
-            request.setAttribute("error", "Delete discount failed: " + e.getMessage());
-            request.getRequestDispatcher("/WEB-INF/View/manager/discount/list-discount.jsp").forward(request, response);
+            response.sendRedirect(request.getContextPath() + "/manager/discount/list?error=exception");
         }
     }
 
