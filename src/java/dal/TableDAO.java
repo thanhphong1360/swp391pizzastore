@@ -78,5 +78,42 @@ public class TableDAO {
             return null;
         }
         return rs == 0 ? null : table;
+
+    public void addTable(RestaurantTable t) {
+        String sql = "INSERT INTO RestaurantTables (table_number, capacity, status, location) VALUES (?, ?, ?, ?)";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, t.getTableNumber());
+            ps.setInt(2, t.getCapacity());
+            ps.setString(3, t.getStatus());
+            ps.setString(4, t.getLocation());
+            ps.executeUpdate();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public boolean updateTable(RestaurantTable t) {
+        String sql = "UPDATE RestaurantTables SET table_number=?, capacity=?, status=?, location=? WHERE table_id=?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, t.getTableNumber());
+            ps.setInt(2, t.getCapacity());
+            ps.setString(3, t.getStatus());
+            ps.setString(4, t.getLocation());
+            ps.setInt(5, t.getTableId());
+            ps.executeUpdate();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public void deleteTable(int id) {
+        String sql = "DELETE FROM RestaurantTables WHERE table_id=?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, id);
+            ps.executeUpdate();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

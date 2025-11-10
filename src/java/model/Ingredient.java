@@ -4,39 +4,44 @@
  */
 package model;
 
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.sql.Timestamp;
 
-/**
- *
- * @author cungp
- */
 public class Ingredient {
-    private int ingedientId;
+    private int ingredientId;
     private String name;
     private String description;
     private String unit;
-    private BigDecimal quantity;
-    private LocalDateTime updated_at;
+    private double quantity;
+    private Timestamp updatedAt;
+    private boolean status;
 
     public Ingredient() {
     }
 
-    public Ingredient(int ingedientId, String name, String description, String unit, BigDecimal quantity, LocalDateTime updated_at) {
-        this.ingedientId = ingedientId;
+    public Ingredient(int ingredientId, String name, String description, String unit, double quantity, Timestamp updatedAt, boolean status) {
+        this.ingredientId = ingredientId;
         this.name = name;
         this.description = description;
         this.unit = unit;
         this.quantity = quantity;
-        this.updated_at = updated_at;
+        this.updatedAt = updatedAt;
+        this.status = status;
     }
 
-    public int getIngedientId() {
-        return ingedientId;
+    public boolean isStatus() {
+        return status;
     }
 
-    public void setIngedientId(int ingedientId) {
-        this.ingedientId = ingedientId;
+    public void setStatus(boolean status) {
+        this.status = status;
+    }
+
+    public int getIngredientId() {
+        return ingredientId;
+    }
+
+    public void setIngredientId(int ingredientId) {
+        this.ingredientId = ingredientId;
     }
 
     public String getName() {
@@ -63,21 +68,19 @@ public class Ingredient {
         this.unit = unit;
     }
 
-    public BigDecimal getQuantity() {
+    public double getQuantity() {
         return quantity;
     }
 
-    public void setQuantity(BigDecimal quantity) {
+    public void setQuantity(double quantity) {
         this.quantity = quantity;
     }
 
-    public LocalDateTime getUpdated_at() {
-        return updated_at;
+    public Timestamp getUpdatedAt() {
+        return updatedAt;
     }
 
-    public void setUpdated_at(LocalDateTime updated_at) {
-        this.updated_at = updated_at;
+    public void setUpdatedAt(Timestamp updatedAt) {
+        this.updatedAt = updatedAt;
     }
-    
-    
 }

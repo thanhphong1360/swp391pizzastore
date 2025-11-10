@@ -23,7 +23,7 @@
             </div>
             <h3>Ingredients</h3>
             <div>
-                <a href="#">Restaurant's Ingredients</a>
+                <a href="${pageContext.request.contextPath}/chef-ingredients">Update Ingredients</a>
             </div> 
     </body>
 </html>

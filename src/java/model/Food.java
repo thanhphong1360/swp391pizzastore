@@ -6,10 +6,6 @@ package model;
 
 import java.math.BigDecimal;
 
-/**
- *
- * @author cungp
- */
 public class Food {
     private int foodId;
     private int categoryId;
@@ -17,17 +13,21 @@ public class Food {
     private String description;
     private BigDecimal price;
     private String status;
+    private String imgURL;
+    private String size;
 
     public Food() {
     }
 
-    public Food(int foodId, int categoryId, String name, String description, BigDecimal price, String status) {
+    public Food(int foodId, int categoryId, String name, String description, BigDecimal price, String status, String imgURL, String size) {
         this.foodId = foodId;
         this.categoryId = categoryId;
         this.name = name;
         this.description = description;
         this.price = price;
         this.status = status;
+        this.imgURL = imgURL;
+        this.size = size;
     }
 
     public int getFoodId() {
@@ -37,7 +37,6 @@ public class Food {
     public void setFoodId(int foodId) {
         this.foodId = foodId;
     }
-
     public int getCategoryId() {
         return categoryId;
     }
@@ -76,6 +75,22 @@ public class Food {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public String getImgURL() {
+        return imgURL;
+    }
+
+    public void setImgURL(String imgURL) {
+        this.imgURL = imgURL;
+    }
+
+    public String getSize() {
+        return size;
+    }
+
+    public void setSize(String size) {
+        this.size = size;
     }
     
     

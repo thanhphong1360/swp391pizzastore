@@ -36,6 +36,29 @@
         <servlet-name>CashierInvoiceServlet</servlet-name>
         <servlet-class>controller.CashierInvoiceServlet</servlet-class>
     </servlet>
+        <servlet-name>RegisterServlet</servlet-name>
+        <servlet-class>controller.RegisterServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>IngredientServlet</servlet-name>
+        <servlet-class>controller.IngredientServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>ForgotPasswordServlet</servlet-name>
+        <servlet-class>controller.ForgotPasswordServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>IngredientServlet</servlet-name>
+        <url-pattern>/manager/ingredients</url-pattern>
+    </servlet-mapping>
+    <servlet>
+        <servlet-name>UserServlet</servlet-name>
+        <servlet-class>controller.UserServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>UserServlet</servlet-name>
+        <url-pattern>/manager/users</url-pattern>
+    </servlet-mapping>
     <servlet-mapping>
         <servlet-name>HomeServlet</servlet-name>
         <url-pattern>/Home</url-pattern>
@@ -63,5 +86,7 @@
     <servlet-mapping>
         <servlet-name>CashierInvoiceServlet</servlet-name>
         <url-pattern>/cashier/Invoice</url-pattern>
+        <servlet-name>ForgotPasswordServlet</servlet-name>
+        <url-pattern>/forgot_password</url-pattern>
     </servlet-mapping>
 </web-app>

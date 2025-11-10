@@ -4,30 +4,30 @@
  */
 package model;
 
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.util.Date;
 
 /**
  *
- * @author cungp
+ * @author HP
  */
 public class Discount {
+
     private int discountId;
     private String code;
     private String description;
-    private String type; //percent, fixed
-    private BigDecimal value;
-    private LocalDateTime startDate;
-    private LocalDateTime endDate;
-    private BigDecimal minPrice; // 0 = all
-    private BigDecimal maxAmount;
-    private String status;
-    private LocalDateTime createdAt;
+    private String type;
+    private double value;
+    private Date startDate;
+    private Date endDate;
+    private double minInvoicePrice;
+    private double maxDiscountAmount;
+    private boolean status;
+    private Date createdAt;
 
     public Discount() {
     }
 
-    public Discount(int discountId, String code, String description, String type, BigDecimal value, LocalDateTime startDate, LocalDateTime endDate, BigDecimal minPrice, BigDecimal maxAmount, String status, LocalDateTime createdAt) {
+    public Discount(int discountId, String code, String description, String type, double value, Date startDate, Date endDate, double minInvoicePrice, double maxDiscountAmount, boolean status, Date createdAt) {
         this.discountId = discountId;
         this.code = code;
         this.description = description;
@@ -35,8 +35,8 @@ public class Discount {
         this.value = value;
         this.startDate = startDate;
         this.endDate = endDate;
-        this.minPrice = minPrice;
-        this.maxAmount = maxAmount;
+        this.minInvoicePrice = minInvoicePrice;
+        this.maxDiscountAmount = maxDiscountAmount;
         this.status = status;
         this.createdAt = createdAt;
     }
@@ -73,62 +73,60 @@ public class Discount {
         this.type = type;
     }
 
-    public BigDecimal getValue() {
+    public double getValue() {
         return value;
     }
 
-    public void setValue(BigDecimal value) {
+    public void setValue(double value) {
         this.value = value;
     }
 
-    public LocalDateTime getStartDate() {
+    public Date getStartDate() {
         return startDate;
     }
 
-    public void setStartDate(LocalDateTime startDate) {
+    public void setStartDate(Date startDate) {
         this.startDate = startDate;
     }
 
-    public LocalDateTime getEndDate() {
+    public Date getEndDate() {
         return endDate;
     }
 
-    public void setEndDate(LocalDateTime endDate) {
+    public void setEndDate(Date endDate) {
         this.endDate = endDate;
     }
 
-    public BigDecimal getMinPrice() {
-        return minPrice;
+    public double getMinInvoicePrice() {
+        return minInvoicePrice;
     }
 
-    public void setMinPrice(BigDecimal minPrice) {
-        this.minPrice = minPrice;
+    public void setMinInvoicePrice(double minInvoicePrice) {
+        this.minInvoicePrice = minInvoicePrice;
     }
 
-    public BigDecimal getMaxAmount() {
-        return maxAmount;
+    public double getMaxDiscountAmount() {
+        return maxDiscountAmount;
     }
 
-    public void setMaxAmount(BigDecimal maxAmount) {
-        this.maxAmount = maxAmount;
+    public void setMaxDiscountAmount(double maxDiscountAmount) {
+        this.maxDiscountAmount = maxDiscountAmount;
     }
 
-    public String getStatus() {
+    public boolean isStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(boolean status) {
         this.status = status;
     }
 
-    public LocalDateTime getCreatedAt() {
+    public Date getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(LocalDateTime createdAt) {
+    public void setCreatedAt(Date createdAt) {
         this.createdAt = createdAt;
     }
-    
-    
-    
+
 }
