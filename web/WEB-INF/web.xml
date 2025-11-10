@@ -36,6 +36,7 @@
         <servlet-name>CashierInvoiceServlet</servlet-name>
         <servlet-class>controller.CashierInvoiceServlet</servlet-class>
     </servlet>
+    <servlet>
         <servlet-name>RegisterServlet</servlet-name>
         <servlet-class>controller.RegisterServlet</servlet-class>
     </servlet>
@@ -86,6 +87,8 @@
     <servlet-mapping>
         <servlet-name>CashierInvoiceServlet</servlet-name>
         <url-pattern>/cashier/Invoice</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>     
         <servlet-name>ForgotPasswordServlet</servlet-name>
         <url-pattern>/forgot_password</url-pattern>
     </servlet-mapping>

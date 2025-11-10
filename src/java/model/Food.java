@@ -30,6 +30,17 @@ public class Food {
         this.size = size;
     }
 
+    public Food(int foodId, int categoryId, String name, String description, BigDecimal price, String status) {
+        this.foodId = foodId;
+        this.categoryId = categoryId;
+        this.name = name;
+        this.description = description;
+        this.price = price;
+        this.status = status;
+    }
+    
+    
+
     public int getFoodId() {
         return foodId;
     }

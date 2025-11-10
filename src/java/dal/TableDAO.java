@@ -4,9 +4,11 @@
  */
 package dal;
 
+import com.sun.jdi.connect.spi.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
+import model.RestaurantTable;
 
 import model.Table;
 
@@ -15,6 +17,7 @@ import model.Table;
  * @author cungp
  */
 public class TableDAO {
+    
     public static ArrayList<Table> getAllTable() {
         ArrayList<Table> list = new ArrayList<>();
         DBContext dbc = DBContext.getInstance();
@@ -60,6 +63,7 @@ public class TableDAO {
         return list.isEmpty() ? null : list.get(0);
     }
     
+    
     public static Table updateTableStatus(Table table, String status) {
         DBContext dbc = DBContext.getInstance();
         int rs = 0;
@@ -78,10 +82,12 @@ public class TableDAO {
             return null;
         }
         return rs == 0 ? null : table;
+    }
 
     public void addTable(RestaurantTable t) {
+        DBContext dbc = DBContext.getInstance();
         String sql = "INSERT INTO RestaurantTables (table_number, capacity, status, location) VALUES (?, ?, ?, ?)";
-        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+        try (PreparedStatement ps = dbc.getConnection().prepareStatement(sql)) {
             ps.setString(1, t.getTableNumber());
             ps.setInt(2, t.getCapacity());
             ps.setString(3, t.getStatus());
@@ -93,8 +99,9 @@ public class TableDAO {
     }
 
     public boolean updateTable(RestaurantTable t) {
+        DBContext dbc = DBContext.getInstance();
         String sql = "UPDATE RestaurantTables SET table_number=?, capacity=?, status=?, location=? WHERE table_id=?";
-        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+        try (PreparedStatement ps = dbc.getConnection().prepareStatement(sql)) {
             ps.setString(1, t.getTableNumber());
             ps.setInt(2, t.getCapacity());
             ps.setString(3, t.getStatus());
@@ -108,8 +115,9 @@ public class TableDAO {
     }
 
     public void deleteTable(int id) {
+        DBContext dbc = DBContext.getInstance();
         String sql = "DELETE FROM RestaurantTables WHERE table_id=?";
-        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+        try (PreparedStatement ps = dbc.getConnection().prepareStatement(sql)) {
             ps.setInt(1, id);
             ps.executeUpdate();
         } catch (Exception e) {

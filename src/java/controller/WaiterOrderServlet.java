@@ -4,8 +4,6 @@
  */
 package controller;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
 import dal.CategoryDAO;
 import dal.TableDAO;
 import java.io.IOException;
@@ -91,7 +89,7 @@ public class WaiterOrderServlet extends HttpServlet {
             request.setAttribute("tableId", tableId);
             request.setAttribute("tableNumber", tableNumber);
             ArrayList<Food> foodList = FoodDAO.getFoodsSearch(categoryId, search);
-            ArrayList<Category> categoryList = CategoryDAO.getAllCategory();
+            List<Category> categoryList = CategoryDAO.getAllCategory();
             //gui lai draft order
             String[] foodIds = request.getParameterValues("foodId");
             String[] quantities = request.getParameterValues("quantity");
@@ -249,7 +247,7 @@ public class WaiterOrderServlet extends HttpServlet {
             }
             request.setAttribute("pendingFoods", pendingFoods);
             // 6. Quay lại trang order JSP
-            ArrayList<Category> categoryList = CategoryDAO.getAllCategory();
+            List<Category> categoryList = CategoryDAO.getAllCategory();
             ArrayList<Food> foodList = FoodDAO.getFoodsSearch(0, "");
 
             request.setAttribute("foodList", foodList);
@@ -325,7 +323,7 @@ public class WaiterOrderServlet extends HttpServlet {
                 }
             }
             request.setAttribute("pendingFoods", pendingFoods);
-            ArrayList<Category> categoryList = CategoryDAO.getAllCategory();
+            List<Category> categoryList = CategoryDAO.getAllCategory();
             ArrayList<Food> foodList = FoodDAO.getFoodsSearch(0, "");
 
             request.setAttribute("categoryList", categoryList);

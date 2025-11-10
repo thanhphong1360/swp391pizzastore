@@ -13,6 +13,7 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import model.RestaurantTable;
+import model.Table;
 
 /**
  *
@@ -69,7 +70,7 @@ public class EditTableServlet extends HttpServlet {
 
         try {
             int id = Integer.parseInt(idParam);
-            RestaurantTable table = new TableDAO().getTableById(id);
+            Table table = new TableDAO().getTableById(id);
             // SỬA: Xử lý RestaurantTable not found
             if (table == null) {
                 request.setAttribute("error", "Table not found!");

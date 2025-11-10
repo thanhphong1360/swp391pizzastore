@@ -14,6 +14,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.util.List;
 import model.RestaurantTable;
+import model.Table;
 
 /**
  *
@@ -61,7 +62,7 @@ public class GetAllTableServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         TableDAO dao = new TableDAO();
-        List<RestaurantTable> list = dao.getAllTables();
+        List<Table> list = dao.getAllTable();
         
         request.setAttribute("tables", list);
         request.setAttribute("totalTables", list.size());

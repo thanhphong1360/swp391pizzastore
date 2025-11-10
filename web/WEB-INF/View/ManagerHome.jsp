@@ -18,7 +18,7 @@
                 <a href="${pageContext.request.contextPath}/manager/users">Staff Accounts</a>
                 <a href="${pageContext.request.contextPath}/manager/ListMenuServlet">Restaurant's Menu</a>
                 <a href="${pageContext.request.contextPath}/manager/ListCategoryServlet">Restaurant's Category</a>
-                <a href="#">Tables</a>
+                <a href="${pageContext.request.contextPath}/manager/table/list">Tables</a>
                 <a href="${pageContext.request.contextPath}/manager/ingredients">Ingredients</a>
                 <a href="#">Restaurant's Statistics</a>
               <a href="${pageContext.request.contextPath}/auditlog">AuditLog</a>
