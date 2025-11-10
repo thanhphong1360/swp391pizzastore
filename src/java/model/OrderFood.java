@@ -4,6 +4,8 @@
  */
 package model;
 
+import dal.FoodDAO;
+import dal.OrderDAO;
 import java.math.BigDecimal;
 
 /**
@@ -11,10 +13,17 @@ import java.math.BigDecimal;
  * @author cungp
  */
 public class OrderFood {
+    private int orderFoodId;
     private int orderId;
     private int foodId;
     private int quantity;
     private BigDecimal price;
+    private String note;
+    private String status;
+    
+    private Order order;
+    private Food food;
+    private String foodName;
 
     public OrderFood() {
     }
@@ -25,6 +34,17 @@ public class OrderFood {
         this.quantity = quantity;
         this.price = price;
     }
+
+    public OrderFood(int orderFoodId, int orderId, int foodId, int quantity, BigDecimal price, String note) {
+        this.orderFoodId = orderFoodId;
+        this.orderId = orderId;
+        this.foodId = foodId;
+        this.quantity = quantity;
+        this.price = price;
+        this.note = note;
+    }
+    
+    
 
     public int getOrderId() {
         return orderId;
@@ -56,6 +76,54 @@ public class OrderFood {
 
     public void setPrice(BigDecimal price) {
         this.price = price;
+    }
+    
+    public void includeOrder(){
+        this.order = OrderDAO.getOrderById(this.orderId);
+    }
+    
+    public Order getOrder(){
+        return this.order;
+    }
+    
+    public void includeFood(){
+        this.food = FoodDAO.getFoodById(this.foodId);
+    }
+    
+    public Food getFood(){
+        return this.food;
+    }
+
+    public String getNote() {
+        return note;
+    }
+
+    public void setNote(String note) {
+        this.note = note;
+    }
+
+    public String getFoodName() {
+        return foodName;
+    }
+
+    public void setFoodName(String foodName) {
+        this.foodName = foodName;
+    }
+
+    public int getOrderFoodId() {
+        return orderFoodId;
+    }
+
+    public void setOrderFoodId(int orderFoodId) {
+        this.orderFoodId = orderFoodId;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
     
     

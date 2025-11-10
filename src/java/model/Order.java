@@ -4,8 +4,12 @@
  */
 package model;
 
+import dal.OrderFoodDAO;
+import dal.TableDAO;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import dal.UserDAO;
+import java.util.ArrayList;
 
 /**
  *
@@ -21,6 +25,12 @@ public class Order {
     private BigDecimal price;
     private String note;
     private LocalDateTime created_at;
+    
+    private Table table;
+    private User waiter;
+    private User chef;
+    
+    private ArrayList<OrderFood> orderFoodList;
 
     public Order() {
     }
@@ -109,5 +119,37 @@ public class Order {
         this.created_at = created_at;
     }
     
+    
+    public void includeTable(){
+        this.table = TableDAO.getTableById(this.tableId);
+    }
+
+    public Table getTable() {
+        return table;
+    }
+    
+    public void includeWaiter(){
+        this.waiter = UserDAO.getUserById(this.waiterId);
+    }
+
+    public User getWaiter() {
+        return this.waiter;
+    }
+    
+    public void includeChef(){
+        this.chef = UserDAO.getUserById(this.chefId);
+    }
+
+    public User getChef() {
+        return this.chef;
+    }
+    
+    public void includeOrderFood(){
+        this.orderFoodList = OrderFoodDAO.getOrderFoodsByOrderId(this.orderId);
+    }
+    
+    public ArrayList<OrderFood> getOrderFoodList(){
+        return this.orderFoodList;
+    }
     
 }

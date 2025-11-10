@@ -15,7 +15,10 @@
         <jsp:include page="TopNav.jsp"></jsp:include>
         <h1>Cashier Home</h1>
         <div>
-            <a href="#">Pay Invoice</a>
+            <form action="${pageContext.request.contextPath}/cashier/Invoice" method="GET">
+            <input type="hidden" name="action" value="checkoutList">
+            <input type="submit" value="Thanh toán hóa đơn">
+            </form>
             <a href="#">Invoice List</a>
         </div>
     </body>

@@ -21,6 +21,21 @@
         <servlet-class>controller.LogoutServlet</servlet-class>
     </servlet>
     <servlet>
+        <servlet-name>WaiterTableServlet</servlet-name>
+        <servlet-class>controller.WaiterTableServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>WaiterOrderServlet</servlet-name>
+        <servlet-class>controller.WaiterOrderServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>ChefOrderServlet</servlet-name>
+        <servlet-class>controller.ChefOrderServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>CashierInvoiceServlet</servlet-name>
+        <servlet-class>controller.CashierInvoiceServlet</servlet-class>
+    </servlet>
         <servlet-name>RegisterServlet</servlet-name>
         <servlet-class>controller.RegisterServlet</servlet-class>
     </servlet>
@@ -57,6 +72,20 @@
         <url-pattern>/Logout</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
+        <servlet-name>WaiterTableServlet</servlet-name>
+        <url-pattern>/waiter/Table</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>WaiterOrderServlet</servlet-name>
+        <url-pattern>/waiter/Order</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>ChefOrderServlet</servlet-name>
+        <url-pattern>/chef/Order</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>CashierInvoiceServlet</servlet-name>
+        <url-pattern>/cashier/Invoice</url-pattern>
         <servlet-name>ForgotPasswordServlet</servlet-name>
         <url-pattern>/forgot_password</url-pattern>
     </servlet-mapping>

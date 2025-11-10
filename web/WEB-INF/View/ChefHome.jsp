@@ -13,10 +13,17 @@
     </head>
     <body>
         <jsp:include page="TopNav.jsp"></jsp:include>
-        <h1>Chef Home</h1>
-        <div>
-            <a href="#">Food orders</a>
-            <a href="${pageContext.request.contextPath}/chef-ingredients">Update Ingredients</a>
-        </div>
+            <h1>Chef Home</h1>
+            <h3>Orders</h3>
+            <div>
+                <form action="${pageContext.request.contextPath}/chef/Order" method="GET">
+                <input type="hidden" name="action" value="browse">
+                <input type="submit" value="Orders">
+                </form>
+            </div>
+            <h3>Ingredients</h3>
+            <div>
+                <a href="${pageContext.request.contextPath}/chef-ingredients">Update Ingredients</a>
+            </div> 
     </body>
 </html>

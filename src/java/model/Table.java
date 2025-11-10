@@ -10,7 +10,7 @@ package model;
  */
 public class Table {
     private int tableId;
-    private String table_number;
+    private String tableNumber;
     private int capacity;
     private String location;
     private String status;
@@ -20,7 +20,7 @@ public class Table {
 
     public Table(int tableId, String table_number, int capacity, String location, String status) {
         this.tableId = tableId;
-        this.table_number = table_number;
+        this.tableNumber = table_number;
         this.capacity = capacity;
         this.location = location;
         this.status = status;
@@ -28,7 +28,7 @@ public class Table {
 
     public Table(int tableId, String table_number, String status) {
         this.tableId = tableId;
-        this.table_number = table_number;
+        this.tableNumber = table_number;
         this.status = status;
     }
 
@@ -40,12 +40,12 @@ public class Table {
         this.tableId = tableId;
     }
 
-    public String getTable_number() {
-        return table_number;
+    public String getTableNumber() {
+        return tableNumber;
     }
 
-    public void setTable_number(String table_number) {
-        this.table_number = table_number;
+    public void setTableNumber(String tableNumber) {
+        this.tableNumber = tableNumber;
     }
 
     public int getCapacity() {

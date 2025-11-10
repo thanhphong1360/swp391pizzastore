@@ -13,6 +13,7 @@ import java.time.LocalDateTime;
  */
 public class Invoice {
     private int invoiceId;
+    private String invoiceCode;
     private int dicountId;
     private int waiterId;
     private int cashierId;
@@ -20,12 +21,17 @@ public class Invoice {
     private BigDecimal price;
     private BigDecimal finalPrice;
     private LocalDateTime createdAt;
+    private LocalDateTime paidAt;
+    private String note;
+    
+    private String tableNumbers;
 
     public Invoice() {
     }
 
-    public Invoice(int invoiceId, int dicountId, int waiterId, int cashierId, String status, BigDecimal price, BigDecimal finalPrice, LocalDateTime createdAt) {
+    public Invoice(int invoiceId, String invoiceCode, int dicountId, int waiterId, int cashierId, String status, BigDecimal price, BigDecimal finalPrice, LocalDateTime createdAt, LocalDateTime paidAt, String note) {
         this.invoiceId = invoiceId;
+        this.invoiceCode = invoiceCode;
         this.dicountId = dicountId;
         this.waiterId = waiterId;
         this.cashierId = cashierId;
@@ -33,7 +39,11 @@ public class Invoice {
         this.price = price;
         this.finalPrice = finalPrice;
         this.createdAt = createdAt;
+        this.paidAt = paidAt;
+        this.note = note;
     }
+
+    
 
     public int getInvoiceId() {
         return invoiceId;
@@ -98,6 +108,40 @@ public class Invoice {
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
     }
+
+    public String getInvoiceCode() {
+        return invoiceCode;
+    }
+
+    public void setInvoiceCode(String invoiceCode) {
+        this.invoiceCode = invoiceCode;
+    }
+
+    public LocalDateTime getPaidAt() {
+        return paidAt;
+    }
+
+    public void setPaidAt(LocalDateTime paidAt) {
+        this.paidAt = paidAt;
+    }
+
+    public String getNote() {
+        return note;
+    }
+
+    public void setNote(String note) {
+        this.note = note;
+    }
+
+    public String getTableNumbers() {
+        return tableNumbers;
+    }
+
+    public void setTableNumbers(String tableNumbers) {
+        this.tableNumbers = tableNumbers;
+    }
+    
+    
     
     
 }
