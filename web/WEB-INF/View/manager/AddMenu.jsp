@@ -1,62 +1,105 @@
-<%-- 
-    Document   : AddMenu
-    Created on : Oct 21, 2025, 2:22:10 PM
-    Author     : Dystopia
---%>
-
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
 <!DOCTYPE html>
-<html>
+<html lang="vi">
     <head>
-        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        <title>JSP Page</title>
+        <meta charset="UTF-8">
+        <title>Thêm Món Mới</title>
+        <!-- Bootstrap 5 CDN -->
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+        <script>
+            // Kiểm tra khi submit form
+            function validateForm() {
+                var price = document.getElementById("price").value;
+
+                // Kiểm tra xem giá trị có phải là số và không âm
+                if (price < 0 || isNaN(price)) {
+                    alert("Vui lòng nhập giá hợp lệ (không âm).");
+                    return false;  // Dừng việc submit nếu có lỗi
+                }
+
+                // Nếu không có lỗi, form sẽ được submit
+                return true;
+            }
+        </script>
     </head>
-    <body>
-    <h1>Thêm Món Mới</h1>
-    <form action="${pageContext.request.contextPath}/manager/AddMenuServlet" method="post" enctype="multipart/form-data">
-        <!-- Tên món -->
-        <p><label for="foodName">Tên món:</label></p>
-        <input type="text" id="foodName" name="foodName" required placeholder="Nhập tên món" /><br><br>
+    <body class="bg-light">
 
-        <!-- Mô tả chi tiết -->
-        <p><label for="description">Mô tả chi tiết:</label></p>
-        <textarea id="description" name="description" required placeholder="Mô tả chi tiết món ăn" rows="4" cols="50"></textarea><br><br>
+        <!-- Thêm Món Mới -->
+        <div class="container py-5">
+            <h1 class="text-center mb-4">Thêm Món Mới</h1>
+            
+            <form action="${pageContext.request.contextPath}/manager/AddMenuServlet" method="post" enctype="multipart/form-data" onsubmit="return validateForm()">
+                <!-- Tên món -->
+                <div class="mb-3">
+                    <label for="foodName" class="form-label">Tên món:</label>
+                    <input type="text" id="foodName" name="foodName" class="form-control" required placeholder="Nhập tên món" />
+                </div>
 
-        <!-- Kích cỡ -->
-        <p><label for="size">Kích cỡ:</label></p>
-        <select name="size" id="size" required>
-            <option value="">-- Chọn kích cỡ --</option>
-            <option value="Small">Nhỏ</option>
-            <option value="Medium">Vừa</option>
-            <option value="Large">Lớn</option>
-        </select><br><br>
-        
-        <!-- Danh mục -->
-        <p><label for="category_id">Danh mục:</label></p>
-        <select name="category_id" id="category_id" required>
-            <option value="">-- Chọn thể loại --</option>
-            <c:forEach var="cate" items="${categories}">
-                <option value="${cate.categoryId}">${cate.name}</option>
-            </c:forEach>
-        </select><br><br>
+                <!-- Mô tả chi tiết -->
+                <div class="mb-3">
+                    <label for="description" class="form-label">Mô tả chi tiết:</label>
+                    <textarea id="description" name="description" class="form-control" rows="4" required placeholder="Mô tả chi tiết món ăn"></textarea>
+                </div>
 
-        <!-- Giá -->
-        <p><label for="price">Giá cả:</label></p>
-        <input type="number" id="price" name="price" step="0.01" required placeholder="Nhập giá món ăn" /><br><br>
+                <!-- Kích cỡ -->
+                <div class="mb-3">
+                    <label for="size" class="form-label">Kích cỡ:</label>
+                    <select name="size" id="size" class="form-select" required>
+                        <option value="">-- Chọn kích cỡ --</option>
+                        <option value="Small">Nhỏ</option>
+                        <option value="Medium">Vừa</option>
+                        <option value="Large">Lớn</option>
+                    </select>
+                </div>
+                
+                <!-- Danh mục -->
+                <div class="mb-3">
+                    <label for="category_id" class="form-label">Danh mục:</label>
+                    <select name="category_id" id="category_id" class="form-select" required>
+                        <option value="">-- Chọn thể loại --</option>
+                        <c:forEach var="cate" items="${categories}">
+                            <option value="${cate.categoryId}">${cate.name}</option>
+                        </c:forEach>
+                    </select>
+                </div>
 
-        <!-- Tình trạng -->
-        <p>Tình trạng:</p>
-        <input type="radio" name="status" value="available" required /> Có sẵn
-        <input type="radio" name="status" value="unavailable" required /> Hết hàng<br><br>
+                <!-- Giá -->
+                <div class="mb-3">
+                    <label for="price" class="form-label">Giá cả:</label>
+                    <input type="number" id="price" name="price" class="form-control" step="0.01" required placeholder="Nhập giá món ăn" />
+                </div>
 
-        <!-- Hình ảnh -->
-        <p><label for="imageUrl">Hình ảnh:</label></p>
-        <input type="file" id="imageUrl" name="imageUrl" accept="image/*" /><br><br>
+                <!-- Tình trạng -->
+                <div class="mb-3">
+                    <p>Tình trạng:</p>
+                    <div class="form-check form-check-inline">
+                        <input type="radio" name="status" value="available" class="form-check-input" required />
+                        <label class="form-check-label">Có sẵn</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input type="radio" name="status" value="unavailable" class="form-check-input" required />
+                        <label class="form-check-label">Hết hàng</label>
+                    </div>
+                </div>
 
-        <!-- Submit -->
-        <input type="submit" value="Lưu Món" />
-    </form>
-</body>
+                <!-- Hình ảnh -->
+                <div class="mb-3">
+                    <label for="imageUrl" class="form-label">Hình ảnh:</label>
+                    <input type="file" id="imageUrl" name="imageUrl" class="form-control" accept="image/*" />
+                </div>
+
+                <!-- Submit -->
+                <div class="mb-3 text-center">
+                    <button type="submit" class="btn btn-primary w-100">Lưu Món</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Bootstrap JS (for modal, dropdown, etc.) -->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    </body>
 </html>
