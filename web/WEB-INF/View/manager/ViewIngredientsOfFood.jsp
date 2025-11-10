@@ -34,13 +34,13 @@
                     <td>${ing.unit}</td>
                     <td>
                         <!-- Form để chỉnh sửa nguyên liệu -->
-                        <form method="get" action="${pageContext.request.contextPath}/manager/EditIngredientServlet">
+                        <form method="get" action="${pageContext.request.contextPath}/manager/EditIngredientsOfFoodServlet">
                             <input type="hidden" name="ingredientId" value="${ing.ingredientId}">
                             <input type="hidden" name="foodId" value="${menu.foodId}">
                             <input type="submit" value="Sửa">
                         </form>
                         <!-- Form để xóa nguyên liệu -->
-                        <form method="post" action="${pageContext.request.contextPath}/manager/DeleteIngredientServlet">
+                        <form method="post" action="${pageContext.request.contextPath}/manager/DeleteIngredientsOfFoodServlet">
                             <input type="hidden" name="ingredientId" value="${ing.ingredientId}">
                             <input type="hidden" name="foodId" value="${menu.foodId}">
                             <input type="submit" value="Xóa">

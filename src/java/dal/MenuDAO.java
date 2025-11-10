@@ -144,7 +144,7 @@ public class MenuDAO {
 
     public static List<Ingredient> getIngredientsByFoodId(int foodId) {
         List<Ingredient> ingredients = new ArrayList<>();
-        String sql = "SELECT i.name, fi.quantity, i.unit FROM FoodIngredients fi "
+        String sql = "SELECT i.ingredient_id, i.name, fi.quantity, i.unit FROM FoodIngredients fi "
                 + "JOIN Ingredients i ON fi.ingredient_id = i.ingredient_id "
                 + "WHERE fi.food_id = ?";
         try {
@@ -155,6 +155,7 @@ public class MenuDAO {
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 Ingredient ingredient = new Ingredient();
+                ingredient.setIngredientId(rs.getInt("ingredient_id"));
                 ingredient.setName(rs.getString("name"));
                 ingredient.setQuantity(rs.getDouble("quantity"));
                 ingredient.setUnit(rs.getString("unit"));
