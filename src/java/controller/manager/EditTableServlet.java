@@ -118,7 +118,7 @@ public class EditTableServlet extends HttpServlet {
                 return;
             }
 
-            RestaurantTable t = new RestaurantTable(id, number.trim(), capacity, status != null ? status : "Available", location);
+            RestaurantTable t = new RestaurantTable(id, number.trim(), capacity, status != null ? status : "available", location);
             boolean success = new TableDAO().updateTable(t);
 
             if (success) {
