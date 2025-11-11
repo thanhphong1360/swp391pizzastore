@@ -59,9 +59,9 @@
                 <h3>Orders</h3>
                 <p>View and manage all current orders.</p>
                 <form action="${pageContext.request.contextPath}/chef/Order" method="GET">
-                    <input type="hidden" name="action" value="browse">
-                    <button type="submit" class="btn-red">View Orders</button>
-                </form>
+                        <input type="hidden" name="action" value="browse">
+                        <button class="btn btn-outline-danger">Xem Orders</button>
+                    </form>
             </div>
         </div>
 
