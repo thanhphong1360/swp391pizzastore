@@ -70,12 +70,12 @@ public class GetDiscountByIdServlet extends HttpServlet {
                 request.setAttribute("discount", d);
 
                 if ("edit".equals(action)) {
+                    request.setAttribute("readonly", false);
                     request.getRequestDispatcher("/WEB-INF/View/manager/discount/detail-discount.jsp").forward(request, response);
                 } else {
-                    boolean readonly = "view".equals(action);
+                    boolean readonly = "view".equals(action); // mặc định false nếu không phải view
                     request.setAttribute("readonly", readonly);
-                    request.getRequestDispatcher("/WEB-INF/View/manager/discount/detail-discount.jsp")
-                            .forward(request, response);
+                    request.getRequestDispatcher("/WEB-INF/View/manager/discount/detail-discount.jsp").forward(request, response);
                 }
             } else {
                 request.setAttribute("error", "Discount not found!");
@@ -86,13 +86,6 @@ public class GetDiscountByIdServlet extends HttpServlet {
             request.setAttribute("error", "Error retrieving discount: " + e.getMessage());
             request.getRequestDispatcher("/WEB-INF/View/manager/discount/list-discount.jsp").forward(request, response);
         }
-
-        //                // Auto-update status if expired
-//                java.sql.Date currentDate = new java.sql.Date(System.currentTimeMillis());
-//                if (d.isStatus() && d.getEndDate().before(currentDate)) {
-//                    d.setStatus(false);
-//                    dao.update(d);
-//                }
     }
 
     /**

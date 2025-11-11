@@ -1,170 +1,262 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <!DOCTYPE html>
 <html lang="en">
     <head>
         <meta charset="UTF-8">
-        <title>${readonly ? "View" : (discount != null ? "Edit" : "Add")} Discount | Pizza House</title>
-        <base href="${pageContext.request.contextPath}/"> <!-- BẮT BUỘC -->
+        <title>${readonly ? 'View' : 'Edit'} Discount | Pizza House</title>
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
         <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
         <style>
             body {
-                font-family:'Poppins',sans-serif;
-                background:#fff8f3;
-                margin:30px;
+                font-family: 'Poppins', sans-serif;
+                background: #fff8f3;
+                margin: 30px;
             }
             h2 {
-                color:#e63946;
-                font-weight:600;
-                text-align:center;
+                color: #e63946;
+                font-weight: 600;
+            }
+            .home-btn {
+                border-radius: 8px;
+                font-weight: 500;
+                padding: 8px 14px;
+                text-decoration: none;
+                color: white;
+                background: #718093;
+                transition: 0.3s;
+            }
+            .home-btn:hover {
+                background: #9c9c9c;
             }
             .card {
-                border-radius:12px;
-                box-shadow:0 4px 12px rgba(0,0,0,0.1);
+                border-radius: 12px;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.1);
             }
-            .btn-red {
-                background:#e63946;
-                color:white;
-                transition:0.3s;
+            .btn-primary {
+                background: #e63946;
+                border: none;
             }
-            .btn-red:hover {
-                background:#c72e3b;
+            .btn-primary:hover {
+                background: #c72e3b;
             }
-            .btn-gray {
-                background:#718093;
-                color:white;
-                transition:0.3s;
+            .btn-secondary {
+                background: #718093;
+                border: none;
             }
-            .btn-gray:hover {
-                background:#9c9c9c;
+            .btn-secondary:hover {
+                background: #9c9c9c;
+            }
+            .invalid-feedback {
+                display: none;
+                width: 100%;
+                margin-top: 0.25rem;
+                font-size: 0.875em;
+                color: #dc3545;
+            }
+            .was-validated .invalid-feedback {
+                display: block;
+            }
+            .was-validated .form-control:invalid,
+            .was-validated .form-select:invalid {
+                border-color: #dc3545;
+            }
+            .readonly-field {
+                background-color: #f8f9fa;
+                color: #6c757d;
             }
         </style>
     </head>
     <body>
-        <div class="container my-4">
-            <h2>${readonly ? "View Discount" : (discount != null ? "Edit Discount" : "Add Discount")}</h2>
 
-            <c:if test="${not empty error}">
-                <div class="alert alert-danger">${error}</div>
-            </c:if>
-
-            <div class="card p-4 mx-auto" style="max-width:700px;">
-                <form method="POST" action="EditDiscountServlet"
-                      class="js-validate" id="discountForm" novalidate>
-
-                    <c:if test="${discount != null}">
-                        <input type="hidden" name="discount_id" value="${discount.discountId}">
-                    </c:if>
-
-                    <c:set var="readonlyAttr" value="${readonly ? 'readonly' : ''}" />
-                    <c:set var="disabledAttr" value="${readonly ? 'disabled' : ''}" />
-
-                    <div class="mb-3">
-                        <label class="form-label">Code</label>
-                        <input type="text" class="form-control" name="code" value="${discount.code}" ${readonlyAttr} required>
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label">Description</label>
-                        <textarea class="form-control" name="description" rows="3" ${readonlyAttr} required>${discount.description}</textarea>
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label">Type</label>
-                        <input type="text" class="form-control" name="type" value="${discount.type}" ${readonlyAttr} required>
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label">Value</label>
-                        <input type="number" step="0.01" class="form-control" name="value" value="${discount.value}" ${readonlyAttr} required>
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label">Start Date</label>
-                        <input type="date" class="form-control" name="start_date" value="${discount.startDate}" ${readonlyAttr} required>
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label">End Date</label>
-                        <input type="date" class="form-control" name="end_date" value="${discount.endDate}" ${readonlyAttr} required>
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label">Min Invoice Price (VND)</label>
-                        <input type="number" step="1" class="form-control" name="min_invoice_price"
-                               value="${discount.minInvoicePrice != null ? discount.minInvoicePrice.intValue() : ''}" ${readonlyAttr} required>
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label">Max Discount Amount (VND)</label>
-                        <input type="number" step="1" class="form-control" name="max_discount_amount"
-                               value="${discount.maxDiscountAmount != null ? discount.maxDiscountAmount.intValue() : ''}" ${readonlyAttr} required>
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label">Status</label>
-                        <select class="form-control" name="status" ${disabledAttr} required>
-                            <option value="true" ${discount == null || discount.status ? 'selected' : ''}>Active</option>
-                            <option value="false" ${discount != null && !discount.status ? 'selected' : ''}>Inactive</option>
-                        </select>
-                    </div>
-
-                    <c:if test="${!readonly}">
-                        <button type="submit" class="btn btn-red w-100 mb-2">
-                            ${discount != null ? 'Update Discount' : 'Create Discount'}
-                        </button>
-                    </c:if>
-
-                    <a href="manager/discount/list" class="btn btn-gray w-100">
-                        ${readonly ? 'Back to List' : 'Cancel'}
-                    </a>
-                </form>
-            </div>
+        <div class="d-flex justify-content-between mb-3">
+            <h2>${readonly ? 'View Discount' : 'Edit Discount'}</h2>
+            <a href="${pageContext.request.contextPath}/manager/discount/list" class="home-btn">Back to List</a>
         </div>
 
+        <div class="card p-4 mb-4" style="max-width: 700px; margin: auto;">
+            <!-- Server-side error -->
+            <c:if test="${not empty error}">
+                <div class="alert alert-danger" role="alert">${error}</div>
+            </c:if>
+
+            <!-- Form -->
+            <form method="POST" 
+                  action="${pageContext.request.contextPath}/EditDiscountServlet" 
+                  class="needs-validation" 
+                  novalidate>
+
+                <!-- Hidden ID -->
+                <input type="hidden" name="discount_id" value="${discount.discountId}">
+
+                <!-- Code -->
+                <div class="mb-3">
+                    <label class="form-label">Code</label>
+                    <input type="text" 
+                           name="code" 
+                           class="form-control ${readonly ? 'readonly-field' : ''}" 
+                           value="${discount.code}" 
+                           ${readonly ? 'readonly' : 'required'}>
+                    <div class="invalid-feedback">Please enter a discount code.</div>
+                </div>
+
+                <!-- Description -->
+                <div class="mb-3">
+                    <label class="form-label">Description</label>
+                    <textarea name="description" 
+                              class="form-control ${readonly ? 'readonly-field' : ''}" 
+                              rows="3" 
+                              ${readonly ? 'readonly' : 'required'}>${discount.description}</textarea>
+                    <div class="invalid-feedback">Please enter a description.</div>
+                </div>
+
+                <!-- Type (Dropdown) -->
+                <div class="mb-3">
+                    <label class="form-label" for="discountType">Type</label>
+                    <select id="discountType" 
+                            name="type" 
+                            class="form-select ${readonly ? 'readonly-field' : ''}" 
+                            ${readonly ? 'disabled' : 'required'}>
+                        <option value="percentage" ${discount.type == 'percentage' ? 'selected' : ''}>Percentage</option>
+                        <option value="fixed" ${discount.type == 'fixed' ? 'selected' : ''}>Fixed</option>
+                    </select>
+                    <div class="invalid-feedback">Please select a type.</div>
+                    <!-- Hidden để gửi giá trị khi disabled -->
+                    <c:if test="${readonly}">
+                        <input type="hidden" name="type" value="${discount.type}">
+                    </c:if>
+                </div>
+
+                <!-- Value -->
+                <div class="mb-3">
+                    <label class="form-label">Value</label>
+                    <input type="number" 
+                           step="0.01" 
+                           name="value" 
+                           class="form-control ${readonly ? 'readonly-field' : ''}" 
+                           value="${discount.value}" 
+                           ${readonly ? 'readonly' : 'required'}>
+                    <div class="invalid-feedback">Please enter a valid value.</div>
+                </div>
+
+                <!-- Start Date -->
+                <div class="mb-3">
+                    <label class="form-label">Start Date</label>
+                    <input type="date" 
+                           id="startDate" 
+                           name="start_date" 
+                           class="form-control ${readonly ? 'readonly-field' : ''}" 
+                           value="${discount.startDate}" 
+                           ${readonly ? 'readonly' : 'required'}>
+                    <div class="invalid-feedback">Please select a valid start date.</div>
+                </div>
+
+                <!-- End Date -->
+                <div class="mb-3">
+                    <label class="form-label">End Date</label>
+                    <input type="date" 
+                           id="endDate" 
+                           name="end_date" 
+                           class="form-control ${readonly ? 'readonly-field' : ''}" 
+                           value="${discount.endDate}" 
+                           ${readonly ? 'readonly' : 'required'}>
+                    <div class="invalid-feedback">End date must be after start date.</div>
+                </div>
+
+                <!-- Min Invoice Price -->
+                <div class="mb-3">
+                    <label class="form-label">Min Invoice Price</label>
+                    <input type="number" 
+                           step="1" 
+                           name="min_invoice_price" 
+                           class="form-control ${readonly ? 'readonly-field' : ''}" 
+                           value="${discount.minInvoicePrice}" 
+                           ${readonly ? 'readonly' : 'required'}>
+                    <div class="invalid-feedback">Please enter the minimum invoice price.</div>
+                </div>
+
+                <!-- Max Discount Amount -->
+                <div class="mb-3">
+                    <label class="form-label">Max Discount Amount</label>
+                    <input type="number" 
+                           step="1" 
+                           name="max_discount_amount" 
+                           class="form-control ${readonly ? 'readonly-field' : ''}" 
+                           value="${discount.maxDiscountAmount}" 
+                           ${readonly ? 'readonly' : 'required'}>
+                    <div class="invalid-feedback">Please enter the maximum discount amount.</div>
+                </div>
+
+                <!-- Status -->
+                <div class="mb-3">
+                    <label class="form-label">Status</label>
+                    <select name="status" 
+                            class="form-select ${readonly ? 'readonly-field' : ''}" 
+                            ${readonly ? 'disabled' : 'required'}>
+                        <option value="true" ${discount.status ? 'selected' : ''}>Active</option>
+                        <option value="false" ${!discount.status ? 'selected' : ''}>Inactive</option>
+                    </select>
+                    <div class="invalid-feedback">Please select a status.</div>
+                    <c:if test="${readonly}">
+                        <input type="hidden" name="status" value="${discount.status}">
+                    </c:if>
+                </div>
+
+                <!-- Buttons -->
+                <c:if test="${!readonly}">
+                    <button type="submit" class="btn btn-primary w-100">Update Discount</button>
+                </c:if>
+                <a href="${pageContext.request.contextPath}/manager/discount/list" 
+                   class="btn btn-secondary w-100 mt-2">Back to List</a>
+            </form>
+        </div>
+
+        <!-- Validation JS -->
         <script>
             (function () {
                 'use strict';
-                var form = document.getElementById('discountForm');
-                if (form) {
-                    form.addEventListener('submit', function (event) {
-                        var isValid = true;
-                        var fields = [
-                            {name: 'code', message: 'Code is required and cannot be empty.'},
-                            {name: 'description', message: 'Description is required and cannot be empty.'},
-                            {name: 'type', message: 'Type is required and cannot be empty.'},
-                            {name: 'value', message: 'Value is required and cannot be empty.'},
-                            {name: 'start_date', message: 'Start Date is required and cannot be empty.'},
-                            {name: 'end_date', message: 'End Date is required and cannot be empty.'},
-                            {name: 'min_invoice_price', message: 'Minimum Invoice Price is required and cannot be empty.'},
-                            {name: 'max_discount_amount', message: 'Maximum Discount Amount is required and cannot be empty.'},
-                            {name: 'status', message: 'Status is required and cannot be empty.'}
-                        ];
 
-                        fields.forEach(function (field) {
-                            var input = form.querySelector('[name="' + field.name + '"]');
-                            if (input && !input.value.trim() && !input.disabled) {
-                                isValid = false;
-                                var warning = document.createElement('div');
-                                warning.className = 'alert alert-warning';
-                                warning.textContent = field.message;
-                                input.parentNode.appendChild(warning);
-                                setTimeout(function () {
-                                    warning.remove();
-                                }, 3000);
-                            }
-                        });
+                const forms = document.querySelectorAll('.needs-validation');
+                forms.forEach(form => {
+                    const startDateInput = form.querySelector('#startDate');
+                    const endDateInput = form.querySelector('#endDate');
 
-                        if (!isValid || !form.checkValidity()) {
-                            event.preventDefault();
-                            event.stopPropagation();
+                    // Chỉ validate khi đang ở chế độ Edit
+                    if (!startDateInput || !endDateInput || startDateInput.hasAttribute('readonly'))
+                        return;
+
+                    function validateDates() {
+                        const start = startDateInput.value;
+                        const end = endDateInput.value;
+
+                        startDateInput.setCustomValidity('');
+                        endDateInput.setCustomValidity('');
+
+                        if (start && end && new Date(start) >= new Date(end)) {
+                            endDateInput.setCustomValidity('End date must be after start date.');
                         }
-                        form.classList.add('was-validated');
+                    }
+
+                    startDateInput.addEventListener('input', validateDates);
+                    endDateInput.addEventListener('input', validateDates);
+
+                    startDateInput.addEventListener('change', () => {
+                        endDateInput.min = startDateInput.value;
                     });
-                }
+
+                    form.addEventListener('submit', function (e) {
+                        validateDates();
+
+                        if (!form.checkValidity()) {
+                            e.preventDefault();
+                            e.stopPropagation();
+                        }
+
+                        form.classList.add('was-validated');
+                    }, false);
+                });
             })();
         </script>
+
     </body>
 </html>
