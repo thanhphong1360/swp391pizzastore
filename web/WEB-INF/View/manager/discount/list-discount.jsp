@@ -1,76 +1,167 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-<%@ page import="java.util.List" %>
-<%@ page import="model.Discount" %>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
+<%@ page contentType="text/html;charset=UTF-8" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Discount Management | Pizza House</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<style>
+    body {
+        font-family: 'Poppins', sans-serif;
+        background: #fff8f3;
+        margin: 30px;
+    }
+    h2 {
+        color: #e63946;
+        font-weight: 600;
+        margin-bottom: 20px;
+    }
+    /* --- Buttons --- */
+    .btn-main {
+        border-radius: 8px;
+        padding: 8px 14px;
+        font-weight: 500;
+        color: white;
+        transition: 0.3s;
+        text-decoration: none;
+    }
+    .btn-red { background: #e63946; }
+    .btn-red:hover { background: #c72e3b; }
+    .btn-gray { background: #718093; }
+    .btn-gray:hover { background: #9c9c9c; }
 
-<main id="content" role="main" class="main">
-    <div class="content container-fluid">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h1 class="page-header-title">Discounts <span class="badge badge-soft-dark ml-2"></span></h1>
-            <a class="btn btn-primary" href="${pageContext.request.contextPath}/manager/discount/add-discount">Add Discount</a>
-        </div>
-        <div class="card">
-            <div class="table-responsive datatable-custom">
-                <table id="datatable" class="table table-hover table-thead-bordered table-nowrap table-align-middle card-table">
-                    <thead>
-                        <tr>
-                            <th scope="col">ID</th>
-                            <th>Discount Code</th>
-                            <th>Description</th>
-                            <th>Type</th>
-                            <th>Value</th>
-                            <th>Start Date</th>
-                            <th>End Date</th>
-                            <th>Min Invoice Price</th>
-                            <th>Max Discount Amount</th>
-                            <th>Status</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <c:forEach var="discount" items="${discounts}">
-                            <tr>
-                                <td>${discount.discountId}</td>
-                                <td>${discount.code}</td>
-                                <td>${discount.description}</td>
-                                <td>${discount.type}</td>
-                                <td>${discount.value}</td>
-                                <td>${discount.startDate}</td>
-                                <td>${discount.endDate}</td>
-                                <td><fmt:formatNumber value="${discount.minInvoicePrice}" pattern="#,###" /> VND</td>
-                                <td><fmt:formatNumber value="${discount.maxDiscountAmount}" pattern="#,###" /> VND</td>
-                                <td>${discount.status ? 'Active' : 'Inactive'}</td>
-                                <td>
-                                    <div class="btn-group" role="group">
-                                        <form action="${pageContext.request.contextPath}/GetDiscountByIdServlet" method="GET" style="display: inline;">
-                                            <input type="hidden" name="id" value="${discount.discountId}">
-                                            <input type="hidden" name="action" value="view">
-                                            <button type="submit" class="btn btn-sm btn-dark" style="margin-right: 5px;">
-                                                <i class="tio-eye"></i> View
-                                            </button>
-                                        </form>
-                                        </form>
-                                        <form action="${pageContext.request.contextPath}/GetDiscountByIdServlet" method="GET" style="display: inline;">
-                                            <input type="hidden" name="id" value="${discount.discountId}">
-                                            <input type="hidden" name="action" value="edit">
-                                            <button type="submit" class="btn btn-sm btn-warning" style="margin-right: 5px;">
-                                                <i class="tio-edit"></i> Edit
-                                            </button>
-                                        </form>
-                                        <form action="${pageContext.request.contextPath}/DeleteDiscountServlet" method="POST" style="display: inline;" onsubmit="return confirm('Bạn chắc chắn muốn xóa mã giảm giá này?');">
-                                            <input type="hidden" name="id" value="${discount.discountId}">
-                                            <button type="submit" class="btn btn-sm btn-danger">
-                                                <i class="tio-delete"></i> Delete
-                                            </button>
-                                        </form>
-                                    </div>
-                                </td>
-                            </tr>
-                        </c:forEach>
-                    </tbody>
-                </table>
-            </div>
+    /* --- Table --- */
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        overflow: hidden;
+    }
+    th {
+        background: #e63946;
+        color: white;
+        text-align: center;
+        padding: 12px;
+    }
+    td {
+        padding: 10px;
+        text-align: center;
+        border-bottom: 1px solid #eee;
+        vertical-align: middle;
+    }
+    tr:hover {
+        background: #fff1ee;
+    }
+
+    /* --- Action Buttons --- */
+    .action-btn {
+        border: none;
+        border-radius: 6px;
+        color: white;
+        font-size: 13px;
+        padding: 6px 10px;
+        margin-right: 5px;
+        transition: 0.3s;
+    }
+    .btn-view { background: #6c5ce7; }
+    .btn-view:hover { background: #5a4dcf; }
+    .btn-edit { background: #00a8ff; }
+    .btn-edit:hover { background: #0097e6; }
+    .btn-delete { background: #e84118; }
+    .btn-delete:hover { background: #c23616; }
+
+    /* --- Status --- */
+    .status {
+        font-weight: bold;
+        padding: 5px 10px;
+        border-radius: 12px;
+    }
+    .status.active { color: #2ecc71; }
+    .status.inactive { color: #e84118; }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Discount Management</h2>
+        <div>
+            <a href="${pageContext.request.contextPath}/Home" class="btn-main btn-gray me-2">🏠 Back to Dashboard</a>
+            <a href="${pageContext.request.contextPath}/manager/discount/add-discount" class="btn-main btn-red">➕ Add Discount</a>
         </div>
     </div>
-</main>
+
+    <!-- Table -->
+    <div style="overflow-x:auto;">
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Code</th>
+                    <th>Description</th>
+                    <th>Type</th>
+                    <th>Value</th>
+                    <th>Start Date</th>
+                    <th>End Date</th>
+                    <th>Min Invoice</th>
+                    <th>Max Discount</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <c:forEach var="d" items="${discounts}">
+                    <tr>
+                        <td>${d.discountId}</td>
+                        <td>${d.code}</td>
+                        <td>${d.description}</td>
+                        <td>${d.type}</td>
+                        <td>${d.value}</td>
+                        <td><fmt:formatDate value="${d.startDate}" pattern="yyyy-MM-dd" /></td>
+                        <td><fmt:formatDate value="${d.endDate}" pattern="yyyy-MM-dd" /></td>
+                        <td><fmt:formatNumber value="${d.minInvoicePrice}" pattern="#,###"/> VND</td>
+                        <td><fmt:formatNumber value="${d.maxDiscountAmount}" pattern="#,###"/> VND</td>
+                        <td>
+                            <span class="status ${d.status ? 'active' : 'inactive'}">
+                                ${d.status ? 'Active' : 'Inactive'}
+                            </span>
+                        </td>
+                        <td>
+                            <div class="d-flex justify-content-center">
+                                <form action="${pageContext.request.contextPath}/GetDiscountByIdServlet" method="get" style="display:inline;">
+                                    <input type="hidden" name="id" value="${d.discountId}">
+                                    <input type="hidden" name="action" value="view">
+                                    <button type="submit" class="action-btn btn-view">View</button>
+                                </form>
+                                <form action="${pageContext.request.contextPath}/GetDiscountByIdServlet" method="get" style="display:inline;">
+                                    <input type="hidden" name="id" value="${d.discountId}">
+                                    <input type="hidden" name="action" value="edit">
+                                    <button type="submit" class="action-btn btn-edit">Edit</button>
+                                </form>
+                                <form action="${pageContext.request.contextPath}/DeleteDiscountServlet" method="post" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this discount?');">
+                                    <input type="hidden" name="id" value="${d.discountId}">
+                                    <button type="submit" class="action-btn btn-delete">Delete</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                </c:forEach>
+
+                <c:if test="${empty discounts}">
+                    <tr><td colspan="11">No discounts available.</td></tr>
+                </c:if>
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
+</body>
+</html>
