@@ -202,40 +202,111 @@
 
 <!-- CHARTS SCRIPT -->
 <script>
-document.addEventListener('DOMContentLoaded', function () {
-    // Revenue by Date
-    const ctx1 = document.getElementById('revenueChart').getContext('2d');
-    const labels1 = [<c:forEach items="${revenueByDate}" var="r">'${r.date}',</c:forEach>];
-    const data1 = [<c:forEach items="${revenueByDate}" var="r">${r.total},</c:forEach>];
-    new Chart(ctx1, {
-        type: 'line',
-        data: { labels: labels1, datasets: [{ label: 'Doanh thu (VND)', data: data1, fill:true, backgroundColor:'rgba(230,57,70,0.2)', borderColor:'#e63946', tension:0.3, pointRadius:4 }] },
-        options: {
-            responsive:true, maintainAspectRatio:false,
-            plugins:{ tooltip:{ callbacks:{ label: ctx => 'Doanh thu: ' + ctx.parsed.y.toLocaleString('vi-VN') + ' VND' }}},
-            scales:{ y:{ beginAtZero:true, ticks:{ callback: v => v.toLocaleString('vi-VN') + ' VND' }}, x:{ ticks:{ maxRotation:45, minRotation:45 }}}
-        }
-    });
+            document.addEventListener('DOMContentLoaded', function () {
 
-    // Revenue by Category
-    const ctx2 = document.getElementById('categoryChart').getContext('2d');
-    const labels2 = [<c:forEach items="${revenueByCategory}" var="c">'${c.category}',</c:forEach>];
-    const data2 = [<c:forEach items="${revenueByCategory}" var="c">${c.revenue},</c:forEach>];
-    new Chart(ctx2, {
-        type: 'pie',
-        data: { labels: labels2, datasets: [{ data: data2, backgroundColor: ['#e63946','#ffb703','#8ecae6','#219ebc','#023047'] }] },
-        options: { responsive:true, plugins:{ legend:{position:'bottom'}, tooltip:{ callbacks:{ label: ctx => ctx.label + ': ' + ctx.parsed.toLocaleString('vi-VN') + ' VND' }}}}
-    });
+                // === 1. DOANH THU THEO NGÀY - SỬA LỖI DÀI BẤT TẬN ===
+                const ctx1 = document.getElementById('revenueChart').getContext('2d');
+                        const labels1 = [<c:forEach items="${revenueByDate}" var="r">'${r.date}',</c:forEach>];
+                const data1 = [<c:forEach items="${revenueByDate}" var="r">${r.total},</c:forEach>];
 
-    // Channel chart
-    const ctx3 = document.getElementById('channelChart').getContext('2d');
-    new Chart(ctx3, {
-        type: 'doughnut',
-        data: { labels:['Online','Offline'], datasets:[{ data:[${orderChannel['Online'] != null ? orderChannel['Online'] : 0}, ${orderChannel['Offline'] != null ? orderChannel['Offline'] : 0}], backgroundColor:['#e63946','#8ecae6'] }] },
-        options: { responsive:true, plugins:{ legend:{position:'bottom'}, tooltip:{ callbacks:{ label: ctx => ctx.label + ': ' + ctx.parsed + ' đơn' }}}}
-    });
-});
-</script>
+                new Chart(ctx1, {
+                    type: 'line',
+                    data: {
+                        labels: labels1,
+                        datasets: [{
+                                label: 'Doanh thu (VND)',
+                                data: data1,
+                                fill: true,
+                                backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                                borderColor: 'rgb(54, 162, 235)',
+                                tension: 0.3,
+                                pointRadius: 4
+                            }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            tooltip: {
+                                callbacks: {
+                                    label: ctx => 'Doanh thu: ' + ctx.parsed.y.toLocaleString('vi-VN') + ' VND'
+                                }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    callback: v => v.toLocaleString('vi-VN') + ' VND'
+                                }
+                            },
+                            x: {
+                                ticks: {
+                                    maxRotation: 45,
+                                    minRotation: 45
+                                }
+                            }
+                        }
+                    }
+                });
+
+                // === 2. DOANH THU THEO LOẠI MÓN ===
+                const ctx2 = document.getElementById('categoryChart').getContext('2d');
+                        const labels2 = [<c:forEach items="${revenueByCategory}" var="c">'${c.category}',</c:forEach>];
+                const data2 = [<c:forEach items="${revenueByCategory}" var="c">${c.revenue},</c:forEach>];
+
+                new Chart(ctx2, {
+                    type: 'pie',
+                    data: {
+                        labels: labels2,
+                        datasets: [{
+                                data: data2,
+                                backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF']
+                            }]
+                    },
+                    options: {
+                        responsive: true,
+maintainAspectRatio: false,
+                        plugins: {
+                            legend: {position: 'bottom'},
+                            tooltip: {
+                                callbacks: {
+                                    label: ctx => ctx.label + ': ' + ctx.parsed.toLocaleString('vi-VN') + ' VND'
+                                }
+                            }
+                        }
+                    }
+                });
+
+                // === 3. KÊNH BÁN HÀNG ===
+                const ctx3 = document.getElementById('channelChart').getContext('2d');
+                new Chart(ctx3, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Online', 'Offline'],
+                        datasets: [{
+                                data: [
+            ${orderChannel['Online'] != null ? orderChannel['Online'] : 0},
+            ${orderChannel['Offline'] != null ? orderChannel['Offline'] : 0}
+                                ],
+                                backgroundColor: ['#36A2EB', '#FF6384']
+                            }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {position: 'bottom'},
+                            tooltip: {
+                                callbacks: {
+                                    label: ctx => ctx.label + ': ' + ctx.parsed + ' đơn'
+                                }
+                            }
+                        }
+                    }
+                });
+            });
+        </script>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
