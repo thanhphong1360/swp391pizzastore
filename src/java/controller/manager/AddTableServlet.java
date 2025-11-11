@@ -97,7 +97,7 @@ public class AddTableServlet extends HttpServlet {
                 return;
             }
 
-            RestaurantTable t = new RestaurantTable(0, number.trim(), capacity, status != null ? status : "available", location);
+            RestaurantTable t = new RestaurantTable(0, number.trim(), capacity, status != null ? status : "Available", location);
             new TableDAO().addTable(t);
 
             // SỬA: redirect đúng

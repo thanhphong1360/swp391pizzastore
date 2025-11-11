@@ -153,7 +153,7 @@ public class CashierInvoiceServlet extends HttpServlet {
                 ArrayList<InvoiceTable> invoiceTableList = InvoiceTableDAO.getTableIdsByInvoiceId(invoiceId);
                 //tra table ve available
                 for (InvoiceTable invoiceTable : invoiceTableList) {
-                    TableDAO.updateTableStatus(TableDAO.getTableById(invoiceTable.getTableId()), "available");
+                    TableDAO.updateTableStatus(TableDAO.getTableById(invoiceTable.getTableId()), "Available");
                 }
                 //view pending invoice list
                 ArrayList<Invoice> pendingInvoiceList = InvoiceDAO.getInvoicesByStatusCashier("pending");

@@ -111,14 +111,14 @@
                         <p>Trạng thái: ${t.status}</p>
 
                         <c:choose>
-                            <c:when test="${t.status == 'available'}">
+                            <c:when test="${t.status == 'Available'}">
                                 <label>
                                     <input type="checkbox" name="selectedTables" value="${t.tableId}">
                                     Chọn mở bàn
                                 </label>
                             </c:when>
 
-                            <c:when test="${t.status == 'occupied'}">
+                            <c:when test="${t.status == 'Occupied'}">
                                 <form action="${pageContext.request.contextPath}/waiter/Order" method="GET" style="display:inline;">
                                     <input type="hidden" name="tableId" value="${t.tableId}">
                                     <input type="hidden" name="action" value="order">
