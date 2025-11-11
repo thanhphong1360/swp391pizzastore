@@ -107,13 +107,15 @@ public class DiscountDAO extends DBContext {
         }
     }
 
-    public void delete(int id) {
-        String sql = "DELETE FROM Discounts WHERE discount_id=?";
+    public boolean delete(int id) {
+        String sql = "DELETE FROM Discounts WHERE discount_id = ?";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setInt(1, id);
-            ps.executeUpdate();
+            int rows = ps.executeUpdate();
+            return rows > 0;
         } catch (SQLException e) {
             e.printStackTrace();
+            return false;
         }
     }
 
@@ -123,9 +125,9 @@ public class DiscountDAO extends DBContext {
         }
 
         String sql = "SELECT COUNT(*) FROM Discounts WHERE TRIM(code) = ?";
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-            stmt.setString(1, code.trim());
-            ResultSet rs = stmt.executeQuery();
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, code.trim());
+            ResultSet rs = ps.executeQuery();
             if (rs.next()) {
                 return rs.getInt(1) > 0;
             }
