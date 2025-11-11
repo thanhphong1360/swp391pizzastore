@@ -102,19 +102,20 @@ public class InvoiceDAO {
         return list.isEmpty() ? null : list.get(0);
     }
     
-    public static ArrayList<Invoice> getPendingInvoicesCashierPayout() {
+    public static ArrayList<Invoice> getInvoicesByStatusCashier(String status) {
         ArrayList<Invoice> list = new ArrayList<>();
         DBContext dbc = DBContext.getInstance();
         String sql = """
-                     SELECT i.invoice_id, i.invoice_code, i.price, i.created_at, STRING_AGG(t.table_number, ', ') AS table_numbers
+                     SELECT i.invoice_id, i.invoice_code, i.status, i.price, i.created_at, STRING_AGG(t.table_number, ', ') AS table_numbers 
                      	 FROM Invoices i JOIN InvoiceTables it ON i.invoice_id = it.invoice_id 
                      					JOIN RestaurantTables t ON it.table_id = t.table_id 
-                     					WHERE i.status = 'pending' 
-                     					GROUP BY i.invoice_id, i.invoice_code, i.price, i.created_at
+                     					WHERE i.status = ? 
+                     					GROUP BY i.invoice_id, i.invoice_code, i.status, i.price, i.created_at 
                      					ORDER BY i.created_at DESC
                      """;
         try {
             PreparedStatement statement = dbc.getConnection().prepareStatement(sql);
+            statement.setString(1, status);
             ResultSet rs = statement.executeQuery();
             while (rs.next()) {
                 Invoice invoice = new Invoice();
@@ -122,6 +123,7 @@ public class InvoiceDAO {
                 invoice.setInvoiceCode(rs.getString("invoice_code"));
                 invoice.setCreatedAt(rs.getTimestamp("created_at").toLocalDateTime());
                 invoice.setTableNumbers(rs.getString("table_numbers"));
+                invoice.setStatus(rs.getString("status"));
                 list.add(invoice);
             }
         } catch (Exception e) {
@@ -221,7 +223,11 @@ public class InvoiceDAO {
     }
 
     public static void main(String[] args) {
-        Invoice invoice = getInvoiceByCode("INV20251019E7C504");
-        System.out.println("invoice_id = " + invoice.getInvoiceId());
+        ArrayList<Invoice> list = getInvoicesByStatusCashier("pending");
+//        for(Invoice invoice : list){
+//            System.out.println(invoice.getStatus());
+//        }
+        Invoice invoice = getInvoiceById(8);
+        System.out.println(invoice.getStatus());
     }
 }

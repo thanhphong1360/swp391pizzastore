@@ -48,13 +48,14 @@ public class OrderFoodDAO {
             statement.setInt(1, id);
             ResultSet rs = statement.executeQuery();
             while (rs.next()) {
-                OrderFood orderFood = new OrderFood(rs.getInt("orderfood_id"),
-                                                rs.getInt("order_id"),
-                                                rs.getInt("food_id"),
-                                                rs.getInt("quantity"),
-                                                rs.getBigDecimal("price"),
-                                                rs.getString("note"));
-
+                OrderFood orderFood = new OrderFood();
+                orderFood.setOrderFoodId(rs.getInt("orderfood_id"));
+                orderFood.setOrderId(rs.getInt("order_id"));
+                orderFood.setFoodId(rs.getInt("food_id"));
+                orderFood.setQuantity(rs.getInt("quantity"));
+                orderFood.setStatus(rs.getString("status"));
+                orderFood.setPrice(rs.getBigDecimal("price"));
+                orderFood.setNote(rs.getString("note"));
                 list.add(orderFood);
             }
         } catch (Exception e) {
