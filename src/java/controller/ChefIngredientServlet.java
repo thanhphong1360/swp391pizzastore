@@ -32,7 +32,7 @@ public class ChefIngredientServlet extends HttpServlet {
 
         List<Ingredient> list = dao.getAll();
         req.setAttribute("list", list);
-        req.getRequestDispatcher("WEB-INF/View/chef/chefview.jsp").forward(req, resp);
+        req.getRequestDispatcher("WEB-INF/View/Chef/chefview.jsp").forward(req, resp);
     }
 
     @Override

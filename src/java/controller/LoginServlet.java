@@ -120,7 +120,7 @@ session.setAttribute("userName", user.getName());
             } else if ("DeliveryStaff".equals(role.getRoleName())) {
                 response.sendRedirect(request.getContextPath() + "/Home");
             } else if ("Customer".equals(role.getRoleName())) {
-                response.sendRedirect(request.getContextPath() + "/Home");
+                response.sendRedirect(request.getContextPath() + "/menuForCus");
             }
 
         } else {

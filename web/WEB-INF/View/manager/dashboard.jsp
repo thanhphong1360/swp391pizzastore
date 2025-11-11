@@ -1,157 +1,207 @@
-<%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%@ page contentType="text/html;charset=UTF-8" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <!DOCTYPE html>
-<html>
-    <head>
-        <meta charset="UTF-8">
-        <title>Manager Dashboard</title>
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
-        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-        <style>
-            .stat-card {
-                background: white;
-                border-radius: 12px;
-                padding: 20px;
-                box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-                text-align: center;
-                transition: transform 0.2s;
-            }
-            .stat-card:hover {
-                transform: translateY(-5px);
-            }
-            .stat-icon {
-                font-size: 2.5rem;
-                margin-bottom: 10px;
-            }
-            .chart-container {
-                background: white;
-                padding: 20px;
-                border-radius: 12px;
-                box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-                height: 320px;
-                display: flex;
-                flex-direction: column;
-            }
-            .filter-box {
-                background: #f8f9fa;
-                padding: 15px;
-                border-radius: 10px;
-                margin-bottom: 20px;
-            }
-            .list-group-item-warning {
-                background-color: #fff3cd !important;
-            }
-            .list-group-item-secondary {
-                background-color: #e2e3e5 !important;
-            }
-            .list-group-item-light {
-                background-color: #f8f9fa !important;
-            }
-        </style>
-    </head>
-    <body class="bg-light">
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Manager Dashboard | Pizza House</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+    body {
+        background-color: #fff8f3;
+        font-family: 'Poppins', sans-serif;
+    }
 
-        <div class="container-fluid py-4">
+    /* Header */
+    .header-bar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 35px;
+    }
 
-            <h2 class="mb-4 text-center text-primary">
-                Manager Dashboard
-            </h2>
+    .header-bar h2 {
+        color: #e63946;
+        font-weight: 600;
+        font-size: 28px;
+    }
 
-            <!-- STAT CARDS -->
-            <div class="row g-4 mb-4">
-                <div class="col-md-4">
-                    <div class="stat-card">
-                        <div class="stat-icon text-success"><i class="bi bi-currency-dollar"></i></div>
-                        <h5>Doanh thu hôm nay</h5>
-                        <h3 class="text-success"><fmt:formatNumber value="${todayRevenue}" type="currency" currencySymbol="" /> VND</h3>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="stat-card">
-                        <div class="stat-icon text-primary"><i class="bi bi-receipt"></i></div>
-                        <h5>Tổng đơn hàng</h5>
-                        <h3 class="text-primary">${totalInvoices}</h3>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="stat-card">
-                        <div class="stat-icon text-info"><i class="bi bi-people"></i></div>
-                        <h5>Tổng khách hàng</h5>
-                        <h3 class="text-info">${totalCustomers}</h3>
-                    </div>
-                </div>
+    .btn-custom {
+        border-radius: 10px;
+        font-weight: 500;
+        padding: 10px 18px;
+        text-decoration: none;
+        color: white;
+        transition: 0.3s;
+        border: none;
+    }
+    .btn-dashboard {
+        background: #718093;
+    }
+    .btn-dashboard:hover {
+        background: #909fad;
+    }
+
+    /* Stat cards */
+    .stat-card {
+        background: #fff;
+        border-radius: 15px;
+        padding: 25px;
+        box-shadow: 0 6px 16px rgba(0,0,0,0.08);
+        text-align: center;
+        transition: 0.25s ease;
+    }
+    .stat-card:hover {
+        transform: translateY(-6px);
+    }
+    .stat-icon {
+        font-size: 3rem;
+        margin-bottom: 10px;
+    }
+    .stat-title {
+        color: #555;
+        font-weight: 500;
+    }
+    .stat-value {
+        font-size: 1.8rem;
+        font-weight: 600;
+    }
+
+    /* Filter box */
+    .filter-box {
+        background: #fff;
+        padding: 20px;
+        border-radius: 12px;
+        margin-bottom: 35px;
+        box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+    }
+
+    /* Chart container */
+    .chart-container {
+        background: #fff;
+        padding: 20px;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        margin-bottom: 30px;
+    }
+
+    /* List group custom */
+    .list-group-item-warning { background-color: #ffe5e0 !important; }
+    .list-group-item-secondary { background-color: #f2f2f2 !important; }
+    .list-group-item-light { background-color: #fff8f3 !important; }
+
+    h5 {
+        font-weight: 600;
+        color: #e63946;
+        text-align: center;
+        margin-bottom: 15px;
+    }
+</style>
+</head>
+<body>
+
+<div class="container py-4">
+
+    <div class="header-bar">
+        <h2>📊 Manager Dashboard</h2>
+        <a href="${pageContext.request.contextPath}/Home" class="btn-custom btn-dashboard">🏠 Back to Dashboard</a>
+    </div>
+
+    <!-- STAT CARDS -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-4">
+            <div class="stat-card">
+                <div class="stat-icon text-success"><i class="bi bi-currency-dollar"></i></div>
+                <p class="stat-title">Doanh thu hôm nay</p>
+                <p class="stat-value text-success">
+                    <fmt:formatNumber value="${todayRevenue}" type="currency" currencySymbol="" /> VND
+                </p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stat-card">
+                <div class="stat-icon text-primary"><i class="bi bi-receipt"></i></div>
+                <p class="stat-title">Tổng đơn hàng</p>
+                <p class="stat-value text-primary">${totalInvoices}</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stat-card">
+                <div class="stat-icon text-info"><i class="bi bi-people"></i></div>
+                <p class="stat-title">Tổng khách hàng</p>
+                <p class="stat-value text-info">${totalCustomers}</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- FILTER BOX -->
+    <div class="filter-box">
+        <form action="${pageContext.request.contextPath}/manager/dashboard/filter" method="post" class="row g-3 align-items-end">
+            <div class="col-md-5">
+                <label class="form-label fw-bold">Từ ngày</label>
+                <input type="date" name="fromDate" class="form-control" value="${fromDate}" required>
+            </div>
+            <div class="col-md-5">
+                <label class="form-label fw-bold">Đến ngày</label>
+                <input type="date" name="toDate" class="form-control" value="${toDate}" required>
+            </div>
+            <div class="col-md-2 d-grid">
+                <button type="submit" class="btn btn-danger">Lọc</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- CHARTS & TOP FOODS -->
+    <div class="row g-4">
+        <div class="col-md-6">
+            <div class="chart-container">
+                <h5>📈 Doanh thu theo ngày</h5>
+                <canvas id="revenueChart" height="300"></canvas>
             </div>
 
-            <!-- CHỈ 1 FILTER: Từ ngày → Đến ngày + Lọc -->
-            <div class="filter-box">
-                <form action="${pageContext.request.contextPath}/manager/dashboard/filter" method="post" class="row g-3 align-items-end">
-                    <div class="col-md-5">
-                        <label class="form-label"><strong>Từ ngày</strong></label>
-                        <input type="date" name="fromDate" class="form-control" value="${fromDate}" required>
-                    </div>
-                    <div class="col-md-5">
-                        <label class="form-label"><strong>Đến ngày</strong></label>
-                        <input type="date" name="toDate" class="form-control" value="${toDate}" required>
-                    </div>
-                    <div class="col-md-2">
-                        <button type="submit" class="btn btn-primary w-100">
-                            Lọc
-                        </button>
-                    </div>
-                </form>
-            </div>
-
-            <!-- 4 CHARTS: 2 TRÁI - 2 PHẢI -->
-            <div class="row g-4">
-                <!-- TRÁI: Doanh thu theo ngày + Top 5 -->
-                <div class="col-md-6">
-                    <div class="chart-container mb-4">
-                        <h5 class="text-center mb-3">Doanh thu theo ngày</h5>
-                        <canvas id="revenueChart"></canvas>
-                    </div>
-
-                    <div class="chart-container">
-                        <h5 class="text-center mb-3">Top 5 Món Ăn Bán Chạy</h5>
-                        <c:choose>
-                            <c:when test="${not empty topFoods}">
-                                <div class="list-group overflow-auto" style="max-height: 220px;">
-                                    <c:forEach items="${topFoods}" var="dish" varStatus="status">
-                                        <div class="list-group-item d-flex justify-content-between align-items-center
-                                             ${status.index == 0 ? 'list-group-item-warning' : 
-                                               status.index == 1 ? 'list-group-item-secondary' : 
-                                               status.index == 2 ? 'list-group-item-light' : ''}">
-                                            <strong>${status.index + 1}. ${dish.foodName}</strong>
-                                            <span class="badge bg-primary rounded-pill">${dish.quantity} phần</span>
-                                        </div>
-                                    </c:forEach>
+            <div class="chart-container">
+                <h5>🍕 Top 5 Món Ăn Bán Chạy</h5>
+                <c:choose>
+                    <c:when test="${not empty topFoods}">
+                        <div class="list-group overflow-auto" style="max-height: 220px;">
+                            <c:forEach items="${topFoods}" var="dish" varStatus="status">
+                                <div class="list-group-item d-flex justify-content-between align-items-center
+                                     ${status.index == 0 ? 'list-group-item-warning' :
+                                       status.index == 1 ? 'list-group-item-secondary' :
+                                       status.index == 2 ? 'list-group-item-light' : ''}">
+                                    <strong>${status.index + 1}. ${dish.foodName}</strong>
+                                    <span class="badge bg-danger rounded-pill">${dish.quantity} phần</span>
                                 </div>
-                            </c:when>
-                            <c:otherwise>
-                                <p class="text-center text-muted mb-0">Không có dữ liệu món ăn.</p>
-                            </c:otherwise>
-                        </c:choose>
-                    </div>
-                </div>
-
-                <!-- PHẢI: Doanh thu loại món + Kênh bán -->
-                <div class="col-md-6">
-                    <div class="chart-container mb-4">
-                        <h5 class="text-center mb-3">Doanh thu theo loại món</h5>
-                        <canvas id="categoryChart"></canvas>
-                    </div>
-
-                    <div class="chart-container">
-                        <h5 class="text-center mb-3">Kênh bán hàng</h5>
-                        <canvas id="channelChart"></canvas>
-                    </div>
-                </div>
+                            </c:forEach>
+                        </div>
+                    </c:when>
+                    <c:otherwise>
+                        <p class="text-center text-muted mb-0">Không có dữ liệu món ăn.</p>
+                    </c:otherwise>
+                </c:choose>
             </div>
         </div>
 
-        <!-- CHART.JS + FIX BIỂU ĐỒ DÀI -->
-        <script>
+        <div class="col-md-6">
+            <div class="chart-container">
+                <h5>🏷 Doanh thu theo loại món</h5>
+                <canvas id="categoryChart" height="300"></canvas>
+            </div>
+
+            <div class="chart-container">
+                <h5>🛒 Kênh bán hàng</h5>
+                <canvas id="channelChart" height="300"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- CHARTS SCRIPT -->
+<script>
             document.addEventListener('DOMContentLoaded', function () {
 
                 // === 1. DOANH THU THEO NGÀY - SỬA LỖI DÀI BẤT TẬN ===
@@ -216,7 +266,7 @@
                     },
                     options: {
                         responsive: true,
-                        maintainAspectRatio: false,
+maintainAspectRatio: false,
                         plugins: {
                             legend: {position: 'bottom'},
                             tooltip: {
@@ -258,5 +308,6 @@
             });
         </script>
 
-    </body>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
 </html>
