@@ -145,6 +145,7 @@
                 </select>
             </form>
         </div>
+                <div>${error}</div>
 
         <!-- Danh sách món ăn -->
         <div style="overflow-x:auto;">
@@ -195,12 +196,6 @@
                                         <input type="hidden" name="orderFoodId" value="${of.orderFoodId}">
                                         <input type="hidden" name="status" value="${status}">
                                         <button type="submit" class="action complete">Hoàn tất</button>
-                                    </form>
-                                    <form class="inline" method="POST" action="${pageContext.request.contextPath}/chef/Order">
-                                        <input type="hidden" name="action" value="reject">
-                                        <input type="hidden" name="orderFoodId" value="${of.orderFoodId}">
-                                        <input type="hidden" name="status" value="${status}">
-                                        <button type="submit" class="action reject">Từ chối</button>
                                     </form>
                                 </c:if>
 

@@ -11,6 +11,7 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 import model.Ingredient;
+import model.FoodIngredient;
 
 /**
  *
@@ -143,6 +144,34 @@ public class FoodIngredientDAO {
         }
         return ingredient;
     }
+    
+    public static ArrayList<FoodIngredient> getFoodIngredientsByFoodId(int foodId) {
+        ArrayList<FoodIngredient> list = new ArrayList<>();
+        String sql = """
+                     SELECT* FROM FoodIngredients WHERE food_id = ?
+                     """;
+        try {
+            DBContext db = DBContext.getInstance();
+            Connection conn = db.connection;
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.setInt(1, foodId);  // Gán foodId vào câu lệnh SQL
+
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                FoodIngredient foodIngredient = new FoodIngredient();
+                foodIngredient.setFoodId(rs.getInt("food_id"));
+                foodIngredient.setIngredientId(rs.getInt("ingredient_id"));
+                foodIngredient.setQuantity(rs.getDouble("quantity"));
+                
+                list.add(foodIngredient);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+    
     public static boolean deleteIngredient(int foodId, int ingredientId) {
         String sql = "DELETE FROM FoodIngredients WHERE food_id = ? AND ingredient_id = ?";
         try {
@@ -158,6 +187,13 @@ public class FoodIngredientDAO {
         } catch (Exception e) {
             e.printStackTrace();
             return false;  
+        }
+    }
+    
+    public static void main(String[] args) {
+        ArrayList<FoodIngredient> list = getFoodIngredientsByFoodId(22);
+        for(FoodIngredient fi : list){
+            System.out.println("Ingredient: "+fi.getIngredientId());
         }
     }
 }
