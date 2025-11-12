@@ -71,7 +71,7 @@
     <div class="sidebar">
         <h3>Pizza<span style="color:white;">House</span></h3>
         <a href="${pageContext.request.contextPath}/waiter/Table?action=open">🪑 Tables</a>
-        <a href="${pageContext.request.contextPath}/waiter/Order">🧾 Orders</a>
+        
     </div>
 
     <div class="content">
