@@ -66,7 +66,7 @@ public class LoginServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        doPost(request, response);
+        request.getRequestDispatcher("/WEB-INF/View/client/pages/login.jsp").forward(request, response);
     }
 
     /**

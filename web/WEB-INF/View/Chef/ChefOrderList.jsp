@@ -128,12 +128,7 @@
     </div>
 
     <!-- Header -->
-    <header>
-        <h2>👨‍🍳 Chef - Quản lý món ăn</h2>
-        <form action="${pageContext.request.contextPath}/Logout" method="POST">
-            <button type="submit" class="logout-btn">Đăng xuất</button>
-        </form>
-    </header>
+  
 
     <div class="container">
 

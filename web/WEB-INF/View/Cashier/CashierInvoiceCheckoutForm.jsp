@@ -1,38 +1,34 @@
-<%-- 
-    Document   : CashierInvoiceCheckoutForm
-    Created on : Oct 28, 2025, 12:45:50 PM
-    Author     : cungp
---%>
-
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <!DOCTYPE html>
 <html>
 <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <title>Thanh toán hóa đơn</title>
+    <meta charset="UTF-8">
+    <title>Checkout Invoice | Pizza House</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
     <style>
         body {
-            font-family: "Segoe UI", Arial, sans-serif;
-            background-color: #f8f9fa;
+            font-family: 'Poppins', sans-serif;
+            background-color: #fff8f3;
             margin: 0;
-            padding: 20px;
+            padding: 30px;
             color: #333;
         }
 
         h3, h4, h5 {
-            margin: 8px 0;
+            margin: 10px 0;
         }
 
         h3 {
-            color: #007bff;
+            color: #e63946;
+            font-weight: 600;
         }
 
         .container {
-            background: white;
-            border-radius: 10px;
-            padding: 20px 30px;
-            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+            background: #fff;
+            border-radius: 14px;
+            padding: 25px 35px;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.1);
             max-width: 900px;
             margin: 0 auto;
         }
@@ -41,62 +37,84 @@
             width: 100%;
             border-collapse: collapse;
             margin-top: 10px;
-            margin-bottom: 15px;
+            margin-bottom: 20px;
+            border-radius: 10px;
+            overflow: hidden;
         }
 
         th, td {
-            border: 1px solid #ddd;
-            padding: 8px 10px;
+            padding: 10px 12px;
             text-align: left;
         }
 
         th {
-            background-color: #007bff;
+            background-color: #e63946;
             color: white;
         }
 
         tr:nth-child(even) {
-            background-color: #f2f2f2;
+            background-color: #fff1ee;
         }
 
         .total {
-            font-weight: bold;
+            font-weight: 600;
             text-align: right;
-            color: #007bff;
-            font-size: 1.1em;
+            color: #e63946;
+            font-size: 1.05em;
         }
 
         .btn, input[type="submit"] {
-            background-color: #007bff;
+            background-color: #e63946;
             color: white;
             border: none;
             padding: 8px 16px;
-            border-radius: 5px;
+            border-radius: 8px;
             cursor: pointer;
-            transition: background-color 0.2s ease-in-out;
+            transition: all 0.2s ease-in-out;
             font-size: 14px;
+            font-weight: 500;
         }
 
         .btn:hover, input[type="submit"]:hover {
-            background-color: #0056b3;
+            background-color: #c72e3b;
         }
 
         .back-form {
-            margin-bottom: 20px;
+            margin-bottom: 25px;
+        }
+
+        .back-form input {
+            background-color: #718093;
+        }
+
+        .back-form input:hover {
+            background-color: #9c9c9c;
         }
 
         .order-block {
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            padding: 15px;
+            border: 1px solid #eee;
+            border-radius: 10px;
+            padding: 15px 20px;
             margin-bottom: 20px;
-            background-color: #fafafa;
+            background-color: #fffaf8;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
         }
 
         .checkout-actions {
             display: flex;
             justify-content: space-between;
             align-items: center;
+            margin-top: 25px;
+        }
+
+        .checkout-actions h4 {
+            font-weight: 600;
+        }
+
+        .error {
+            color: #e63946;
+            font-weight: 600;
+            margin-bottom: 10px;
         }
     </style>
 </head>
@@ -108,7 +126,11 @@
             <input type="hidden" name="action" value="checkoutList">
             <input type="submit" class="btn" value="← Quay lại danh sách">
         </form>
-            <h3>${error}</h3>
+
+        <c:if test="${not empty error}">
+            <div class="error">${error}</div>
+        </c:if>
+
         <h3>Thanh toán hóa đơn: ${invoice.invoiceCode}</h3>
 
         <h4>Danh sách Order</h4>
