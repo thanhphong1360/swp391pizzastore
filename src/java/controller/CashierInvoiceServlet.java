@@ -117,9 +117,12 @@ public class CashierInvoiceServlet extends HttpServlet {
                 }
                 order.includeOrderFood();
                 order.includeTable();
-                for (OrderFood orderFood : order.getOrderFoodList()) {
-                    orderFood.includeFood();
+                if (order.getOrderFoodList() != null) {
+                    for (OrderFood orderFood : order.getOrderFoodList()) {
+                        orderFood.includeFood();
+                    }
                 }
+
                 price = price.add(order.getPrice());
             }
 

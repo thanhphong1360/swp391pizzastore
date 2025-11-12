@@ -119,11 +119,10 @@
                             </c:when>
 
                             <c:when test="${t.status == 'Occupied'}">
-                                <form action="${pageContext.request.contextPath}/waiter/Order" method="GET" style="display:inline;">
-                                    <input type="hidden" name="tableId" value="${t.tableId}">
-                                    <input type="hidden" name="action" value="order">
-                                    <input type="submit" value="Gọi món">
-                                </form>
+                                <a class="btn btn-order"
+                                   href="${pageContext.request.contextPath}/waiter/Order?tableId=${t.tableId}&action=order">
+                                    Gọi món
+                                </a>
                             </c:when>
 
                             <c:otherwise>
@@ -138,8 +137,9 @@
                 <button type="button" class="btn btn-open" onclick="confirmOpenMultiple()">
                     Mở bàn đã chọn
                 </button>
-
             </div>
         </form>
+
+
     </body>
 </html>
