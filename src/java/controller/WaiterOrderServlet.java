@@ -138,9 +138,24 @@ public class WaiterOrderServlet extends HttpServlet {
             }
             //gui danh sach completed/rejected foods
             Order order = OrderDAO.getPendingOrderByTableId(tableId);
-            ArrayList<OrderFood> doneFoods = OrderFoodDAO.getOrderFoodsByOrderIdAndStatus(order.getOrderId(), "completed");
-            if (doneFoods != null) {
-                doneFoods.addAll(OrderFoodDAO.getOrderFoodsByOrderIdAndStatus(order.getOrderId(), "rejected"));
+            ArrayList<OrderFood> doneFoods = new ArrayList<>();
+            ArrayList<OrderFood> doingFoods = OrderFoodDAO.getOrderFoodsByOrderIdAndStatus(order.getOrderId(), "doing");
+            ArrayList<OrderFood> completedFoods = OrderFoodDAO.getOrderFoodsByOrderIdAndStatus(order.getOrderId(), "completed");
+            ArrayList<OrderFood> rejectedFoods = OrderFoodDAO.getOrderFoodsByOrderIdAndStatus(order.getOrderId(), "rejected");
+            if (doingFoods != null) {
+                doneFoods.addAll(doingFoods);
+                for (OrderFood orderFood : doneFoods) {
+                    orderFood.includeFood();
+                }
+            }
+            if (completedFoods != null) {
+                doneFoods.addAll(completedFoods);
+                for (OrderFood orderFood : doneFoods) {
+                    orderFood.includeFood();
+                }
+            }
+            if (rejectedFoods != null) {
+                doneFoods.addAll(rejectedFoods);
                 for (OrderFood orderFood : doneFoods) {
                     orderFood.includeFood();
                 }

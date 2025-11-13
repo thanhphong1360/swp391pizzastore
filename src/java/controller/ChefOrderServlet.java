@@ -159,7 +159,6 @@ public class ChefOrderServlet extends HttpServlet {
                 request.setAttribute("orderFoods", orderFoods);
 
                 request.getRequestDispatcher("/WEB-INF/View/Chef/ChefOrderList.jsp").forward(request, response);
-                request.getRequestDispatcher("/WEB-INF/View/Chef/ChefOrderList.jsp").forward(request, response);
                 return;
             }
 
