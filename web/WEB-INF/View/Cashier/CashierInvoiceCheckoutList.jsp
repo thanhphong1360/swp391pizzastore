@@ -159,7 +159,11 @@
                                 </form>
                             </c:when>
                             <c:otherwise>
-                                <span>-</span>
+                                <form action="${pageContext.request.contextPath}/cashier/Invoice" method="GET" style="margin:0;">
+                                    <input type="hidden" name="invoiceId" value="${invoice.invoiceId}">
+                                    <input type="hidden" name="action" value="detail">
+                                    <button type="submit" class="btn">Xem chi tiết</button>
+                                </form>
                             </c:otherwise>
                         </c:choose>
                     </td>

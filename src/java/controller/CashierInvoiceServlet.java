@@ -83,6 +83,31 @@ public class CashierInvoiceServlet extends HttpServlet {
                 request.setAttribute("invoiceList", pendingInvoiceList);
                 request.getRequestDispatcher("/WEB-INF/View/Cashier/CashierInvoiceCheckoutList.jsp").forward(request, response);
             }
+        }else if("detail".equals(action)){
+            int invoiceId = Integer.parseInt(request.getParameter("invoiceId"));
+            Invoice invoice = InvoiceDAO.getInvoiceById(invoiceId);
+            //lay danh sach order trong invoice
+            ArrayList<Order> orderList = OrderDAO.getOrdersByInvoiceId(invoiceId);
+            //dung iterator de remove rejected order
+            Iterator<Order> iterator = orderList.iterator();
+            while (iterator.hasNext()) {
+                Order order = iterator.next();
+                if ("rejected".equals(order.getStatus())) {
+                    iterator.remove(); // ✅ Hợp lệ
+                    continue;          // bỏ qua order này
+                }
+                order.includeOrderFood();
+                order.includeTable();
+                if (order.getOrderFoodList() != null) {
+                    for (OrderFood orderFood : order.getOrderFoodList()) {
+                        orderFood.includeFood();
+                    }
+                }
+            }
+            request.setAttribute("invoice", invoice);
+            request.setAttribute("orderList", orderList);
+            request.getRequestDispatcher("/WEB-INF/View/Cashier/CashierInvoiceDetail.jsp").forward(request, response);
+            
         }
     }
 
@@ -113,7 +138,7 @@ public class CashierInvoiceServlet extends HttpServlet {
                 Order order = iterator.next();
                 if ("rejected".equals(order.getStatus())) {
                     iterator.remove(); // ✅ Hợp lệ
-                    continue;          // Không return, chỉ bỏ qua order này
+                    continue;          // bỏ qua order này
                 }
                 order.includeOrderFood();
                 order.includeTable();
