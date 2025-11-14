@@ -95,23 +95,32 @@ public class DeleteTableServlet extends HttpServlet {
             throws ServletException, IOException {
         String idStr = request.getParameter("table_id");
 
-        // Kiểm tra ID
         if (idStr == null || idStr.trim().isEmpty()) {
-            request.setAttribute("error", "Table ID is required.");
-            request.getRequestDispatcher("/manager/table/list").forward(request, response);
+            response.sendRedirect(request.getContextPath() + "/manager/table/list?error=invalid_id");
             return;
         }
 
         try {
             int id = Integer.parseInt(idStr);
-            new TableDAO().deleteTable(id);
-            response.sendRedirect(request.getContextPath() + "/manager/table/list");
+            TableDAO dao = new TableDAO();
+
+            // Kiểm tra xem bàn có đang được dùng trong đơn hàng không (tùy bạn có constraint này không)
+            if (dao.isTableInUse(id)) {
+                response.sendRedirect(request.getContextPath() + "/manager/table/list?error=delete_failed");
+                return;
+            }
+
+            boolean deleted = dao.deleteTable(id);
+            if (deleted) {
+                response.sendRedirect(request.getContextPath() + "/manager/table/list?msg=deleted");
+            } else {
+                response.sendRedirect(request.getContextPath() + "/manager/table/list?error=delete_failed");
+            }
         } catch (NumberFormatException e) {
-            request.setAttribute("error", "Invalid Table ID.");
-            request.getRequestDispatcher("/manager/table/list").forward(request, response);
+            response.sendRedirect(request.getContextPath() + "/manager/table/list?error=invalid_id");
         } catch (Exception e) {
-            request.setAttribute("error", "Failed to delete table: " + e.getMessage());
-            request.getRequestDispatcher("/manager/table/list").forward(request, response);
+            e.printStackTrace();
+            response.sendRedirect(request.getContextPath() + "/manager/table/list?error=exception");
         }
     }
 

@@ -78,34 +78,51 @@ public class AddTableServlet extends HttpServlet {
         String status = request.getParameter("status");
         String location = request.getParameter("location");
 
-        // SỬA: Kiểm tra null + trim
-        if (number == null || number.trim().isEmpty() || capacityStr == null || capacityStr.trim().isEmpty()) {
-            request.setAttribute("error", "Please fill out all required fields.");
-            // SỬA: Giữ lại dữ liệu người dùng nhập
-            request.setAttribute("param", request.getParameterMap());
+        // === VALIDATION ===
+        if (number == null || number.trim().isEmpty()
+                || capacityStr == null || capacityStr.trim().isEmpty()) {
+
+            request.setAttribute("error", "Vui lòng điền đầy đủ các trường bắt buộc.");
+            request.setAttribute("param", request.getParameterMap()); // giữ lại dữ liệu đã nhập
             request.getRequestDispatcher("/WEB-INF/View/manager/table/add-table.jsp").forward(request, response);
             return;
         }
 
         try {
             int capacity = Integer.parseInt(capacityStr);
-            // SỬA: Kiểm tra capacity > 0
+
             if (capacity <= 0) {
-                request.setAttribute("error", "Capacity must be a positive number.");
+                request.setAttribute("error", "Sức chứa phải lớn hơn 0.");
                 request.setAttribute("param", request.getParameterMap());
                 request.getRequestDispatcher("/WEB-INF/View/manager/table/add-table.jsp").forward(request, response);
                 return;
             }
 
-            RestaurantTable t = new RestaurantTable(0, number.trim(), capacity, status != null ? status : "Available", location);
-            new TableDAO().addTable(t);
+            // Tạo đối tượng bàn mới
+            RestaurantTable t = new RestaurantTable(
+                    0,
+                    number.trim(),
+                    capacity,
+                    status != null && !status.isEmpty() ? status : "Available",
+                    location != null ? location.trim() : ""
+            );
 
-            // SỬA: redirect đúng
-            response.sendRedirect(request.getContextPath() + "/manager/table/list");
+            TableDAO dao = new TableDAO();
+            boolean added = dao.addTable(t); 
+
+            if (added) {
+                response.sendRedirect(request.getContextPath() + "/manager/table/list?msg=added");
+            } else {
+                response.sendRedirect(request.getContextPath() + "/manager/table/list?error=add_failed");
+            }
+
         } catch (NumberFormatException e) {
-            request.setAttribute("error", "Capacity must be a valid number.");
+            request.setAttribute("error", "Sức chứa phải là một số hợp lệ.");
             request.setAttribute("param", request.getParameterMap());
             request.getRequestDispatcher("/WEB-INF/View/manager/table/add-table.jsp").forward(request, response);
+        } catch (Exception e) {
+            e.printStackTrace();
+            response.sendRedirect(request.getContextPath() + "/manager/table/list?error=exception");
         }
     }
 
