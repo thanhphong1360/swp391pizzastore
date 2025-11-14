@@ -59,20 +59,55 @@ public class GetAllDiscountServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         DiscountDAO dao = new DiscountDAO();
-        List<Discount> list = dao.getAll();
-        
-        // Auto-update status for expired discounts
+
+        // 1. Cập nhật trạng thái hết hạn (trước khi phân trang)
         java.sql.Date currentDate = new java.sql.Date(System.currentTimeMillis());
-        for (Discount d : list) {
-            if (d.isStatus() && d.getEndDate().before(currentDate)) {
-                d.setStatus(false);
-                dao.update(d);
+        dao.updateExpiredDiscounts(currentDate);
+
+        // 2. Xử lý tìm kiếm
+        String search = request.getParameter("search");
+        if (search != null && search.trim().isEmpty()) {
+            search = null;
+        }
+
+        // 3. Phân trang
+        int pageSize = 10;
+        int currentPage = 1;
+        String pageStr = request.getParameter("page");
+        if (pageStr != null && !pageStr.isEmpty()) {
+            try {
+                currentPage = Integer.parseInt(pageStr);
+                if (currentPage < 1) {
+                    currentPage = 1;
+                }
+            } catch (NumberFormatException e) {
+                currentPage = 1;
             }
         }
 
-        request.setAttribute("discounts", list);
-        request.setAttribute("totalDiscounts", list.size());
-        request.getRequestDispatcher("/WEB-INF/View/manager/discount/list-discount.jsp").forward(request, response);
+        List<Discount> discounts;
+        int totalItems;
+
+        if (search == null) {
+            discounts = dao.getAll(currentPage, pageSize);
+            totalItems = dao.getTotalCount();
+        } else {
+            discounts = dao.getBySearch(search, currentPage, pageSize);
+            totalItems = dao.getTotalCountBySearch(search);
+        }
+
+        int totalPages = totalItems == 0 ? 1 : (int) Math.ceil((double) totalItems / pageSize);
+
+        // Set attributes
+        request.setAttribute("discounts", discounts);
+        request.setAttribute("currentPage", currentPage);
+        request.setAttribute("totalPages", totalPages);
+        request.setAttribute("totalItems", totalItems);
+        request.setAttribute("pageSize", pageSize);
+        request.setAttribute("search", search);
+
+        request.getRequestDispatcher("/WEB-INF/View/manager/discount/list-discount.jsp")
+                .forward(request, response);
     }
 
     /**

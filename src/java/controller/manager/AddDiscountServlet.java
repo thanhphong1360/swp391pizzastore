@@ -74,53 +74,42 @@ public class AddDiscountServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        String code = request.getParameter("code");
-        String description = request.getParameter("description");
-        String type = request.getParameter("type");
-        String valueStr = request.getParameter("value");
-        String startDateStr = request.getParameter("start_date");
-        String endDateStr = request.getParameter("end_date");
-        String minInvoiceStr = request.getParameter("min_invoice_price");
-        String maxDiscountStr = request.getParameter("max_discount_amount");
-        String statusStr = request.getParameter("status");
-        DiscountDAO dao = new DiscountDAO();
-
-        if (code == null || code.trim().isEmpty()
-                || description == null || description.trim().isEmpty()
-                || type == null || type.trim().isEmpty()
-                || valueStr == null || valueStr.trim().isEmpty()
-                || startDateStr == null || endDateStr == null
-                || minInvoiceStr == null || maxDiscountStr == null
-                || statusStr == null) {
-            request.setAttribute("error", "Please fill out all required fields.");
-            request.getRequestDispatcher("/WEB-INF/View/manager/discount/add-discount.jsp").forward(request, response);
-            return;
-        }
-
-        if (dao.checkIfCodeExists(code)) {
-            request.setAttribute("error", "Discount has already exits!");
-            request.getRequestDispatcher("/WEB-INF/View/manager/discount/add-discount.jsp").forward(request, response);
-            return;
-        }
-
         try {
+            // Lấy dữ liệu
+            String code = request.getParameter("code");
+            String description = request.getParameter("description");
+            String type = request.getParameter("type");
+            String valueStr = request.getParameter("value");
+            String startDateStr = request.getParameter("start_date");
+            String endDateStr = request.getParameter("end_date");
+            String minInvoiceStr = request.getParameter("min_invoice_price");
+            String maxDiscountStr = request.getParameter("max_discount_amount");
+            String statusStr = request.getParameter("status");
+
+            // Validate
+            if (code == null || code.trim().isEmpty() || description == null || description.trim().isEmpty()
+                    || type == null || valueStr == null || startDateStr == null || endDateStr == null
+                    || minInvoiceStr == null || maxDiscountStr == null || statusStr == null) {
+                request.setAttribute("error", "Vui lòng điền đầy đủ thông tin.");
+                request.getRequestDispatcher("/WEB-INF/View/manager/discount/add-discount.jsp").forward(request, response);
+                return;
+            }
+
             double value = Double.parseDouble(valueStr);
-            java.sql.Date startDate = java.sql.Date.valueOf(startDateStr);
-            java.sql.Date endDate = java.sql.Date.valueOf(endDateStr);
-            double minInvoicePrice = Double.parseDouble(minInvoiceStr);
-            double maxDiscountAmount = Double.parseDouble(maxDiscountStr);
+            Date startDate = Date.valueOf(startDateStr);
+            Date endDate = Date.valueOf(endDateStr);
+            double minInvoice = Double.parseDouble(minInvoiceStr);
+            double maxDiscount = Double.parseDouble(maxDiscountStr);
             boolean status = Boolean.parseBoolean(statusStr);
 
-            // Check for negative values
-            if (value < 0 || minInvoicePrice < 0 || maxDiscountAmount < 0) {
-                request.setAttribute("error", "Value, Minimum Invoice Price, and Maximum Discount Amount must be non-negative.");
+            if (value < 0 || minInvoice < 0 || maxDiscount < 0) {
+                request.setAttribute("error", "Giá trị không được âm.");
                 request.getRequestDispatcher("/WEB-INF/View/manager/discount/add-discount.jsp").forward(request, response);
                 return;
             }
 
             if (!startDate.before(endDate)) {
-                request.setAttribute("error", "Start date must be before end date.");
-                // Gắn lại dữ liệu để hiển thị
+                request.setAttribute("error", "Ngày bắt đầu phải trước ngày kết thúc.");
                 request.setAttribute("code", code);
                 request.setAttribute("description", description);
                 request.setAttribute("type", type);
@@ -134,34 +123,41 @@ public class AddDiscountServlet extends HttpServlet {
                 return;
             }
 
-            Discount discount = new Discount();
-            discount.setCode(code);
-            discount.setDescription(description);
-            discount.setType(type);
-            discount.setValue(value);
-            discount.setStartDate(startDate);
-            discount.setEndDate(endDate);
-            discount.setMinInvoicePrice(minInvoicePrice);
-            discount.setMaxDiscountAmount(maxDiscountAmount);
-            discount.setStatus(status);
+            DiscountDAO dao = new DiscountDAO();
+            if (dao.checkIfCodeExists(code)) {
+                request.setAttribute("error", "Mã giảm giá đã tồn tại.");
+                request.getRequestDispatcher("/WEB-INF/View/manager/discount/add-discount.jsp").forward(request, response);
+                return;
+            }
 
-            dao.insert(discount);
+            Discount d = new Discount();
+            d.setCode(code);
+            d.setDescription(description);
+            d.setType(type);
+            d.setValue(value);
+            d.setStartDate(startDate);
+            d.setEndDate(endDate);
+            d.setMinInvoicePrice(minInvoice);
+            d.setMaxDiscountAmount(maxDiscount);
+            d.setStatus(status);
 
-            response.sendRedirect(request.getContextPath() + "/manager/discount/list");
+            boolean success = dao.insert(d);
+            response.sendRedirect(request.getContextPath() + "/manager/discount/list"
+                    + (success ? "?msg=add_success" : "?error=add_failed"));
 
         } catch (Exception e) {
-            request.setAttribute("error", "Invalid input: " + e.getMessage());
+            request.setAttribute("error", "Lỗi: " + e.getMessage());
             request.getRequestDispatcher("/WEB-INF/View/manager/discount/add-discount.jsp").forward(request, response);
         }
-    }
+}
 
-    /**
-     * Returns a short description of the servlet.
-     *
-     * @return a String containing servlet description
-     */
-    @Override
-    public String getServletInfo() {
+/**
+ * Returns a short description of the servlet.
+ *
+ * @return a String containing servlet description
+ */
+@Override
+public String getServletInfo() {
         return "Short description";
     }// </editor-fold>
 

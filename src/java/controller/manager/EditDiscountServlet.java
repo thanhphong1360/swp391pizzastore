@@ -95,13 +95,13 @@ public class EditDiscountServlet extends HttpServlet {
             String maxDiscountStr = request.getParameter("max_discount_amount");
             String statusStr = request.getParameter("status");
 
-            if (code == null || code.trim().isEmpty() ||
-                description == null || description.trim().isEmpty() ||
-                type == null || type.trim().isEmpty() ||
-                valueStr == null || valueStr.trim().isEmpty() ||
-                startDateStr == null || endDateStr == null ||
-                minInvoiceStr == null || maxDiscountStr == null ||
-                statusStr == null) {
+            if (code == null || code.trim().isEmpty()
+                    || description == null || description.trim().isEmpty()
+                    || type == null || type.trim().isEmpty()
+                    || valueStr == null || valueStr.trim().isEmpty()
+                    || startDateStr == null || endDateStr == null
+                    || minInvoiceStr == null || maxDiscountStr == null
+                    || statusStr == null) {
                 request.setAttribute("error", "Please fill out all required fields.");
                 request.setAttribute("discount", d);
                 request.getRequestDispatcher("/WEB-INF/View/manager/discount/detail-discount.jsp").forward(request, response);
@@ -133,8 +133,12 @@ public class EditDiscountServlet extends HttpServlet {
             d.setMaxDiscountAmount(maxDiscountAmount);
             d.setStatus(status);
 
-            dao.update(d);
-            response.sendRedirect(request.getContextPath() + "/manager/discount/list");
+            boolean success = dao.update(d);
+            if (success) {
+                response.sendRedirect(request.getContextPath() + "/manager/discount/list?msg=edit_success");
+            } else {
+                response.sendRedirect(request.getContextPath() + "/manager/discount/list?error=edit_failed");
+            }
         } catch (Exception e) {
             e.printStackTrace();
             request.setAttribute("error", "Edit discount failed: " + e.getMessage());
