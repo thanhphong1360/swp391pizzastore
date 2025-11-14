@@ -16,8 +16,8 @@ import model.Table;
  *
  * @author cungp
  */
-public class TableDAO {
-    
+public class TableDAO extends DBContext {
+
     public static ArrayList<Table> getAllTable() {
         ArrayList<Table> list = new ArrayList<>();
         DBContext dbc = DBContext.getInstance();
@@ -27,10 +27,10 @@ public class TableDAO {
             ResultSet rs = statement.executeQuery();
             while (rs.next()) {
                 Table table = new Table(rs.getInt("table_id"),
-                                    rs.getString("table_number"),
-                                        rs.getInt("capacity"),
-                                        rs.getString("location"),
-                                        rs.getString("status"));
+                        rs.getString("table_number"),
+                        rs.getInt("capacity"),
+                        rs.getString("location"),
+                        rs.getString("status"));
                 list.add(table);
             }
         } catch (Exception e) {
@@ -39,7 +39,7 @@ public class TableDAO {
         }
         return list.isEmpty() ? null : list;
     }
-    
+
     public static Table getTableById(int tableId) {
         ArrayList<Table> list = new ArrayList<>();
         DBContext dbc = DBContext.getInstance();
@@ -50,10 +50,10 @@ public class TableDAO {
             ResultSet rs = statement.executeQuery();
             while (rs.next()) {
                 Table table = new Table(rs.getInt("table_id"),
-                                    rs.getString("table_number"),
-                                        rs.getInt("capacity"),
-                                        rs.getString("location"),
-                                        rs.getString("status"));
+                        rs.getString("table_number"),
+                        rs.getInt("capacity"),
+                        rs.getString("location"),
+                        rs.getString("status"));
                 list.add(table);
             }
         } catch (Exception e) {
@@ -62,8 +62,7 @@ public class TableDAO {
         }
         return list.isEmpty() ? null : list.get(0);
     }
-    
-    
+
     public static Table updateTableStatus(Table table, String status) {
         DBContext dbc = DBContext.getInstance();
         int rs = 0;
@@ -84,44 +83,79 @@ public class TableDAO {
         return rs == 0 ? null : table;
     }
 
-    public void addTable(RestaurantTable t) {
-        DBContext dbc = DBContext.getInstance();
+    public boolean addTable(RestaurantTable t) {
         String sql = "INSERT INTO RestaurantTables (table_number, capacity, status, location) VALUES (?, ?, ?, ?)";
-        try (PreparedStatement ps = dbc.getConnection().prepareStatement(sql)) {
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+
             ps.setString(1, t.getTableNumber());
             ps.setInt(2, t.getCapacity());
             ps.setString(3, t.getStatus());
             ps.setString(4, t.getLocation());
-            ps.executeUpdate();
+
+            int rowsAffected = ps.executeUpdate();
+            return rowsAffected > 0;
+
         } catch (Exception e) {
             e.printStackTrace();
+            return false;
         }
     }
 
     public boolean updateTable(RestaurantTable t) {
-        DBContext dbc = DBContext.getInstance();
-        String sql = "UPDATE RestaurantTables SET table_number=?, capacity=?, status=?, location=? WHERE table_id=?";
-        try (PreparedStatement ps = dbc.getConnection().prepareStatement(sql)) {
+        String sql = "UPDATE RestaurantTables SET table_number = ?, capacity = ?, status = ?, location = ? WHERE table_id = ?";
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+
             ps.setString(1, t.getTableNumber());
             ps.setInt(2, t.getCapacity());
             ps.setString(3, t.getStatus());
             ps.setString(4, t.getLocation());
             ps.setInt(5, t.getTableId());
-            ps.executeUpdate();
+
+            int rowsAffected = ps.executeUpdate();
+            return rowsAffected > 0;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public boolean deleteTable(int id) {
+        String sql = "DELETE FROM RestaurantTables WHERE table_id = ?";
+
+        try (
+                PreparedStatement ps = connection.prepareStatement(sql)) {
+
+            ps.setInt(1, id);
+            int rowsAffected = ps.executeUpdate();
+
+            return rowsAffected > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public boolean isTableInUse(int tableId) {
+        String sql = """
+        SELECT COUNT(*) 
+        FROM order_table ot
+        JOIN orders o ON ot.order_id = o.order_id  
+        WHERE ot.table_id = ?
+        LIMIT 1
+        """;
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, tableId);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1) > 0;
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
         return false;
-    }
-
-    public void deleteTable(int id) {
-        DBContext dbc = DBContext.getInstance();
-        String sql = "DELETE FROM RestaurantTables WHERE table_id=?";
-        try (PreparedStatement ps = dbc.getConnection().prepareStatement(sql)) {
-            ps.setInt(1, id);
-            ps.executeUpdate();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 }

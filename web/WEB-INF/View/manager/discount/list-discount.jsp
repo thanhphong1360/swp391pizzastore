@@ -6,7 +6,7 @@
     <head>
         <meta charset="UTF-8">
         <title>Discount Management | Pizza House</title>
-        <base href="${pageContext.request.contextPath}/"> <!-- QUAN TRỌNG NHẤT -->
+        <base href="${pageContext.request.contextPath}/">
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
         <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
         <style>
@@ -80,36 +80,125 @@
             .view:hover {
                 background:#5a4dcf;
             }
-            .delete {
-                background:#e84118;
+
+            /* === THÊM MỚI - GIỮ NGUYÊN PHONG CÁCH === */
+            .header-bar {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 20px;
+                flex-wrap: wrap;
+                gap: 15px;
             }
-            .delete:hover {
-                background:#c23616;
+            .search-box {
+                display: flex;
+                max-width: 360px;
+            }
+            .search-box input {
+                border: 2px solid #ddd;
+                border-right: none;
+                border-radius: 8px 0 0 8px;
+                padding: 8px 12px;
+                font-size: 14px;
+            }
+            .search-box input:focus {
+                outline: none;
+                border-color: #e63946;
+            }
+            .search-box button {
+                background: #e63946;
+                color: white;
+                border: none;
+                border-radius: 0 8px 8px 0;
+                padding: 0 16px;
+            }
+            .search-box button:hover {
+                background: #c72e3b;
+            }
+
+            /* Pagination - nhẹ nhàng, đúng tông màu */
+            .pagination-info {
+                color: #555;
+                font-size: 14px;
+                margin-top: 20px;
+            }
+            .pagination {
+                margin-top: 20px;
+                justify-content: center;
+            }
+            .pagination .page-link {
+                color: #e63946;
+                border-radius: 6px;
+                margin: 0 4px;
+                padding: 8px 14px;
+            }
+            .pagination .page-item.active .page-link {
+                background: #e63946;
+                border-color: #e63946;
+                color: white;
+            }
+            .pagination .page-item.disabled .page-link {
+                color: #aaa;
             }
         </style>
     </head>
     <body>
-        <c:if test="${param.msg == 'deleted'}">
-            <div class="alert alert-success"> Mã giảm giá đã được xóa thành công!</div>
+        <c:if test="${not empty param.msg or not empty param.error}">
+
+            <!-- Thông báo thành công -->
+            <c:if test="${not empty param.msg}">
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="bi bi-check-circle-fill me-2"></i>
+                    <c:choose>
+                        <c:when test="${param.msg == 'add_success'}">Mã giảm giá đã được thêm thành công!</c:when>
+                        <c:when test="${param.msg == 'edit_success'}">Mã giảm giá đã được cập nhật thành công!</c:when>
+                        <c:otherwise>Thao tác thành công!</c:otherwise>
+                    </c:choose>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            </c:if>
+
+            <!-- Thông báo lỗi -->
+            <c:if test="${not empty param.error}">
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                    <c:choose>
+                        <c:when test="${param.error == 'add_failed'}">Không thể thêm mã giảm giá. Vui lòng thử lại.</c:when>
+                        <c:when test="${param.error == 'edit_failed'}">Không thể cập nhật mã giảm giá.</c:when>
+                        <c:when test="${param.error == 'code_exists'}">Mã giảm giá đã tồn tại. Vui lòng chọn mã khác.</c:when>
+                        <c:when test="${param.error == 'invalid_id'}">ID không hợp lệ.</c:when>
+                        <c:when test="${param.error == 'exception'}">Đã xảy ra lỗi trong quá trình xử lý.</c:when>
+                        <c:otherwise>Đã xảy ra lỗi.</c:otherwise>
+                    </c:choose>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            </c:if>
+
         </c:if>
-        <c:if test="${param.error == 'delete_failed'}">
-            <div class="alert alert-danger"> Không thể xóa mã giảm giá (có thể đang được sử dụng trong hóa đơn).</div>
-        </c:if>
-        <c:if test="${param.error == 'exception'}">
-            <div class="alert alert-danger">️ Đã xảy ra lỗi trong quá trình xóa.</div>
-        </c:if>
-        <c:if test="${param.error == 'invalid_id'}">
-            <div class="alert alert-warning">️ ID không hợp lệ.</div>
-        </c:if>
-        <div class="d-flex justify-content-between mb-3">
+
+        <!-- HEADER BAR: Back + Add + Search (bên phải) -->
+        <div class="header-bar">
             <h2>Discount Management</h2>
-            <a href="Home" class="home-btn">Back to Dashboard</a>
+            <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+                <!-- Search Box - nằm bên phải -->
+                <form method="get" action="${pageContext.request.contextPath}/manager/discount/list" class="d-flex gap-2">
+                    <input type="text" name="search" class="form-control search-box " 
+                           placeholder="Search by Code or Description..." 
+                           value="${param.search}">
+                    <button type="submit" class="btn btn-primary">Search</button>
+                    <c:if test="${not empty param.search}">
+                        <a href="${pageContext.request.contextPath}/manager/discount/list" class="btn btn-secondary">Clear</a>
+                    </c:if>
+                </form>
+
+                <a href="${pageContext.request.contextPath}/Home" class="home-btn">🏠 Back to Dashboard</a>
+                <a href="manager/discount/add-discount" class="add-btn">➕ Add New Discount</a>
+            </div>
         </div>
 
-        <a href="manager/discount/add-discount" class="add-btn mb-3 d-inline-block">Add Discount</a>
-
+        <!-- Bảng dữ liệu -->
         <div style="overflow-x:auto;">
-            <table class="table table-striped">
+            <table>
                 <thead>
                     <tr>
                         <th>ID</th><th>Code</th><th>Description</th><th>Type</th><th>Value</th>
@@ -121,52 +210,80 @@
                     <c:forEach var="d" items="${discounts}">
                         <tr>
                             <td>${d.discountId}</td>
-                            <td>${d.code}</td>
+                            <td><strong>${d.code}</strong></td>
                             <td>${d.description}</td>
-                            <td>${d.type}</td>
-                            <td>${d.value}</td>
-                            <td>${d.startDate}</td>
-                            <td>${d.endDate}</td>
+                            <td>
+                                <span style="padding:4px 10px; border-radius:6px; font-size:12px; color:white;
+                                      background:${d.type == 'percentage' ? '#00a8ff' : '#2ecc71'}">
+                                    ${d.type == 'percentage' ? 'Percentage' : 'Fixed'}
+                                </span>
+                            </td>
+                            <td>
+                                <c:choose>
+                                    <c:when test="${d.type == 'percentage'}">${d.value}%</c:when>
+                                    <c:otherwise><fmt:formatNumber value="${d.value}" pattern="#,###"/> VND</c:otherwise>
+                                </c:choose>
+                            </td>
+                            <td><fmt:formatDate value="${d.startDate}" pattern="dd/MM/yyyy"/></td>
+                            <td><fmt:formatDate value="${d.endDate}" pattern="dd/MM/yyyy"/></td>
                             <td><fmt:formatNumber value="${d.minInvoicePrice}" pattern="#,###"/> VND</td>
                             <td><fmt:formatNumber value="${d.maxDiscountAmount}" pattern="#,###"/> VND</td>
-                            <td><span style="font-weight:bold; color:${d.status ? 'green' : 'red'};">${d.status ? 'Active' : 'Inactive'}</span></td>
                             <td>
-                                <div class="btn-group" role="group">
-
-                                    <!-- VIEW -->
-                                    <form action="GetDiscountByIdServlet" method="GET" style="display: inline;">
-                                        <input type="hidden" name="id" value="${d.discountId}">
-                                        <input type="hidden" name="action" value="view">
-                                        <button type="submit" class="btn btn-sm btn-dark" style="margin-right: 5px;">
-                                            View
-                                        </button>
-                                    </form>
-
-                                    <!-- EDIT -->
-                                    <form action="GetDiscountByIdServlet" method="GET" style="display: inline;">
-                                        <input type="hidden" name="id" value="${d.discountId}">
-                                        <input type="hidden" name="action" value="edit">
-                                        <button type="submit" class="btn btn-sm btn-warning" style="margin-right: 5px;">
-                                            Edit
-                                        </button>
-                                    </form>
-
-                                    <form action="DeleteDiscountServlet"
-                                          method="POST"
-                                          style="display: inline;"
-                                          onsubmit="return confirm('Bạn chắc chắn muốn xóa mã giảm giá này?');">
-                                        <input type="hidden" name="id" value="${d.discountId}">
-                                        <button type="submit" class="btn btn-sm btn-danger">
-                                            <i class="tio-delete"></i> Delete
-                                        </button>
-                                    </form>
-
-                                </div>
+                                <span style="color:${d.status ? 'green' : 'red'}; font-weight:bold;">
+                                    ${d.status ? 'Active' : 'Inactive'}
+                                </span>
+                            </td>
+                            <td>
+                                <a href="GetDiscountByIdServlet?id=${d.discountId}&action=view" 
+                                   class="action view">View</a>
+                                <a href="GetDiscountByIdServlet?id=${d.discountId}&action=edit" 
+                                   class="action edit">Edit</a>
                             </td>
                         </tr>
                     </c:forEach>
                 </tbody>
             </table>
+
+            <!-- Không có dữ liệu -->
+            <c:if test="${empty discounts}">
+                <div style="text-align:center; padding:40px; color:#999; font-size:18px;">
+                    No discount codes found.
+                </div>
+            </c:if>
         </div>
+
+        <!-- PHÂN TRANG INFO -->
+        <div class="pagination-info">
+            Showing <strong>${(currentPage - 1) * pageSize + 1}</strong> - 
+            <strong>${currentPage * pageSize > totalItems ? totalItems : currentPage * pageSize}</strong>
+            of <strong>${totalItems}</strong> results
+        </div>
+
+        <!-- PAGINATION -->
+        <nav>
+            <ul class="pagination justify-content-center">
+                <li class="page-item ${currentPage <= 1 ? 'disabled' : ''}">
+                    <a class="page-link" href="?page=1&search=${param.search}">First</a>
+                </li>
+                <li class="page-item ${currentPage <= 1 ? 'disabled' : ''}">
+                    <a class="page-link" href="?page=${currentPage - 1}&search=${param.search}">Previous</a>
+                </li>
+
+                <c:forEach var="i" begin="${currentPage - 2 > 0 ? currentPage - 2 : 1}" 
+                           end="${currentPage + 2 < totalPages ? currentPage + 2 : totalPages}">
+                    <li class="page-item ${i == currentPage ? 'active' : ''}">
+                        <a class="page-link" href="?page=${i}&search=${param.search}">${i}</a>
+                    </li>
+                </c:forEach>
+
+                <li class="page-item ${currentPage >= totalPages ? 'disabled' : ''}">
+                    <a class="page-link" href="?page=${currentPage + 1}&search=${param.search}">Next</a>
+                </li>
+                <li class="page-item ${currentPage >= totalPages ? 'disabled' : ''}">
+                    <a class="page-link" href="?page=${totalPages}&search=${param.search}">Last</a>
+                </li>
+            </ul>
+        </nav>
+
     </body>
 </html>

@@ -96,15 +96,21 @@ public class EditTableServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+   
         String idStr = request.getParameter("table_id");
         String number = request.getParameter("table_number");
         String capacityStr = request.getParameter("capacity");
         String status = request.getParameter("status");
         String location = request.getParameter("location");
 
-        // SỬA: Kiểm tra dữ liệu
-        if (idStr == null || number == null || number.trim().isEmpty() || capacityStr == null || capacityStr.trim().isEmpty()) {
-            request.setAttribute("error", "Please fill out all required fields.");
+        //validation
+        if (idStr == null || idStr.trim().isEmpty()
+                || number == null || number.trim().isEmpty()
+                || capacityStr == null || capacityStr.trim().isEmpty()) {
+
+            //forward về form edit
+            request.setAttribute("error", "Vui lòng điền đầy đủ các trường bắt buộc.");
+            request.setAttribute("table", request.getParameterMap());
             request.getRequestDispatcher("/WEB-INF/View/manager/table/edit-table.jsp").forward(request, response);
             return;
         }
@@ -112,25 +118,36 @@ public class EditTableServlet extends HttpServlet {
         try {
             int id = Integer.parseInt(idStr);
             int capacity = Integer.parseInt(capacityStr);
+
             if (capacity <= 0) {
-                request.setAttribute("error", "Capacity must be positive.");
+                request.setAttribute("error", "Sức chứa phải lớn hơn 0.");
+                request.setAttribute("table", request.getParameterMap());
                 request.getRequestDispatcher("/WEB-INF/View/manager/table/edit-table.jsp").forward(request, response);
                 return;
             }
 
-            RestaurantTable t = new RestaurantTable(id, number.trim(), capacity, status != null ? status : "available", location);
-            boolean success = new TableDAO().updateTable(t);
+            RestaurantTable t = new RestaurantTable(
+                    id,
+                    number.trim(),
+                    capacity,
+                    status != null && !status.isEmpty() ? status : "Available",
+                    location != null ? location.trim() : ""
+            );
+
+            TableDAO dao = new TableDAO();
+            boolean success = dao.updateTable(t);
 
             if (success) {
-                response.sendRedirect(request.getContextPath() + "/manager/table/list");
+                response.sendRedirect(request.getContextPath() + "/manager/table/list?msg=edited");
             } else {
-                request.setAttribute("error", "Failed to update table.");
-                request.setAttribute("table", t);
-                request.getRequestDispatcher("/WEB-INF/View/manager/table/edit-table.jsp").forward(request, response);
+                response.sendRedirect(request.getContextPath() + "/manager/table/list?error=edit_failed");
             }
+
+        } catch (NumberFormatException e) {
+            response.sendRedirect(request.getContextPath() + "/manager/table/list?error=invalid_number");
         } catch (Exception e) {
-            request.setAttribute("error", "Error: " + e.getMessage());
-            request.getRequestDispatcher("/WEB-INF/View/manager/table/edit-table.jsp").forward(request, response);
+            e.printStackTrace();
+            response.sendRedirect(request.getContextPath() + "/manager/table/list?error=exception");
         }
     }
 
