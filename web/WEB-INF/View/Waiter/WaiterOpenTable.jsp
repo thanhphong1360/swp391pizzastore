@@ -3,72 +3,135 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>Danh sách bàn</title>
+        <meta charset="UTF-8">
+        <title>Danh sách bàn - Pizza House</title>
+
+        <!-- Font -->
+        <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+
         <style>
             body {
-                font-family: Arial, sans-serif;
-                background-color: #f4f6f8;
-                text-align: center;
-            }
-            h1 {
+                font-family: 'Poppins', sans-serif;
+                background-color: #fff8f6;
+                margin: 0;
+                padding: 30px;
                 color: #333;
             }
-            .table-container {
-                display: flex;
-                flex-wrap: wrap;
-                justify-content: center;
-                gap: 15px;
-                margin-top: 20px;
+
+            h1 {
+                text-align: center;
+                color: #e63946;
+                margin-bottom: 25px;
+                font-weight: 600;
             }
-            .table-card {
-                width: 160px;
-                height: 120px;
-                border-radius: 12px;
-                padding: 10px;
-                box-shadow: 0 0 5px #ccc;
-                background-color: white;
+
+            .container {
+                background: #ffffff;
+                border-radius: 16px;
+                padding: 25px 30px;
+                box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+                max-width: 1100px;
+                margin: 0 auto;
+            }
+
+            .topbar {
                 display: flex;
-                flex-direction: column;
                 justify-content: space-between;
                 align-items: center;
+                margin-bottom: 25px;
             }
-            .available {
-                border: 2px solid #4CAF50;
-            }
-            .occupied {
-                border: 2px solid #f39c12;
-            }
-            .unavailable {
-                border: 2px solid #f44336;
-            }
+
             .btn {
-                padding: 6px 12px;
+                background-color: #e63946;
+                color: #fff;
                 border: none;
-                border-radius: 6px;
+                padding: 8px 18px;
+                border-radius: 8px;
                 cursor: pointer;
-                color: white;
-                font-size: 14px;
+                font-size: 15px;
+                font-weight: 500;
+                transition: background-color 0.25s ease, transform 0.1s ease;
             }
-            .btn-open {
-                background-color: #4CAF50;
+
+            .btn:hover {
+                background-color: #c92e3b;
+                transform: translateY(-1px);
             }
-            .btn-order {
-                background-color: #2196F3;
-            }
+
             .btn-disabled {
-                background-color: #9e9e9e;
+                background-color: #aaa;
                 cursor: not-allowed;
             }
-            .alert {
-                background-color: #e1f5fe;
-                color: #0277bd;
-                padding: 10px;
-                border-radius: 6px;
-                margin: 15px auto;
-                width: 60%;
+
+            .table-container {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+                gap: 20px;
             }
-            form {
-                display: inline-block;
+
+            .table-card {
+                background: #fffaf8;
+                border-radius: 12px;
+                padding: 20px 10px;
+                text-align: center;
+                box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
+                border: 2px solid transparent;
+                transition: all 0.25s ease;
+            }
+
+            .table-card:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 5px 10px rgba(0, 0, 0, 0.12);
+            }
+
+            .available {
+                border-color: #06d6a0;
+            }
+
+            .occupied {
+                border-color: #ffb703;
+            }
+
+            .unavailable {
+                border-color: #e63946;
+            }
+
+            .table-card h3 {
+                margin: 0;
+                font-size: 18px;
+                color: #333;
+            }
+
+            .table-card p {
+                margin: 8px 0;
+                color: #666;
+                font-size: 14px;
+            }
+
+            label {
+                font-size: 14px;
+                cursor: pointer;
+                color: #333;
+            }
+
+            input[type="checkbox"] {
+                margin-right: 6px;
+                transform: scale(1.1);
+            }
+
+            .alert {
+                background-color: #ffe8e8;
+                color: #b91c1c;
+                padding: 10px 15px;
+                border-radius: 8px;
+                margin-bottom: 15px;
+                text-align: center;
+                font-weight: 500;
+            }
+
+            .footer-actions {
+                margin-top: 30px;
+                text-align: center;
             }
         </style>
 
@@ -84,62 +147,61 @@
                     form.submit();
                 }
             }
-
         </script>
     </head>
 
     <body>
-        <form action="${pageContext.request.contextPath}/Home" method="GET" style="margin-top: 15px;">
-            <input type="submit" value="Về trang chủ">
-        </form>
+        <div class="container">
+            <div class="topbar">
+                <form action="${pageContext.request.contextPath}/Home" method="GET">
+                    <input type="submit" value="← Về trang chủ" class="btn">
+                </form>
+                <h1>Danh sách bàn</h1>
+                <div></div>
+            </div>
 
-        <div>
             <c:if test="${not empty message}">
                 <div class="alert">${message}</div>
             </c:if>
+
+            <form action="${pageContext.request.contextPath}/waiter/Table" method="POST" id="openTablesForm">
+                <input type="hidden" name="action" value="open">
+
+                <div class="table-container">
+                    <c:forEach var="t" items="${tableList}">
+                        <div class="table-card ${t.status}">
+                            <h3>Bàn ${t.tableNumber}</h3>
+                            <p><b>Trạng thái:</b> ${t.status}</p>
+
+                            <c:choose>
+                                <c:when test="${t.status == 'Available'}">
+                                    <label>
+                                        <input type="checkbox" name="selectedTables" value="${t.tableId}">
+                                        Mở bàn
+                                    </label>
+                                </c:when>
+
+                                <c:when test="${t.status == 'Occupied'}">
+                                    <a class="btn btn-order"
+                                   href="${pageContext.request.contextPath}/waiter/Order?tableId=${t.tableId}&action=order">
+                                    Gọi món
+                                </a>
+                                </c:when>
+
+                                <c:otherwise>
+                                    <button class="btn btn-disabled" disabled>Không khả dụng</button>
+                                </c:otherwise>
+                            </c:choose>
+                        </div>
+                    </c:forEach>
+                </div>
+
+                <div class="footer-actions">
+                    <button type="button" class="btn" onclick="confirmOpenMultiple()">
+                        Mở bàn đã chọn
+                    </button>
+                </div>
+            </form>
         </div>
-
-        <h1>Danh sách bàn</h1>
-
-        <form action="${pageContext.request.contextPath}/waiter/Table" method="POST" id="openTablesForm">
-            <input type="hidden" name="action" value="open">
-
-            <div class="table-container">
-                <c:forEach var="t" items="${tableList}">
-                    <div class="table-card ${t.status}">
-                        <h3>${t.tableNumber}</h3>
-                        <p>Trạng thái: ${t.status}</p>
-
-                        <c:choose>
-                            <c:when test="${t.status == 'available'}">
-                                <label>
-                                    <input type="checkbox" name="selectedTables" value="${t.tableId}">
-                                    Chọn mở bàn
-                                </label>
-                            </c:when>
-
-                            <c:when test="${t.status == 'occupied'}">
-                                <form action="${pageContext.request.contextPath}/waiter/Order" method="GET" style="display:inline;">
-                                    <input type="hidden" name="tableId" value="${t.tableId}">
-                                    <input type="hidden" name="action" value="order">
-                                    <input type="submit" value="Gọi món">
-                                </form>
-                            </c:when>
-
-                            <c:otherwise>
-                                <button class="btn btn-disabled" disabled>Không khả dụng</button>
-                            </c:otherwise>
-                        </c:choose>
-                    </div>
-                </c:forEach>
-            </div>
-
-            <div style="margin-top: 20px;">
-                <button type="button" class="btn btn-open" onclick="confirmOpenMultiple()">
-                    Mở bàn đã chọn
-                </button>
-
-            </div>
-        </form>
     </body>
 </html>

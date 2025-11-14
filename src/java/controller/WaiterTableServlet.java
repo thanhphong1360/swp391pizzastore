@@ -101,7 +101,7 @@ public class WaiterTableServlet extends HttpServlet {
             for (String tableIdString : selectedTableIdsString) {
                 int tableId = Integer.parseInt(tableIdString);
                 Table tableToOpen = TableDAO.getTableById(tableId);
-                tableToOpen = TableDAO.updateTableStatus(tableToOpen, "occupied");
+                tableToOpen = TableDAO.updateTableStatus(tableToOpen, "Occupied");
                 if (tableToOpen == null) {
                     isError = true;
                 }

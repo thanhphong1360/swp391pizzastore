@@ -5,8 +5,7 @@
 
 package controller.manager;
 
-import dal.MenuDAO;
-import jakarta.servlet.RequestDispatcher;
+import dal.FoodIngredientDAO;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
@@ -14,17 +13,13 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
-import java.util.List;
-import model.Ingredient;
-import model.Menu;
 
 /**
  *
  * @author Dystopia
  */
-@WebServlet(name="ViewIngredientsOfFoodServlet", urlPatterns={"/manager/ViewIngredientsOfFoodServlet"})
-public class ViewIngredientsOfFoodServlet extends HttpServlet {
+@WebServlet(name="DeleteIngredientsOfFoodServlet", urlPatterns={"/manager/DeleteIngredientsOfFoodServlet"})
+public class DeleteIngredientsOfFoodServlet extends HttpServlet {
    
     /** 
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
@@ -41,10 +36,10 @@ public class ViewIngredientsOfFoodServlet extends HttpServlet {
             out.println("<!DOCTYPE html>");
             out.println("<html>");
             out.println("<head>");
-            out.println("<title>Servlet ViewIngredientsOfFoodServlet</title>");  
+            out.println("<title>Servlet DeleteIngredientsOfFoodServlet</title>");  
             out.println("</head>");
             out.println("<body>");
-            out.println("<h1>Servlet ViewIngredientsOfFoodServlet at " + request.getContextPath () + "</h1>");
+            out.println("<h1>Servlet DeleteIngredientsOfFoodServlet at " + request.getContextPath () + "</h1>");
             out.println("</body>");
             out.println("</html>");
         }
@@ -61,26 +56,7 @@ public class ViewIngredientsOfFoodServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
-        HttpSession session = request.getSession(false);
-        if (session.getAttribute("user") != null) {
-            // Lấy foodId từ tham số URL
-            int foodId = Integer.parseInt(request.getParameter("foodId"));
-
-            // Lấy món ăn từ cơ sở dữ liệu
-            Menu menu = MenuDAO.getFoodById(foodId);
-
-            // Lấy nguyên liệu của món ăn
-            List<Ingredient> ingredients = MenuDAO.getIngredientsByFoodId(foodId);
-
-            // Chuyển dữ liệu món ăn và nguyên liệu vào request
-            request.setAttribute("menu", menu);
-            request.setAttribute("ingredients", ingredients);
-
-            // Chuyển tiếp đến trang quản lý nguyên liệu
-            RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/View/manager/ViewIngredientsOfFood.jsp");
-            dispatcher.forward(request, response);
-        }
-    
+        processRequest(request, response);
     } 
 
     /** 
@@ -93,7 +69,25 @@ public class ViewIngredientsOfFoodServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
-        processRequest(request, response);
+        int foodId = Integer.parseInt(request.getParameter("foodId"));
+        int ingredientId = Integer.parseInt(request.getParameter("ingredientId"));
+        
+        try {
+            // Xóa nguyên liệu khỏi bảng FoodIngredients
+            boolean deleted = FoodIngredientDAO.deleteIngredient(foodId, ingredientId);
+            if (deleted) {
+                // Chuyển hướng về trang hiển thị nguyên liệu của món ăn
+                response.sendRedirect("ViewIngredientsOfFoodServlet?foodId=" + foodId);
+            } else {
+                // Nếu có lỗi, thông báo lỗi
+                request.setAttribute("error", "Không thể xóa nguyên liệu!");
+                request.getRequestDispatcher("/errorPage.jsp").forward(request, response);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            request.setAttribute("error", "Có lỗi xảy ra khi xóa nguyên liệu!");
+            request.getRequestDispatcher("/errorPage.jsp").forward(request, response);
+        }
     }
 
     /** 

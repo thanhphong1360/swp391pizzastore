@@ -4,6 +4,8 @@
  */
 package model;
 
+import java.math.BigDecimal;
+
 /**
  *
  * @author cungp
@@ -11,12 +13,12 @@ package model;
 public class FoodIngredient {
     private int foodId;
     private int ingredientId;
-    private int quantity;
+    private double quantity;
 
     public FoodIngredient() {
     }
 
-    public FoodIngredient(int foodId, int ingredientId, int quantity) {
+    public FoodIngredient(int foodId, int ingredientId, double quantity) {
         this.foodId = foodId;
         this.ingredientId = ingredientId;
         this.quantity = quantity;
@@ -38,13 +40,15 @@ public class FoodIngredient {
         this.ingredientId = ingredientId;
     }
 
-    public int getQuantity() {
+    public double getQuantity() {
         return quantity;
     }
 
-    public void setQuantity(int quantity) {
+    public void setQuantity(double quantity) {
         this.quantity = quantity;
     }
+
+    
     
     
 }

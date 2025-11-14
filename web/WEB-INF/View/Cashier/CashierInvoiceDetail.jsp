@@ -131,7 +131,7 @@
             <div class="error">${error}</div>
         </c:if>
 
-        <h3>Thanh toán hóa đơn: ${invoice.invoiceCode}</h3>
+        <h3>Hóa đơn: ${invoice.invoiceCode}</h3>
 
         <h4>Danh sách Order</h4>
 
@@ -159,22 +159,10 @@
                 <p class="total">Tổng order: ${order.price} đ</p>
             </div>
         </c:forEach>
-
-        <div class="checkout-actions">
-            <h4>Tổng hóa đơn: <span class="total">${invoice.price} đ</span></h4>
-            <form id="checkoutForm" action="${pageContext.request.contextPath}/cashier/Invoice" method="POST" onsubmit="return confirmCheckout('${invoice.invoiceCode}')">
-                <input type="hidden" name="action" value="checkout">
-                <input type="hidden" name="invoiceId" value="${invoice.invoiceId}">
-                <input type="submit" value="✅ Thanh toán" class="btn">
-            </form>
+        <div>
+            <h3>Trạng thái hóa đơn: ${invoice.status}</h3>
         </div>
 
     </div>
 
     <script>
-        function confirmCheckout(invoiceCode) {
-            return confirm("Xác nhận thanh toán hóa đơn #" + invoiceCode + " ?");
-        }
-    </script>
-</body>
-</html>

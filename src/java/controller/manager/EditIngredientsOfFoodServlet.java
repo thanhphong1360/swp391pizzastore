@@ -4,7 +4,8 @@
  */
 package controller.manager;
 
-import dal.DashboardDAO;
+import dal.FoodIngredientDAO;
+import dal.MenuDAO;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
@@ -12,18 +13,16 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import java.util.List;
-import java.util.Map;
-import model.CategoryRevenue;
-import model.RevenueByDate;
-import model.TopFood;
+import jakarta.servlet.http.HttpSession;
+import model.Ingredient;
+import model.Menu;
 
 /**
  *
- * @author HP
+ * @author Dystopia
  */
-@WebServlet(name = "DashboardFilterServlet", urlPatterns = {"/manager/dashboard/filter"})
-public class DashboardFilterServlet extends HttpServlet {
+@WebServlet(name = "EditIngredientsOfFoodServlet", urlPatterns = {"/manager/EditIngredientsOfFoodServlet"})
+public class EditIngredientsOfFoodServlet extends HttpServlet {
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -42,10 +41,10 @@ public class DashboardFilterServlet extends HttpServlet {
             out.println("<!DOCTYPE html>");
             out.println("<html>");
             out.println("<head>");
-            out.println("<title>Servlet DashboardFilterServlet</title>");
+            out.println("<title>Servlet EditIngredientsOfFoodServlet</title>");
             out.println("</head>");
             out.println("<body>");
-            out.println("<h1>Servlet DashboardFilterServlet at " + request.getContextPath() + "</h1>");
+            out.println("<h1>Servlet EditIngredientsOfFoodServlet at " + request.getContextPath() + "</h1>");
             out.println("</body>");
             out.println("</html>");
         }
@@ -63,7 +62,22 @@ public class DashboardFilterServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        doPost(request, response);
+        HttpSession session = request.getSession(false);
+        if (session.getAttribute("user") != null) {
+            int ingredientId = Integer.parseInt(request.getParameter("ingredientId"));
+        int foodId = Integer.parseInt(request.getParameter("foodId"));
+        
+        // Lấy thông tin nguyên liệu và số lượng từ bảng FoodIngredients
+        Ingredient ingredient = FoodIngredientDAO.getIngredientByFoodIdAndIngredientId(foodId, ingredientId);
+        Menu menu = MenuDAO.getFoodById(foodId);  // Lấy thông tin món ăn
+
+        // Truyền dữ liệu vào request để gửi tới JSP
+        request.setAttribute("ingredient", ingredient);
+        request.setAttribute("menu", menu);
+
+        // Chuyển hướng tới trang sửa nguyên liệu
+        request.getRequestDispatcher("/WEB-INF/View/manager/EditIngredientsOfFood.jsp").forward(request, response);
+        }
     }
 
     /**
@@ -77,45 +91,22 @@ public class DashboardFilterServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        String from = request.getParameter("fromDate");
-        String to = request.getParameter("toDate");
-
-        // Nếu rỗng, redirect về dashboard mặc định
-        if (from == null || to == null || from.isEmpty() || to.isEmpty()) {
-            response.sendRedirect(request.getContextPath() + "/manager");
-            return;
+        int foodId = Integer.parseInt(request.getParameter("foodId"));
+        int ingredientId = Integer.parseInt(request.getParameter("ingredientId"));
+        double quantity = Double.parseDouble(request.getParameter("quantity"));
+        
+        // Cập nhật số lượng trong bảng FoodIngredients
+        try {
+            FoodIngredientDAO.updateIngredientQuantity(foodId, ingredientId, quantity);
+            // Nếu không xảy ra lỗi, chuyển hướng về trang hiển thị nguyên liệu của món ăn
+            response.sendRedirect("ViewIngredientsOfFoodServlet?foodId=" + foodId);
+        } catch (Exception e) {
+            // Nếu có lỗi, thông báo lỗi cho người dùng
+            request.setAttribute("error", "Có lỗi xảy ra khi cập nhật số lượng nguyên liệu!");
+            request.getRequestDispatcher("/errorPage.jsp").forward(request, response);
         }
-
-        // Validate bằng JS, nên ở đây chỉ load dữ liệu nếu submit thành công
-        DashboardDAO dao = new DashboardDAO();
-
-        double todayRevenue = dao.getTodayRevenue();
-        int totalInvoices = dao.getTotalInvoicesInRange(from, to);
-        double totalRevenues = dao.getTotalRevenuesInRange(from, to);
-        List<RevenueByDate> revenueByDate = dao.getRevenueByDate(from, to);
-        List<TopFood> topFoods = dao.getTopFoods(from, to, 5);
-        List<CategoryRevenue> revenueByCategory = dao.getRevenueByCategory(from, to);
-        Map<String, Integer> orderChannel = dao.getOrderChannelRatio(from, to);
-
-        request.setAttribute("todayRevenue", todayRevenue);
-        request.setAttribute("totalInvoices", totalInvoices);
-        request.setAttribute("totalRevenues", totalRevenues);
-        request.setAttribute("revenueByDate", revenueByDate);
-        request.setAttribute("topFoods", topFoods);
-        request.setAttribute("revenueByCategory", revenueByCategory);
-        request.setAttribute("orderChannel", orderChannel);
-        request.setAttribute("fromDate", from);
-        request.setAttribute("toDate", to);
-
-        request.getRequestDispatcher("/WEB-INF/View/ManagerHome.jsp")
-                .forward(request, response);
     }
 
-    /**
-     * Returns a short description of the servlet.
-     *
-     * @return a String containing servlet description
-     */
     @Override
     public String getServletInfo() {
         return "Short description";

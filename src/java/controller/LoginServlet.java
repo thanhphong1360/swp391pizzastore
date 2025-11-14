@@ -66,7 +66,7 @@ public class LoginServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        doPost(request, response);
+        request.getRequestDispatcher("/WEB-INF/View/client/pages/login.jsp").forward(request, response);
     }
 
     /**
@@ -106,7 +106,7 @@ public class LoginServlet extends HttpServlet {
             HttpSession session = request.getSession();
             session.setAttribute("user", user);
             session.setAttribute("userId", user.getUserId());
-session.setAttribute("userName", user.getName());
+            session.setAttribute("userName", user.getName());
             Role role = RoleDAO.getRoleById(user.getRoleId());
             session.setAttribute("role", role.getRoleName());
             if ("Manager".equals(role.getRoleName())) {
@@ -120,7 +120,7 @@ session.setAttribute("userName", user.getName());
             } else if ("DeliveryStaff".equals(role.getRoleName())) {
                 response.sendRedirect(request.getContextPath() + "/Home");
             } else if ("Customer".equals(role.getRoleName())) {
-                response.sendRedirect(request.getContextPath() + "/Home");
+                response.sendRedirect(request.getContextPath() + "/menuForCus");
             }
 
         } else {

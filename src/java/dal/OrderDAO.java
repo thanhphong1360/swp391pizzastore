@@ -9,6 +9,7 @@ import java.sql.PreparedStatement;
 import model.Invoice;
 import model.Order;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import model.Table;
@@ -17,7 +18,7 @@ import model.Table;
  *
  * @author cungp
  */
-public class OrderDAO {
+public class OrderDAO extends DBContext {
 
     public static int createOrder(Order order) {
         DBContext dbc = DBContext.getInstance();
@@ -67,7 +68,7 @@ public class OrderDAO {
         }
         return rs == 0 ? null : order;
     }
-    
+
     public static Order updateOrderPrice(Order order) {
         DBContext dbc = DBContext.getInstance();
         int rs = 0;
@@ -87,7 +88,7 @@ public class OrderDAO {
         }
         return rs == 0 ? null : order;
     }
-    
+
     public static ArrayList<Order> getAllOrder() {
         ArrayList<Order> list = new ArrayList<>();
         DBContext dbc = DBContext.getInstance();
@@ -97,14 +98,14 @@ public class OrderDAO {
             ResultSet rs = statement.executeQuery();
             while (rs.next()) {
                 Order order = new Order(rs.getInt("order_id"),
-                                        rs.getInt("invoice_id"),
-                                        rs.getInt("waiter_id"),
-                                        rs.getInt("chef_id"),
-                                        rs.getInt("table_id"),
-                                        rs.getString("status"),
-                                        rs.getBigDecimal("price"),
-                                        rs.getString("note"),
-                                        rs.getTimestamp("created_at") == null ? null : rs.getTimestamp("created_at").toLocalDateTime());
+                        rs.getInt("invoice_id"),
+                        rs.getInt("waiter_id"),
+                        rs.getInt("chef_id"),
+                        rs.getInt("table_id"),
+                        rs.getString("status"),
+                        rs.getBigDecimal("price"),
+                        rs.getString("note"),
+                        rs.getTimestamp("created_at") == null ? null : rs.getTimestamp("created_at").toLocalDateTime());
                 list.add(order);
             }
         } catch (Exception e) {
@@ -113,7 +114,7 @@ public class OrderDAO {
         }
         return list.isEmpty() ? null : list;
     }
-    
+
     public static ArrayList<Order> getOrdersByStatus(String status) {
         ArrayList<Order> list = new ArrayList<>();
         DBContext dbc = DBContext.getInstance();
@@ -124,14 +125,14 @@ public class OrderDAO {
             ResultSet rs = statement.executeQuery();
             while (rs.next()) {
                 Order order = new Order(rs.getInt("order_id"),
-                                        rs.getInt("invoice_id"),
-                                        rs.getInt("waiter_id"),
-                                        rs.getInt("chef_id"),
-                                        rs.getInt("table_id"),
-                                        rs.getString("status"),
-                                        rs.getBigDecimal("price"),
-                                        rs.getString("note"),
-                                        rs.getTimestamp("created_at") == null ? null : rs.getTimestamp("created_at").toLocalDateTime());
+                        rs.getInt("invoice_id"),
+                        rs.getInt("waiter_id"),
+                        rs.getInt("chef_id"),
+                        rs.getInt("table_id"),
+                        rs.getString("status"),
+                        rs.getBigDecimal("price"),
+                        rs.getString("note"),
+                        rs.getTimestamp("created_at") == null ? null : rs.getTimestamp("created_at").toLocalDateTime());
                 list.add(order);
             }
         } catch (Exception e) {
@@ -140,7 +141,7 @@ public class OrderDAO {
         }
         return list.isEmpty() ? null : list;
     }
-    
+
     public static Order getOrderById(int id) {
         ArrayList<Order> list = new ArrayList<>();
         DBContext dbc = DBContext.getInstance();
@@ -151,14 +152,14 @@ public class OrderDAO {
             ResultSet rs = statement.executeQuery();
             while (rs.next()) {
                 Order order = new Order(rs.getInt("order_id"),
-                                        rs.getInt("invoice_id"),
-                                        rs.getInt("waiter_id"),
-                                        rs.getInt("chef_id"),
-                                        rs.getInt("table_id"),
-                                        rs.getString("status"),
-                                        rs.getBigDecimal("price"),
-                                        rs.getString("note"),
-                                        rs.getTimestamp("created_at") == null ? null : rs.getTimestamp("created_at").toLocalDateTime());
+                        rs.getInt("invoice_id"),
+                        rs.getInt("waiter_id"),
+                        rs.getInt("chef_id"),
+                        rs.getInt("table_id"),
+                        rs.getString("status"),
+                        rs.getBigDecimal("price"),
+                        rs.getString("note"),
+                        rs.getTimestamp("created_at") == null ? null : rs.getTimestamp("created_at").toLocalDateTime());
                 list.add(order);
             }
         } catch (Exception e) {
@@ -167,7 +168,7 @@ public class OrderDAO {
         }
         return list.isEmpty() ? null : list.get(0);
     }
-    
+
     public static Order updateOrderStatus(Order order) {
         DBContext dbc = DBContext.getInstance();
         int rs = 0;
@@ -187,7 +188,7 @@ public class OrderDAO {
         }
         return rs == 0 ? null : order;
     }
-    
+
     public static Order updateOrderNoteAppending(Order order, String appendingString) {
         DBContext dbc = DBContext.getInstance();
         int rs = 0;
@@ -207,7 +208,7 @@ public class OrderDAO {
         }
         return rs == 0 ? null : order;
     }
-    
+
     public static ArrayList<Order> getOrdersByInvoiceId(int invoiceId) {
         ArrayList<Order> list = new ArrayList<>();
         DBContext dbc = DBContext.getInstance();
@@ -218,14 +219,14 @@ public class OrderDAO {
             ResultSet rs = statement.executeQuery();
             while (rs.next()) {
                 Order order = new Order(rs.getInt("order_id"),
-                                        rs.getInt("invoice_id"),
-                                        rs.getInt("waiter_id"),
-                                        rs.getInt("chef_id"),
-                                        rs.getInt("table_id"),
-                                        rs.getString("status"),
-                                        rs.getBigDecimal("price"),
-                                        rs.getString("note"),
-                                        rs.getTimestamp("created_at") == null ? null : rs.getTimestamp("created_at").toLocalDateTime());
+                        rs.getInt("invoice_id"),
+                        rs.getInt("waiter_id"),
+                        rs.getInt("chef_id"),
+                        rs.getInt("table_id"),
+                        rs.getString("status"),
+                        rs.getBigDecimal("price"),
+                        rs.getString("note"),
+                        rs.getTimestamp("created_at") == null ? null : rs.getTimestamp("created_at").toLocalDateTime());
                 list.add(order);
             }
         } catch (Exception e) {
@@ -234,7 +235,7 @@ public class OrderDAO {
         }
         return list.isEmpty() ? null : list;
     }
-    
+
     public static Order getPendingOrderByTableId(int tableId) {
         ArrayList<Order> list = new ArrayList<>();
         DBContext dbc = DBContext.getInstance();
@@ -252,14 +253,14 @@ public class OrderDAO {
             ResultSet rs = statement.executeQuery();
             while (rs.next()) {
                 Order order = new Order(rs.getInt("order_id"),
-                                        rs.getInt("invoice_id"),
-                                        rs.getInt("waiter_id"),
-                                        rs.getInt("chef_id"),
-                                        rs.getInt("table_id"),
-                                        rs.getString("status"),
-                                        rs.getBigDecimal("price"),
-                                        rs.getString("note"),
-                                        rs.getTimestamp("created_at") == null ? null : rs.getTimestamp("created_at").toLocalDateTime());
+                        rs.getInt("invoice_id"),
+                        rs.getInt("waiter_id"),
+                        rs.getInt("chef_id"),
+                        rs.getInt("table_id"),
+                        rs.getString("status"),
+                        rs.getBigDecimal("price"),
+                        rs.getString("note"),
+                        rs.getTimestamp("created_at") == null ? null : rs.getTimestamp("created_at").toLocalDateTime());
                 list.add(order);
             }
         } catch (Exception e) {
@@ -268,9 +269,43 @@ public class OrderDAO {
         }
         return list.isEmpty() ? null : list.get(0);
     }
-    
+
+    // === CẬP NHẬT TRẠNG THÁI THANH TOÁN ===
+    public void updatePaymentStatus(int orderId, int paymentId, String status) throws SQLException {
+        String sql = "UPDATE Orders SET payment_id = ?, payment_status = ? WHERE order_id = ?";
+        try (PreparedStatement st = connection.prepareStatement(sql)) {
+            st.setInt(1, paymentId);
+            st.setString(2, status); // 'Paid', 'Failed', 'Pending'
+            st.setInt(3, orderId);
+            st.executeUpdate();
+        }
+    }
+
+    // === KIỂM TRA ORDER TỒN TẠI (DÙNG TRONG TEST) ===
+    public boolean exists(int orderId) throws SQLException {
+        String sql = "SELECT 1 FROM Orders WHERE order_id = ?";
+        try (PreparedStatement st = connection.prepareStatement(sql)) {
+            st.setInt(1, orderId);
+            try (var rs = st.executeQuery()) {
+                return rs.next();
+            }
+        }
+    }
+
+    // === TẠO ORDER TEST (DÙNG TRONG DEV) ===
+    public void insertTestOrder(int orderId, String customerName, BigDecimal totalAmount) throws SQLException {
+        String sql = "INSERT INTO Orders (order_id, customer_name, total_amount, order_date, status, payment_status) "
+                + "VALUES (?, ?, ?, GETDATE(), 'completed', 'Pending')";
+        try (PreparedStatement st = connection.prepareStatement(sql)) {
+            st.setInt(1, orderId);
+            st.setString(2, customerName);
+            st.setBigDecimal(3, totalAmount);
+            st.executeUpdate();
+        }
+    }
+
     public static void main(String[] args) {
         Order order = getPendingOrderByTableId(6);
-        System.out.println("Order id: "+order.getOrderId());
+        System.out.println("Order id: " + order.getOrderId());
     }
 }

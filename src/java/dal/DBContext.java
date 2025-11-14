@@ -13,7 +13,7 @@ import java.util.logging.Logger;
 public class DBContext {
 
     protected Connection connection;
-    
+
     private static DBContext instance = new DBContext();
 
     public static DBContext getInstance() {
@@ -23,13 +23,12 @@ public class DBContext {
     public Connection getConnection() {
         return connection;
     }
-    
-    public DBContext()
-    {
+
+    public DBContext() {
         try {
             String user = "sa";
-            String pass = "123"; //1, 123
-            String url = "jdbc:sqlserver://DESKTOP-LI8DM67:1433;databaseName=PizzaRestaurantDB;TrustServerCertificate=true;";
+            String pass = "123456"; //1, 123
+            String url = "jdbc:sqlserver://localhost:1433;databaseName=PizzaRestaurantDB;TrustServerCertificate=true;";
             //jdbc:sqlserver://DESKTOP-LI8DM67:1433;databaseName=PizzaRestaurantDB;TrustServerCertificate=true;
             Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
             connection = DriverManager.getConnection(url, user, pass);
@@ -37,7 +36,7 @@ public class DBContext {
             Logger.getLogger(DBContext.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    
+
     public static void main(String[] args) {
         try {
             Connection conn = DBContext.getInstance().getConnection();

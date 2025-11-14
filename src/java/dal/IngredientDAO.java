@@ -142,18 +142,38 @@ public class IngredientDAO {
         }
     }
 
-public boolean updateQuantity(int ingredientId, double newQuantity) {
-    String sql = "UPDATE Ingredients SET quantity = ?, updated_at = GETDATE() WHERE ingredient_id = ?";
-    try (PreparedStatement ps = conn.prepareStatement(sql)) {
-        ps.setDouble(1, newQuantity);
-        ps.setInt(2, ingredientId);
-        return ps.executeUpdate() > 0;
-    } catch (SQLException e) {
-        System.err.println("❌ Update quantity failed: " + e.getMessage());
-        return false;
+    public boolean updateQuantity(int ingredientId, double newQuantity) {
+        String sql = "UPDATE Ingredients SET quantity = ?, updated_at = GETDATE() WHERE ingredient_id = ?";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setDouble(1, newQuantity);
+            ps.setInt(2, ingredientId);
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            System.err.println("❌ Update quantity failed: " + e.getMessage());
+            return false;
+        }
     }
-}
 
+    public double getQuantity(int id) {
+        String sql = "SELECT * FROM Ingredients WHERE ingredient_id = ?";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, id);
+            ResultSet rs = ps.executeQuery();
 
+            if (rs.next()) {
+                return rs.getDouble("quantity");
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+    
+    public static void main(String[] args) {
+        IngredientDAO igd = new IngredientDAO();
+        double qt = igd.getQuantity(1);
+        System.out.println("quantity = "+qt);
+    }
 
 }

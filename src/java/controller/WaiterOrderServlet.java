@@ -136,11 +136,26 @@ public class WaiterOrderServlet extends HttpServlet {
                 List<OrderFood> draft = (List<OrderFood>) session.getAttribute("orderDraft_" + tableId);
                 request.setAttribute("draft", draft);
             }
-            //gui danh sach completed/rejected foods
+            //gui danh sach done foods
             Order order = OrderDAO.getPendingOrderByTableId(tableId);
-            ArrayList<OrderFood> doneFoods = OrderFoodDAO.getOrderFoodsByOrderIdAndStatus(order.getOrderId(), "completed");
-            if (doneFoods != null) {
-                doneFoods.addAll(OrderFoodDAO.getOrderFoodsByOrderIdAndStatus(order.getOrderId(), "rejected"));
+            ArrayList<OrderFood> doneFoods = new ArrayList<>();
+            ArrayList<OrderFood> doingFoods = OrderFoodDAO.getOrderFoodsByOrderIdAndStatus(order.getOrderId(), "doing");
+            ArrayList<OrderFood> completedFoods = OrderFoodDAO.getOrderFoodsByOrderIdAndStatus(order.getOrderId(), "completed");
+            ArrayList<OrderFood> rejectedFoods = OrderFoodDAO.getOrderFoodsByOrderIdAndStatus(order.getOrderId(), "rejected");
+            if (doingFoods != null) {
+                doneFoods.addAll(doingFoods);
+                for (OrderFood orderFood : doneFoods) {
+                    orderFood.includeFood();
+                }
+            }
+            if (completedFoods != null) {
+                doneFoods.addAll(completedFoods);
+                for (OrderFood orderFood : doneFoods) {
+                    orderFood.includeFood();
+                }
+            }
+            if (rejectedFoods != null) {
+                doneFoods.addAll(rejectedFoods);
                 for (OrderFood orderFood : doneFoods) {
                     orderFood.includeFood();
                 }
@@ -230,9 +245,24 @@ public class WaiterOrderServlet extends HttpServlet {
                 request.setAttribute("notification", "Gửi order thành công!");
             }
             //gui danh sach done foods
-            ArrayList<OrderFood> doneFoods = OrderFoodDAO.getOrderFoodsByOrderIdAndStatus(order.getOrderId(), "completed");
-            if (doneFoods != null) {
-                doneFoods.addAll(OrderFoodDAO.getOrderFoodsByOrderIdAndStatus(order.getOrderId(), "rejected"));
+            ArrayList<OrderFood> doneFoods = new ArrayList<>();
+            ArrayList<OrderFood> doingFoods = OrderFoodDAO.getOrderFoodsByOrderIdAndStatus(order.getOrderId(), "doing");
+            ArrayList<OrderFood> completedFoods = OrderFoodDAO.getOrderFoodsByOrderIdAndStatus(order.getOrderId(), "completed");
+            ArrayList<OrderFood> rejectedFoods = OrderFoodDAO.getOrderFoodsByOrderIdAndStatus(order.getOrderId(), "rejected");
+            if (doingFoods != null) {
+                doneFoods.addAll(doingFoods);
+                for (OrderFood orderFood : doneFoods) {
+                    orderFood.includeFood();
+                }
+            }
+            if (completedFoods != null) {
+                doneFoods.addAll(completedFoods);
+                for (OrderFood orderFood : doneFoods) {
+                    orderFood.includeFood();
+                }
+            }
+            if (rejectedFoods != null) {
+                doneFoods.addAll(rejectedFoods);
                 for (OrderFood orderFood : doneFoods) {
                     orderFood.includeFood();
                 }

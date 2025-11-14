@@ -4,110 +4,86 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Register</title>
+    <title>Register | Pizza House</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
     <style>
         body {
-            font-family: "Segoe UI", Arial, sans-serif;
-            background: linear-gradient(135deg, #74ABE2, #5563DE);
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #ffe5d9, #fff8f3);
             height: 100vh;
             display: flex;
-            justify-content: center;
             align-items: center;
-            margin: 0;
+            justify-content: center;
         }
-
-        .register-container {
-            background-color: white;
-            padding: 40px 35px;
-            border-radius: 15px;
-            box-shadow: 0px 8px 25px rgba(0,0,0,0.2);
-            width: 400px;
+        .register-card {
+            width: 420px;
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            padding: 40px 30px;
             text-align: center;
-            animation: fadeIn 0.5s ease;
         }
-
         h2 {
-            color: #333;
+            color: #e63946;
+            font-weight: 600;
             margin-bottom: 25px;
         }
-
-        input {
+        input, select {
             width: 100%;
-            padding: 10px 12px;
-            margin: 8px 0 16px 0;
-            border: 1px solid #ccc;
+            padding: 10px 15px;
             border-radius: 8px;
-            box-sizing: border-box;
+            border: 1px solid #ccc;
+            margin-bottom: 15px;
             font-size: 15px;
-            transition: 0.3s;
         }
-
-        input:focus {
-            border-color: #5563DE;
-            box-shadow: 0 0 6px rgba(85,99,222,0.4);
+        input:focus, select:focus {
             outline: none;
+            border-color: #e63946;
+            box-shadow: 0 0 0 2px rgba(230,57,70,0.2);
         }
-
         button {
             width: 100%;
-            padding: 12px;
-            background-color: #5563DE;
+            background-color: #e63946;
             color: white;
             border: none;
+            padding: 10px 0;
             border-radius: 8px;
-            font-size: 16px;
-            cursor: pointer;
+            font-weight: 600;
             transition: 0.3s;
         }
-
         button:hover {
-            background-color: #4151c4;
+            background-color: #c72e3b;
         }
-
-        .message {
-            margin-bottom: 15px;
-            padding: 10px;
-            border-radius: 6px;
+        .alert-text {
+            font-size: 14px;
+            margin-top: 5px;
         }
-
-        .success {
-            background-color: #e8f5e9;
-            color: #2e7d32;
-            border: 1px solid #a5d6a7;
+        .success { color: green; }
+        .error { color: red; }
+        .link {
+            margin-top: 15px;
+            font-size: 14px;
         }
-
-        .error {
-            background-color: #ffebee;
-            color: #c62828;
-            border: 1px solid #ef9a9a;
-        }
-
-        a {
-            color: #5563DE;
+        .link a {
+            color: #e63946;
             text-decoration: none;
-            font-weight: bold;
+            font-weight: 500;
         }
-
-        a:hover {
+        .link a:hover {
             text-decoration: underline;
-        }
-
-        @keyframes fadeIn {
-            from {opacity: 0; transform: translateY(20px);}
-            to {opacity: 1; transform: translateY(0);}
         }
     </style>
 </head>
 <body>
-    <div class="register-container">
-        <h2>📝 Create Your Account</h2>
+    <div class="register-card">
+        <h2>Create Your Account 🍕</h2>
 
         <c:if test="${not empty message}">
-            <div class="message success">${message}</div>
+            <p class="alert-text success">${message}</p>
         </c:if>
-
         <c:if test="${not empty error}">
-            <div class="message error">${error}</div>
+            <p class="alert-text error">${error}</p>
         </c:if>
 
         <form action="${pageContext.request.contextPath}/register" method="post">
@@ -115,10 +91,13 @@
             <input type="email" name="email" placeholder="Email Address" required />
             <input type="password" name="password" placeholder="Password" required />
             <input type="password" name="confirm_password" placeholder="Confirm Password" required />
+
             <button type="submit">Register</button>
         </form>
 
-        <p style="margin-top: 15px;">Already have an account? <a href="${pageContext.request.contextPath}/view/client/pages/login.jsp">Login</a></p>
+        <div class="link">
+            Already have an account? <a href="${pageContext.request.contextPath}/view/client/pages/login.jsp">Login</a>
+        </div>
     </div>
 </body>
 </html>

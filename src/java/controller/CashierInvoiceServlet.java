@@ -7,6 +7,7 @@ package controller;
 import dal.InvoiceDAO;
 import dal.InvoiceTableDAO;
 import dal.OrderDAO;
+import dal.OrderFoodDAO;
 import dal.TableDAO;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -68,9 +69,45 @@ public class CashierInvoiceServlet extends HttpServlet {
             throws ServletException, IOException {
         String action = request.getParameter("action");
         if ("checkoutList".equals(action)) {
-            ArrayList<Invoice> pendingInvoiceList = InvoiceDAO.getPendingInvoicesCashierPayout();
-            request.setAttribute("invoiceList", pendingInvoiceList);
-            request.getRequestDispatcher("/WEB-INF/View/Cashier/CashierInvoiceCheckoutList.jsp").forward(request, response);
+            String status = request.getParameter("status");
+            if ("pending".equals(status) || status == null) {
+                ArrayList<Invoice> pendingInvoiceList = InvoiceDAO.getInvoicesByStatusCashier("pending");
+                request.setAttribute("invoiceList", pendingInvoiceList);
+                request.getRequestDispatcher("/WEB-INF/View/Cashier/CashierInvoiceCheckoutList.jsp").forward(request, response);
+            } else if ("paid".equals(status)) {
+                ArrayList<Invoice> pendingInvoiceList = InvoiceDAO.getInvoicesByStatusCashier("paid");
+                request.setAttribute("invoiceList", pendingInvoiceList);
+                request.getRequestDispatcher("/WEB-INF/View/Cashier/CashierInvoiceCheckoutList.jsp").forward(request, response);
+            } else if ("cancelled".equals(status)) {
+                ArrayList<Invoice> pendingInvoiceList = InvoiceDAO.getInvoicesByStatusCashier("cancelled");
+                request.setAttribute("invoiceList", pendingInvoiceList);
+                request.getRequestDispatcher("/WEB-INF/View/Cashier/CashierInvoiceCheckoutList.jsp").forward(request, response);
+            }
+        }else if("detail".equals(action)){
+            int invoiceId = Integer.parseInt(request.getParameter("invoiceId"));
+            Invoice invoice = InvoiceDAO.getInvoiceById(invoiceId);
+            //lay danh sach order trong invoice
+            ArrayList<Order> orderList = OrderDAO.getOrdersByInvoiceId(invoiceId);
+            //dung iterator de remove rejected order
+            Iterator<Order> iterator = orderList.iterator();
+            while (iterator.hasNext()) {
+                Order order = iterator.next();
+                if ("rejected".equals(order.getStatus())) {
+                    iterator.remove(); // ✅ Hợp lệ
+                    continue;          // bỏ qua order này
+                }
+                order.includeOrderFood();
+                order.includeTable();
+                if (order.getOrderFoodList() != null) {
+                    for (OrderFood orderFood : order.getOrderFoodList()) {
+                        orderFood.includeFood();
+                    }
+                }
+            }
+            request.setAttribute("invoice", invoice);
+            request.setAttribute("orderList", orderList);
+            request.getRequestDispatcher("/WEB-INF/View/Cashier/CashierInvoiceDetail.jsp").forward(request, response);
+            
         }
     }
 
@@ -101,13 +138,16 @@ public class CashierInvoiceServlet extends HttpServlet {
                 Order order = iterator.next();
                 if ("rejected".equals(order.getStatus())) {
                     iterator.remove(); // ✅ Hợp lệ
-                    continue;          // Không return, chỉ bỏ qua order này
+                    continue;          // bỏ qua order này
                 }
                 order.includeOrderFood();
                 order.includeTable();
-                for (OrderFood orderFood : order.getOrderFoodList()) {
-                    orderFood.includeFood();
+                if (order.getOrderFoodList() != null) {
+                    for (OrderFood orderFood : order.getOrderFoodList()) {
+                        orderFood.includeFood();
+                    }
                 }
+
                 price = price.add(order.getPrice());
             }
 
@@ -126,9 +166,12 @@ public class CashierInvoiceServlet extends HttpServlet {
             ArrayList<Order> orderList = OrderDAO.getOrdersByInvoiceId(invoiceId);
             //kiem tra co order dang lam hay khong
             for (Order order : orderList) {
-                if (order.getStatus().equals("pending") || order.getStatus().equals("doing")) {
-                    canCheckout = false;
-                    break;
+                ArrayList<OrderFood> orderFoodList = OrderFoodDAO.getOrderFoodsByOrderId(order.getOrderId());
+                for (OrderFood orderFood : orderFoodList) {
+                    if (orderFood.getStatus().equals("pending") || orderFood.getStatus().equals("doing")) {
+                        canCheckout = false;
+                        break;
+                    }
                 }
             }
             if (canCheckout) {
@@ -138,10 +181,10 @@ public class CashierInvoiceServlet extends HttpServlet {
                 ArrayList<InvoiceTable> invoiceTableList = InvoiceTableDAO.getTableIdsByInvoiceId(invoiceId);
                 //tra table ve available
                 for (InvoiceTable invoiceTable : invoiceTableList) {
-                    TableDAO.updateTableStatus(TableDAO.getTableById(invoiceTable.getTableId()), "available");
+                    TableDAO.updateTableStatus(TableDAO.getTableById(invoiceTable.getTableId()), "Available");
                 }
                 //view pending invoice list
-                ArrayList<Invoice> pendingInvoiceList = InvoiceDAO.getPendingInvoicesCashierPayout();
+                ArrayList<Invoice> pendingInvoiceList = InvoiceDAO.getInvoicesByStatusCashier("pending");
                 request.setAttribute("invoiceList", pendingInvoiceList);
                 request.getRequestDispatcher("/WEB-INF/View/Cashier/CashierInvoiceCheckoutList.jsp").forward(request, response);
             } else {

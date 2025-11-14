@@ -48,13 +48,14 @@ public class OrderFoodDAO {
             statement.setInt(1, id);
             ResultSet rs = statement.executeQuery();
             while (rs.next()) {
-                OrderFood orderFood = new OrderFood(rs.getInt("orderfood_id"),
-                                                rs.getInt("order_id"),
-                                                rs.getInt("food_id"),
-                                                rs.getInt("quantity"),
-                                                rs.getBigDecimal("price"),
-                                                rs.getString("note"));
-
+                OrderFood orderFood = new OrderFood();
+                orderFood.setOrderFoodId(rs.getInt("orderfood_id"));
+                orderFood.setOrderId(rs.getInt("order_id"));
+                orderFood.setFoodId(rs.getInt("food_id"));
+                orderFood.setQuantity(rs.getInt("quantity"));
+                orderFood.setStatus(rs.getString("status"));
+                orderFood.setPrice(rs.getBigDecimal("price"));
+                orderFood.setNote(rs.getString("note"));
                 list.add(orderFood);
             }
         } catch (Exception e) {
@@ -62,6 +63,32 @@ public class OrderFoodDAO {
             return null;
         }
         return list.isEmpty() ? null : list;
+    }
+    
+    public static OrderFood getOrderFoodById(int id) {
+        ArrayList<OrderFood> list = new ArrayList<>();
+        DBContext dbc = DBContext.getInstance();
+        String sql = "SELECT * FROM OrderFoods WHERE orderfood_id = ?";
+        try {
+            PreparedStatement statement = dbc.getConnection().prepareStatement(sql);
+            statement.setInt(1, id);
+            ResultSet rs = statement.executeQuery();
+            while (rs.next()) {
+                OrderFood orderFood = new OrderFood();
+                orderFood.setOrderFoodId(rs.getInt("orderfood_id"));
+                orderFood.setOrderId(rs.getInt("order_id"));
+                orderFood.setFoodId(rs.getInt("food_id"));
+                orderFood.setQuantity(rs.getInt("quantity"));
+                orderFood.setStatus(rs.getString("status"));
+                orderFood.setPrice(rs.getBigDecimal("price"));
+                orderFood.setNote(rs.getString("note"));
+                list.add(orderFood);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+        return list.isEmpty() ? null : list.get(0);
     }
     
     public static ArrayList<OrderFood> getOrderFoodsByStatus(String status) {
@@ -101,12 +128,14 @@ public class OrderFoodDAO {
             statement.setString(2, status);
             ResultSet rs = statement.executeQuery();
             while (rs.next()) {
-                OrderFood orderFood = new OrderFood(rs.getInt("orderfood_id"),
-                                                rs.getInt("order_id"),
-                                                rs.getInt("food_id"),
-                                                rs.getInt("quantity"),
-                                                rs.getBigDecimal("price"),
-                                                rs.getString("note"));
+                OrderFood orderFood = new OrderFood();
+                orderFood.setOrderFoodId(rs.getInt("orderfood_id"));
+                orderFood.setStatus(rs.getString("status"));
+                orderFood.setOrderId(rs.getInt("order_id"));
+                orderFood.setFoodId(rs.getInt("food_id"));
+                orderFood.setQuantity(rs.getInt("quantity"));
+                orderFood.setPrice(rs.getBigDecimal("price"));
+                orderFood.setNote(rs.getString("note"));
 
                 list.add(orderFood);
             }
@@ -171,7 +200,7 @@ public class OrderFoodDAO {
     }
 
     public static void main(String[] args) {
-        OrderFood orderFood = new OrderFood(1, 0, 8, 5, new BigDecimal(10000), "");
-        orderFood = updateOrderFoodQuantity(orderFood);
+        OrderFood orderFood = getOrderFoodById(9);
+        System.out.println(orderFood.getFoodId());
     }
 }
