@@ -106,7 +106,7 @@ public class LoginServlet extends HttpServlet {
             HttpSession session = request.getSession();
             session.setAttribute("user", user);
             session.setAttribute("userId", user.getUserId());
-session.setAttribute("userName", user.getName());
+            session.setAttribute("userName", user.getName());
             Role role = RoleDAO.getRoleById(user.getRoleId());
             session.setAttribute("role", role.getRoleName());
             if ("Manager".equals(role.getRoleName())) {

@@ -23,7 +23,7 @@ import model.TopFood;
  *
  * @author HP
  */
-@WebServlet(name = "DashboardServlet", urlPatterns = {"/manager/dashboard"})
+@WebServlet(name = "DashboardServlet", urlPatterns = {"/manager", "/manager/", "/manager/dashboard"})
 public class DashboardServlet extends HttpServlet {
 
     /**
@@ -66,7 +66,7 @@ public class DashboardServlet extends HttpServlet {
             throws ServletException, IOException {
         DashboardDAO dao = new DashboardDAO();
 
-        // Mặc định 7 ngày
+        // Tính 7 ngày gần nhất
         Calendar cal = Calendar.getInstance();
         java.sql.Date toDate = new java.sql.Date(cal.getTimeInMillis());
         cal.add(Calendar.DAY_OF_MONTH, -6);
@@ -75,26 +75,18 @@ public class DashboardServlet extends HttpServlet {
         String from = fromDate.toString();
         String to = toDate.toString();
 
-        double todayRevenue = dao.getTodayRevenue();
-        int totalInvoices = dao.getTotalInvoicesInRange(from, to);
-        int totalCustomers = dao.getTotalCustomersInRange(from, to);
-        List<RevenueByDate> revenueByDate = dao.getRevenueByDate(from, to);
-        List<TopFood> topFoods = dao.getTopFoods(from, to, 5);
-        List<CategoryRevenue> revenueByCategory = dao.getRevenueByCategory(from, to);
-        Map<String, Integer> orderChannel = dao.getOrderChannelRatio(from, to);
-
-        request.setAttribute("todayRevenue", todayRevenue);
-        request.setAttribute("totalInvoices", totalInvoices);
-        request.setAttribute("totalCustomers", totalCustomers);
-        request.setAttribute("revenueByDate", revenueByDate);
-        request.setAttribute("topFoods", topFoods);
-        request.setAttribute("revenueByCategory", revenueByCategory);
-        request.setAttribute("orderChannel", orderChannel);
+        // Load dữ liệu
+        request.setAttribute("todayRevenue", dao.getTodayRevenue());
+        request.setAttribute("totalInvoices", dao.getTotalInvoicesInRange(from, to));
+        request.setAttribute("totalRevenues", dao.getTotalRevenuesInRange(from, to));
+        request.setAttribute("revenueByDate", dao.getRevenueByDate(from, to));
+        request.setAttribute("topFoods", dao.getTopFoods(from, to, 5));
+        request.setAttribute("revenueByCategory", dao.getRevenueByCategory(from, to));
+        request.setAttribute("orderChannel", dao.getOrderChannelRatio(from, to));
         request.setAttribute("fromDate", from);
         request.setAttribute("toDate", to);
 
-        request.getRequestDispatcher("/WEB-INF/View/manager/dashboard.jsp")
-                .forward(request, response);
+        request.getRequestDispatcher("/WEB-INF/View/ManagerHome.jsp").forward(request, response);
     }
 
     /**

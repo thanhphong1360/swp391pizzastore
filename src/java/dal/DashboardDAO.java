@@ -8,12 +8,12 @@ import model.TopFood;
 
 public class DashboardDAO extends DBContext {
 
-    // Tổng doanh thu hôm nay (chỉ offline)
+    // Tổng doanh thu hôm nay (chỉ offline, đơn paid)
     public double getTodayRevenue() {
         double total = 0;
         String sql = """
             SELECT SUM(price) FROM Invoices
-            WHERE CAST(created_at AS DATE) = CAST(GETDATE() AS DATE)
+            WHERE CAST(created_at AS DATE) = CAST(GETDATE() AS DATE) AND status = 'paid'
         """;
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ResultSet rs = ps.executeQuery();
@@ -43,16 +43,16 @@ public class DashboardDAO extends DBContext {
         return total;
     }
 
-    // Tổng khách hàng (có giao dịch, chỉ offline)
-    public int getTotalCustomers() {
-        int total = 0;
+    // Tổng doanh thu (thay vì khách hàng)
+    public double getTotalRevenue() {
+        double total = 0;
         String sql = """
-            SELECT COUNT(DISTINCT waiter_id) FROM Invoices
+            SELECT SUM(price) FROM Invoices WHERE status = 'paid'
         """;
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
-                total = rs.getInt(1);
+                total = rs.getDouble(1);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -60,13 +60,13 @@ public class DashboardDAO extends DBContext {
         return total;
     }
 
-    // Doanh thu theo ngày (lọc theo khoảng, chỉ offline)
+    // Doanh thu theo ngày (lọc theo khoảng, chỉ offline, đơn paid)
     public List<RevenueByDate> getRevenueByDate(String fromDate, String toDate) {
         List<RevenueByDate> list = new ArrayList<>();
         String sql = """
             SELECT CAST(created_at AS DATE) AS date, SUM(price) AS total
             FROM Invoices
-            WHERE CAST(created_at AS DATE) BETWEEN ? AND ?
+            WHERE CAST(created_at AS DATE) BETWEEN ? AND ? AND status = 'paid'
             GROUP BY CAST(created_at AS DATE)
             ORDER BY date ASC
         """;
@@ -83,14 +83,14 @@ public class DashboardDAO extends DBContext {
         return list;
     }
 
-    // Tổng số hóa đơn theo khoảng (chỉ offline)
+    // Tổng số hóa đơn theo khoảng (chỉ offline, đơn paid)
     public int getTotalInvoicesInRange(String from, String to) {
         int total = 0;
         String sql = """
             SELECT COUNT(*) FROM Invoices
-            WHERE CAST(created_at AS DATE) BETWEEN ? AND ?
+            WHERE CAST(created_at AS DATE) BETWEEN ? AND ? AND status = 'paid'
         """;
-try (PreparedStatement ps = connection.prepareStatement(sql)) {
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setString(1, from);
             ps.setString(2, to);
             ResultSet rs = ps.executeQuery();
@@ -103,19 +103,19 @@ try (PreparedStatement ps = connection.prepareStatement(sql)) {
         return total;
     }
 
-    // Tổng khách hàng theo khoảng (có giao dịch, chỉ offline)
-    public int getTotalCustomersInRange(String from, String to) {
-        int total = 0;
+    // Tổng doanh thu theo khoảng (chỉ offline, đơn paid)
+    public double getTotalRevenuesInRange(String from, String to) {
+        double total = 0.0;
         String sql = """
-            SELECT COUNT(DISTINCT waiter_id) FROM Invoices
-            WHERE CAST(created_at AS DATE) BETWEEN ? AND ?
+            SELECT SUM(price) FROM Invoices
+            WHERE CAST(created_at AS DATE) BETWEEN ? AND ? AND status = 'paid'
         """;
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setString(1, from);
             ps.setString(2, to);
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
-                total = rs.getInt(1);
+                total = rs.getDouble(1);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -132,7 +132,7 @@ try (PreparedStatement ps = connection.prepareStatement(sql)) {
             JOIN Orders o ON ofd.order_id = o.order_id
             JOIN Invoices i ON o.invoice_id = i.invoice_id
             JOIN Foods f ON ofd.food_id = f.food_id
-            WHERE CAST(o.created_at AS DATE) BETWEEN ? AND ?
+            WHERE CAST(o.created_at AS DATE) BETWEEN ? AND ? AND i.status = 'paid'
             GROUP BY f.name
             ORDER BY total_quantity DESC
         """;
@@ -160,11 +160,11 @@ try (PreparedStatement ps = connection.prepareStatement(sql)) {
             JOIN Invoices i ON o.invoice_id = i.invoice_id
             JOIN Foods f ON ofd.food_id = f.food_id
             JOIN Categories c ON f.category_id = c.category_id
-            WHERE CAST(o.created_at AS DATE) BETWEEN ? AND ?
+            WHERE CAST(o.created_at AS DATE) BETWEEN ? AND ? AND i.status = 'paid'
             GROUP BY c.name
             ORDER BY total_revenue DESC
         """;
-try (PreparedStatement ps = connection.prepareStatement(sql)) {
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setString(1, from);
             ps.setString(2, to);
             ResultSet rs = ps.executeQuery();
@@ -177,7 +177,7 @@ try (PreparedStatement ps = connection.prepareStatement(sql)) {
         return list;
     }
 
-    // so sánh Onlive với Offline - Vì không có online, trả về Offline 100%
+    // Kênh bán hàng (chỉ offline, trả về Offline 100%)
     public Map<String, Integer> getOrderChannelRatio(String from, String to) {
         Map<String, Integer> map = new HashMap<>();
         String sql = """

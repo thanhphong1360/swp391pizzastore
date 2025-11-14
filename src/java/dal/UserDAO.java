@@ -14,7 +14,7 @@ import model.User;
 import java.util.Scanner;
 import org.mindrot.jbcrypt.BCrypt;
 
-public class UserDAO {
+public class UserDAO extends DBContext {
 
     private Connection conn;
 
@@ -296,4 +296,24 @@ public void clearResetToken(String email) {
         }
         return list.isEmpty() ? null : list.get(0);
     }
+    
+        //cập nhật hồ sơ người dùng
+    public boolean updateProfile(int userId, String name, String email) {
+        String sql = "UPDATE Users SET name = ?, email = ? WHERE user_id = ?";
+
+        try (Connection conn = connection; PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, name);
+            ps.setString(2, email);
+            ps.setInt(3, userId);
+
+            int rows = ps.executeUpdate();
+            return rows > 0;
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
 }

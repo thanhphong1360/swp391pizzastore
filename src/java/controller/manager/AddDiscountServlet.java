@@ -118,6 +118,22 @@ public class AddDiscountServlet extends HttpServlet {
                 return;
             }
 
+            if (!startDate.before(endDate)) {
+                request.setAttribute("error", "Start date must be before end date.");
+                // Gắn lại dữ liệu để hiển thị
+                request.setAttribute("code", code);
+                request.setAttribute("description", description);
+                request.setAttribute("type", type);
+                request.setAttribute("value", valueStr);
+                request.setAttribute("start_date", startDateStr);
+                request.setAttribute("end_date", endDateStr);
+                request.setAttribute("min_invoice_price", minInvoiceStr);
+                request.setAttribute("max_discount_amount", maxDiscountStr);
+                request.setAttribute("status", statusStr);
+                request.getRequestDispatcher("/WEB-INF/View/manager/discount/add-discount.jsp").forward(request, response);
+                return;
+            }
+
             Discount discount = new Discount();
             discount.setCode(code);
             discount.setDescription(description);

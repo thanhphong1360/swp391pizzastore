@@ -1,4 +1,4 @@
-<%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%@ page contentType="text/html;charset=UTF-8" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <!DOCTYPE html>
@@ -12,21 +12,18 @@
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
         <style>
             body {
-                background-color: #fff8f3;
                 font-family: 'Poppins', sans-serif;
+                background-color: #fff8f3;
+                margin: 0;
+                padding: 40px 80px;
             }
-            /* Header */
-            .header-bar {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                margin-bottom: 35px;
-            }
-            .header-bar h2 {
+            h2 {
                 color: #e63946;
                 font-weight: 600;
                 font-size: 28px;
             }
+
+            /* Button styles */
             .btn-custom {
                 border-radius: 10px;
                 font-weight: 500;
@@ -42,6 +39,55 @@
             .btn-dashboard:hover {
                 background: #909fad;
             }
+            .btn-add {
+                background: #e63946;
+                display: inline-block;
+                margin-bottom: 25px; /* 🔹 thêm khoảng cách dưới nút */
+                margin-top: 5px;     /* 🔹 nhẹ trên cho cân đối */
+            }
+            .btn-add:hover {
+                background: #c72e3b;
+            }
+
+            /* Layout header */
+            .header-bar {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 25px;
+            }
+
+            /* Table styling */
+            table {
+                width: 100%;
+                border-collapse: separate;
+                border-spacing: 0;
+                background: white;
+                border-radius: 15px;
+                box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+                overflow: hidden;
+            }
+            thead th {
+                background-color: #e63946;
+                color: white;
+                padding: 14px;
+                text-align: center;
+                font-weight: 500;
+            }
+            tbody td {
+                padding: 12px;
+                text-align: center;
+                vertical-align: middle;
+                color: #333;
+                border-bottom: 1px solid #f0f0f0;
+            }
+            tbody tr:last-child td {
+                border-bottom: none;
+            }
+            tbody tr:hover {
+                background-color: #fff1ee;
+            }
+
             /* Stat cards */
             .stat-card {
                 background: #fff;
@@ -66,14 +112,7 @@
                 font-size: 1.8rem;
                 font-weight: 600;
             }
-            /* Filter box */
-            .filter-box {
-                background: #fff;
-                padding: 20px;
-                border-radius: 12px;
-                margin-bottom: 35px;
-                box-shadow: 0 3px 10px rgba(0,0,0,0.08);
-            }
+
             /* Chart container */
             .chart-container {
                 background: #fff;
@@ -81,10 +120,9 @@
                 border-radius: 12px;
                 box-shadow: 0 4px 12px rgba(0,0,0,0.1);
                 margin-bottom: 30px;
-                height: 320px;
-                display: flex;
-                flex-direction: column;
-}
+                height: 300px;  /* cố định chiều cao */
+                max-width: 100%;
+            }
             /* List group custom */
             .list-group-item-warning {
                 background-color: #ffe5e0 !important;
@@ -101,18 +139,18 @@
                 text-align: center;
                 margin-bottom: 15px;
             }
-            .list-group {
-                max-height: 220px;
-                overflow-y: auto;
-            }
         </style>
     </head>
     <body>
-        <div class="container py-4">
-            <!-- HEADER -->
-            <div class="header-bar">
-                <h2>📊 Manager Dashboard</h2>
-                <a href="${pageContext.request.contextPath}/Home" class="btn-custom btn-dashboard">🏠 Back to Dashboard</a>
+        <div class="header-bar">
+            <h2>User Management</h2>
+            <a href="${pageContext.request.contextPath}/Home" class="btn-custom btn-dashboard">🏠 Back to Dashboard</a>
+        </div>
+
+        <!-- Main content -->
+        <div class="content">
+            <div class="topbar">
+                <h4>📊 Manager Dashboard</h4>
             </div>
 
             <!-- STAT CARDS -->
@@ -135,14 +173,16 @@
                 </div>
                 <div class="col-md-4">
                     <div class="stat-card">
-                        <div class="stat-icon text-info"><i class="bi bi-people"></i></div>
-                        <p class="stat-title">Tổng khách hàng</p>
-                        <p class="stat-value text-info">${totalCustomers}</p>
+                        <div class="stat-icon text-info"><i class="bi bi-currency-dollar"></i></div>
+                        <p class="stat-title">Tổng doanh thu</p>
+                        <p class="stat-value text-success">
+                            <fmt:formatNumber value="${totalRevenues}" type="currency" currencySymbol="" /> VND
+                        </p>
                     </div>
                 </div>
             </div>
 
-            <!-- FILTER BOX -->
+            <!-- Filter box -->
             <div class="filter-box">
                 <form action="${pageContext.request.contextPath}/manager/dashboard/filter" method="post" class="row g-3 align-items-end">
                     <div class="col-md-5">
@@ -151,7 +191,7 @@
                     </div>
                     <div class="col-md-5">
                         <label class="form-label fw-bold">Đến ngày</label>
-<input type="date" name="toDate" class="form-control" value="${toDate}" required>
+                        <input type="date" name="toDate" class="form-control" value="${toDate}" required>
                     </div>
                     <div class="col-md-2 d-grid">
                         <button type="submit" class="btn btn-danger">Lọc</button>
@@ -159,20 +199,18 @@
                 </form>
             </div>
 
-            <!-- CHARTS & TOP FOODS -->
+            <!-- Charts -->
             <div class="row g-4">
-                <!-- LEFT COLUMN -->
                 <div class="col-md-6">
                     <div class="chart-container">
                         <h5>📈 Doanh thu theo ngày</h5>
                         <canvas id="revenueChart"></canvas>
                     </div>
-
                     <div class="chart-container">
                         <h5>🍕 Top 5 Món Ăn Bán Chạy</h5>
                         <c:choose>
                             <c:when test="${not empty topFoods}">
-                                <div class="list-group">
+                                <div class="list-group overflow-auto" style="max-height:220px;">
                                     <c:forEach items="${topFoods}" var="dish" varStatus="status">
                                         <div class="list-group-item d-flex justify-content-between align-items-center
                                              ${status.index == 0 ? 'list-group-item-warning' :
@@ -190,14 +228,11 @@
                         </c:choose>
                     </div>
                 </div>
-
-                <!-- RIGHT COLUMN -->
                 <div class="col-md-6">
                     <div class="chart-container">
                         <h5>🏷 Doanh thu theo loại món</h5>
                         <canvas id="categoryChart"></canvas>
                     </div>
-
                     <div class="chart-container">
                         <h5>🛒 Kênh bán hàng</h5>
                         <canvas id="channelChart"></canvas>
@@ -206,110 +241,35 @@
             </div>
         </div>
 
-        <!-- CHARTS SCRIPT -->
+        <!-- Chart.js scripts -->
         <script>
             document.addEventListener('DOMContentLoaded', function () {
-
-                // === 1. DOANH THU THEO NGÀY ===
+                // Revenue by Date
                 const ctx1 = document.getElementById('revenueChart').getContext('2d');
                         const labels1 = [<c:forEach items="${revenueByDate}" var="r">'${r.date}',</c:forEach>];
-const data1 = [<c:forEach items="${revenueByDate}" var="r">${r.total},</c:forEach>];
-
+                const data1 = [<c:forEach items="${revenueByDate}" var="r">${r.total},</c:forEach>];
                 new Chart(ctx1, {
                     type: 'line',
-                    data: {
-                        labels: labels1,
-                        datasets: [{
-                                label: 'Doanh thu (VND)',
-                                data: data1,
-                                fill: true,
-                                backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                                borderColor: 'rgb(54, 162, 235)',
-                                tension: 0.3,
-                                pointRadius: 4
-                            }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            tooltip: {
-                                callbacks: {
-                                    label: ctx => 'Doanh thu: ' + ctx.parsed.y.toLocaleString('vi-VN') + ' VND'
-                                }
-                            }
-                        },
-                        scales: {
-                            y: {
-                                beginAtZero: true,
-                                ticks: {
-                                    callback: v => v.toLocaleString('vi-VN') + ' VND'
-                                }
-                            },
-                            x: {
-                                ticks: {
-                                    maxRotation: 45,
-                                    minRotation: 45
-                                }
-                            }
-                        }
-                    }
+                    data: {labels: labels1, datasets: [{label: 'Doanh thu (VND)', data: data1, fill: true, backgroundColor: 'rgba(230,57,70,0.2)', borderColor: '#e63946', tension: 0.3, pointRadius: 4}]},
+                    options: {responsive: true, maintainAspectRatio: false, plugins: {tooltip: {callbacks: {label: ctx => 'Doanh thu: ' + ctx.parsed.y.toLocaleString('vi-VN') + ' VND'}}}, scales: {y: {beginAtZero: true, ticks: {callback: v => v.toLocaleString('vi-VN') + ' VND'}}, x: {ticks: {maxRotation: 45, minRotation: 45}}}}
                 });
 
-                // === 2. DOANH THU THEO LOẠI MÓN ===
+                // Revenue by Category
                 const ctx2 = document.getElementById('categoryChart').getContext('2d');
                         const labels2 = [<c:forEach items="${revenueByCategory}" var="c">'${c.category}',</c:forEach>];
                 const data2 = [<c:forEach items="${revenueByCategory}" var="c">${c.revenue},</c:forEach>];
-
                 new Chart(ctx2, {
                     type: 'pie',
-                    data: {
-                        labels: labels2,
-                        datasets: [{
-                                data: data2,
-                                backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF']
-                            }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: {position: 'bottom'},
-                            tooltip: {
-                                callbacks: {
-                                    label: ctx => ctx.label + ': ' + ctx.parsed.toLocaleString('vi-VN') + ' VND'
-                                }
-                            }
-}
-                    }
+                    data: {labels: labels2, datasets: [{data: data2, backgroundColor: ['#e63946', '#ffb703', '#8ecae6', '#219ebc', '#023047']}]},
+                    options: {responsive: true, maintainAspectRatio: false, plugins: {legend: {position: 'bottom'}, tooltip: {callbacks: {label: ctx => ctx.label + ': ' + ctx.parsed.toLocaleString('vi-VN') + ' VND'}}}}
                 });
 
-                // === 3. KÊNH BÁN HÀNG ===
+                // Channel chart
                 const ctx3 = document.getElementById('channelChart').getContext('2d');
                 new Chart(ctx3, {
                     type: 'doughnut',
-                    data: {
-                        labels: ['Online', 'Offline'],
-                        datasets: [{
-                                data: [
-            ${orderChannel['Online'] != null ? orderChannel['Online'] : 0},
-            ${orderChannel['Offline'] != null ? orderChannel['Offline'] : 0}
-                                ],
-                                backgroundColor: ['#36A2EB', '#FF6384']
-                            }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: {position: 'bottom'},
-                            tooltip: {
-                                callbacks: {
-                                    label: ctx => ctx.label + ': ' + ctx.parsed + ' đơn'
-                                }
-                            }
-                        }
-                    }
+                    data: {labels: ['Online', 'Offline'], datasets: [{data: [${orderChannel['Online'] != null ? orderChannel['Online'] : 0}, ${orderChannel['Offline'] != null ? orderChannel['Offline'] : 0}], backgroundColor: ['#e63946', '#8ecae6']}]},
+                    options: {responsive: true, maintainAspectRatio: false, plugins: {legend: {position: 'bottom'}, tooltip: {callbacks: {label: ctx => ctx.label + ': ' + ctx.parsed + ' đơn'}}}}
                 });
             });
         </script>

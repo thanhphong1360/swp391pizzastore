@@ -4,6 +4,7 @@
  */
 package controller;
 
+import dal.OrderDAO;
 import dal.PaymentDAO;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -72,6 +73,8 @@ public class PaymentResultServlet extends HttpServlet {
      * @throws ServletException if a servlet-specific error occurs
      * @throws IOException if an I/O error occurs
      */
+    private final PaymentDAO paymentDAO = new PaymentDAO();
+
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -80,49 +83,60 @@ public class PaymentResultServlet extends HttpServlet {
         String orderIdStr = request.getParameter("orderId");
         String amountStr = request.getParameter("amount");
 
-        if (gateway == null || status == null || orderIdStr == null || amountStr == null) {
+        // === 1. Validate input ===
+        if (isEmpty(gateway) || isEmpty(status) || isEmpty(orderIdStr) || isEmpty(amountStr)) {
             forwardToFailed(request, response, orderIdStr, amountStr, gateway, "Dữ liệu không hợp lệ.");
             return;
         }
 
         try {
-            int orderId = Integer.parseInt(orderIdStr);
-            BigDecimal amount = new BigDecimal(amountStr);
+            int orderId = Integer.parseInt(orderIdStr.trim());
+            BigDecimal amount = new BigDecimal(amountStr.trim());
 
-            PaymentDAO dao = new PaymentDAO();
-
-            // Ngăn thanh toán trùng
-            if (dao.existsByOrderId(orderId)) {
+            // === 2. Kiểm tra thanh toán trùng ===
+            if (paymentDAO.existsByOrderId(orderId)) {
                 forwardToFailed(request, response, orderId, amount, gateway, "Đơn hàng đã được thanh toán trước đó!");
                 return;
             }
+            
+            // === 3. Lưu thanh toán ===
+            String paymentStatus = "Success".equalsIgnoreCase(status) ? "Success" : "Failed";
+            Payment payment = new Payment(orderId, gateway, amount, paymentStatus);
+            paymentDAO.insert(payment);
 
-            Payment payment = new Payment(
-                    orderId,
-                    gateway,
-                    amount,
-                    "Success".equals(status) ? "Success" : "Failed"
-            );
-            dao.insert(payment);
-
-            request.setAttribute("orderId", orderId);
-            request.setAttribute("amount", amount);
-            request.setAttribute("gateway", gateway);
-
-            String view = "Success".equals(status)
-                    ? "/WEB-INF/View/payment/payment-success.jsp"
-                    : "/WEB-INF/View/payment/payment-failed.jsp";
-
-            request.getRequestDispatcher(view).forward(request, response);
+            // === 4. Chuyển hướng theo trạng thái ===
+            if ("Success".equals(paymentStatus)) {
+                forwardToSuccess(request, response, orderId, amount, gateway);
+                // Cập nhật Orders
+                OrderDAO orderDAO = new OrderDAO();
+                orderDAO.updatePaymentStatus(orderId, payment.getPaymentId(), "Paid");
+            } else {
+                forwardToFailed(request, response, orderId, amount, gateway, "Thanh toán thất bại.");
+            }
 
         } catch (NumberFormatException e) {
-            forwardToFailed(request, response, orderIdStr, amountStr, gateway, "Số tiền không hợp lệ.");
+            forwardToFailed(request, response, orderIdStr, amountStr, gateway, "Số tiền hoặc mã đơn không hợp lệ.");
         } catch (SQLException e) {
             e.printStackTrace();
-            forwardToFailed(request, response, orderIdStr, amountStr, gateway, "Lỗi CSDL: " + e.getMessage());
+            forwardToFailed(request, response, orderIdStr, amountStr, gateway, "Lỗi hệ thống: " + e.getMessage());
         }
     }
 
+    private boolean isEmpty(String s) {
+        return s == null || s.trim().isEmpty();
+    }
+
+    // === Chuyển đến trang thành công ===
+    private void forwardToSuccess(HttpServletRequest request, HttpServletResponse response,
+            int orderId, BigDecimal amount, String gateway)
+            throws ServletException, IOException {
+        request.setAttribute("orderId", orderId);
+        request.setAttribute("amount", amount);
+        request.setAttribute("gateway", gateway);
+        request.getRequestDispatcher("/WEB-INF/View/payment/payment-success.jsp").forward(request, response);
+    }
+
+    // === Chuyển đến trang thất bại ===
     private void forwardToFailed(HttpServletRequest request, HttpServletResponse response,
             Object orderId, Object amount, Object gateway, String error)
             throws ServletException, IOException {

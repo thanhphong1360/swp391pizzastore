@@ -58,6 +58,16 @@ public class PaymentServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        // TEST DATA - XÓA KHI GHÉP VÀO HỆ THỐNG THẬT
+        //khach1@gmail.com
+        //khach123
+        request.setAttribute("orderId", 11);
+        request.setAttribute("customerName", "Nguyễn Văn B");
+        request.setAttribute("totalAmount", new BigDecimal("178000"));
+        request.setAttribute("discountCode", "");
+        request.setAttribute("discountAmount", BigDecimal.ZERO);
+        request.setAttribute("finalAmount", new BigDecimal("178000"));
+
         request.getRequestDispatcher("/WEB-INF/View/payment/checkout.jsp").forward(request, response);
     }
 
@@ -74,54 +84,45 @@ public class PaymentServlet extends HttpServlet {
             throws ServletException, IOException {
         String method = request.getParameter("method");
         String orderIdStr = request.getParameter("orderId");
-        String amountStr = request.getParameter("totalAmount"); // ← Đổi tên cho rõ
-        String customerName = request.getParameter("customerName");
-        String discountCode = request.getParameter("discountCode");
+        String amountStr = request.getParameter("totalAmount");
 
-        // Validate
-        if (orderIdStr == null || amountStr == null || method == null || customerName == null) {
-            request.setAttribute("error", "Thiếu thông tin thanh toán. Vui lòng thử lại.");
-            request.getRequestDispatcher("/WEB-INF/View/payment/checkout.jsp").forward(request, response);
+        if (isEmpty(method) || isEmpty(orderIdStr) || isEmpty(amountStr)) {
+            request.setAttribute("error", "Thiếu thông tin thanh toán.");
+            forwardToCheckout(request, response);
             return;
         }
 
         try {
             int orderId = Integer.parseInt(orderIdStr);
-            BigDecimal totalAmount = new BigDecimal(amountStr);
+            BigDecimal amount = new BigDecimal(amountStr);
 
-            // Xử lý discount...
-            BigDecimal finalAmount = totalAmount; // sau khi giảm
-
-            // Forward với đầy đủ dữ liệu
+            // Lưu vào request để momo.jsp / vnpay.jsp dùng
             request.setAttribute("orderId", orderId);
-            request.setAttribute("customerName", customerName);
-            request.setAttribute("totalAmount", totalAmount);
-            request.setAttribute("amount", finalAmount);
-            request.setAttribute("gateway", method);
+            request.setAttribute("amount", amount);
+            request.setAttribute("gateway", method); // MoMo hoặc VNPay
 
-            String view = method.equalsIgnoreCase("VNPay")
-                    ? "/WEB-INF/View/payment/vnpay.jsp"
-                    : "/WEB-INF/View/payment/momo.jsp";
+            String view = "Momo".equalsIgnoreCase(method)
+                    ? "/WEB-INF/View/payment/momo.jsp"
+                    : "/WEB-INF/View/payment/vnpay.jsp";
 
             request.getRequestDispatcher(view).forward(request, response);
 
         } catch (NumberFormatException e) {
             request.setAttribute("error", "Số tiền không hợp lệ.");
-            request.getRequestDispatcher("/WEB-INF/View/payment/checkout.jsp").forward(request, response);
+            forwardToCheckout(request, response);
         }
+    }
 
+    private boolean isEmpty(String s) {
+        return s == null || s.trim().isEmpty();
     }
 
     private void setError(HttpServletRequest request, String msg) {
         request.setAttribute("error", msg);
     }
 
-    private void forwardToCheckout(HttpServletRequest request, HttpServletResponse response,
-            String orderId, String customer, String amount)
+    private void forwardToCheckout(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        request.setAttribute("orderId", orderId);
-        request.setAttribute("customerName", customer);
-        request.setAttribute("totalAmount", amount);
         request.getRequestDispatcher("/WEB-INF/View/payment/checkout.jsp").forward(request, response);
     }
 

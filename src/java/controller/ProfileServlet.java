@@ -2,9 +2,9 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
  */
-package controller.manager;
+package controller;
 
-import dal.DashboardDAO;
+import dal.UserDAO;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
@@ -12,18 +12,15 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import java.util.List;
-import java.util.Map;
-import model.CategoryRevenue;
-import model.RevenueByDate;
-import model.TopFood;
+import jakarta.servlet.http.HttpSession;
+import model.User;
 
 /**
  *
  * @author HP
  */
-@WebServlet(name = "DashboardFilterServlet", urlPatterns = {"/manager/dashboard/filter"})
-public class DashboardFilterServlet extends HttpServlet {
+@WebServlet(name = "ProfileServlet", urlPatterns = {"/profile"})
+public class ProfileServlet extends HttpServlet {
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -42,10 +39,10 @@ public class DashboardFilterServlet extends HttpServlet {
             out.println("<!DOCTYPE html>");
             out.println("<html>");
             out.println("<head>");
-            out.println("<title>Servlet DashboardFilterServlet</title>");
+            out.println("<title>Servlet ProfileServlet</title>");
             out.println("</head>");
             out.println("<body>");
-            out.println("<h1>Servlet DashboardFilterServlet at " + request.getContextPath() + "</h1>");
+            out.println("<h1>Servlet ProfileServlet at " + request.getContextPath() + "</h1>");
             out.println("</body>");
             out.println("</html>");
         }
@@ -60,10 +57,25 @@ public class DashboardFilterServlet extends HttpServlet {
      * @throws ServletException if a servlet-specific error occurs
      * @throws IOException if an I/O error occurs
      */
+    private final UserDAO userDAO = new UserDAO();
+
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        doPost(request, response);
+        HttpSession session = request.getSession();
+        User user = (User) session.getAttribute("user");
+
+        if (user == null) {
+            response.sendRedirect(request.getContextPath() + "/client/pages/login.jsp");
+            return;
+        }
+
+        User freshUser = userDAO.getUserById(user.getUserId());
+        if (freshUser != null) {
+            session.setAttribute("user", freshUser);
+        }
+
+        request.getRequestDispatcher("/WEB-INF/View/client/user/profile.jsp").forward(request, response);
     }
 
     /**
@@ -77,38 +89,27 @@ public class DashboardFilterServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        String from = request.getParameter("fromDate");
-        String to = request.getParameter("toDate");
+        request.setCharacterEncoding("UTF-8");
+        HttpSession session = request.getSession();
+        User user = (User) session.getAttribute("user");
 
-        // Nếu rỗng, redirect về dashboard mặc định
-        if (from == null || to == null || from.isEmpty() || to.isEmpty()) {
-            response.sendRedirect(request.getContextPath() + "/manager");
+        if (user == null) {
+            response.sendRedirect("client/pages/login.jsp");
             return;
         }
 
-        // Validate bằng JS, nên ở đây chỉ load dữ liệu nếu submit thành công
-        DashboardDAO dao = new DashboardDAO();
+        String name = request.getParameter("name");
+        String email = request.getParameter("email");
 
-        double todayRevenue = dao.getTodayRevenue();
-        int totalInvoices = dao.getTotalInvoicesInRange(from, to);
-        double totalRevenues = dao.getTotalRevenuesInRange(from, to);
-        List<RevenueByDate> revenueByDate = dao.getRevenueByDate(from, to);
-        List<TopFood> topFoods = dao.getTopFoods(from, to, 5);
-        List<CategoryRevenue> revenueByCategory = dao.getRevenueByCategory(from, to);
-        Map<String, Integer> orderChannel = dao.getOrderChannelRatio(from, to);
+        if (userDAO.updateProfile(user.getUserId(), name, email)) {
+            User updated = userDAO.getUserById(user.getUserId());
+            session.setAttribute("user", updated);
+            session.setAttribute("msg", "Cập nhật hồ sơ thành công!");
+        } else {
+            session.setAttribute("error", "Cập nhật thất bại. Vui lòng thử lại!");
+        }
 
-        request.setAttribute("todayRevenue", todayRevenue);
-        request.setAttribute("totalInvoices", totalInvoices);
-        request.setAttribute("totalRevenues", totalRevenues);
-        request.setAttribute("revenueByDate", revenueByDate);
-        request.setAttribute("topFoods", topFoods);
-        request.setAttribute("revenueByCategory", revenueByCategory);
-        request.setAttribute("orderChannel", orderChannel);
-        request.setAttribute("fromDate", from);
-        request.setAttribute("toDate", to);
-
-        request.getRequestDispatcher("/WEB-INF/View/ManagerHome.jsp")
-                .forward(request, response);
+        response.sendRedirect("profile");
     }
 
     /**
