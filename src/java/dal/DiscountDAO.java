@@ -257,4 +257,42 @@ public class DiscountDAO extends DBContext {
 
         return d;
     }
+    
+    public static List<Discount> getApplicableDiscounts(double invoicePrice) {
+        List<Discount> list = new ArrayList<>();
+
+        String sql = "SELECT * FROM Discounts WHERE status = '1' AND (min_invoice_price <= ?)";
+        PreparedStatement ps = null;
+        try {
+            DBContext db = DBContext.getInstance();
+            Connection conn = db.connection;
+            ps = conn.prepareStatement(sql);
+            ps.setDouble(1, invoicePrice);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                Discount d = new Discount();
+                d.setDiscountId(rs.getInt("discount_id"));
+                d.setCode(rs.getString("code"));
+                d.setDescription(rs.getString("description"));
+                d.setType(rs.getString("type"));
+                d.setValue(rs.getDouble("value"));
+                d.setStartDate(rs.getTimestamp("start_date"));
+                d.setEndDate(rs.getTimestamp("end_date"));
+                d.setMinInvoicePrice(rs.getDouble("min_invoice_price"));
+                d.setMaxDiscountAmount(rs.getDouble("max_discount_amount"));
+
+                // Nếu status lưu '1' / '0' kiểu VARCHAR:
+                String statusStr = rs.getString("status");
+                boolean active = "1".equals(statusStr) || "active".equalsIgnoreCase(statusStr);
+                d.setStatus(active);
+
+                d.setCreatedAt(rs.getTimestamp("created_at"));
+
+                list.add(d);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
 }

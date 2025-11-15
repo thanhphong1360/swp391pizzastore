@@ -9,6 +9,7 @@ import jakarta.servlet.http.HttpSession;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
@@ -125,7 +126,7 @@ public class MenuDAO {
         PreparedStatement ps = null;
         try {
             DBContext db = DBContext.getInstance();
-            Connection conn = db.connection; 
+            Connection conn = db.connection;
             ps = conn.prepareStatement(sql);
             ps.setString(1, foodName);
             ps.setString(2, description);
@@ -166,5 +167,81 @@ public class MenuDAO {
             e.printStackTrace();
         }
         return ingredients;
+    }
+
+    public List<Menu> getMenuWithPagination(int offset, int limit) {
+        List<Menu> MList = new ArrayList<>();
+        String sql = "Select f.food_id, f.name as food_name, f.description, f.price, f.status, f.image_url, f.size, \n"
+                + "               c.category_id, c.name as category_name, c.description as category_description \n"
+                + "               from Foods f join Categories c on f.category_id = c.category_id \n"
+                + "			   order by f.food_id\n"
+                + "			   OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+
+        try {
+            DBContext db = DBContext.getInstance();
+            Connection conn = db.connection;
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.setInt(1, offset);
+            ps.setInt(2, limit);
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                Menu f = new Menu();
+                f.setFoodId(rs.getInt("food_id"));
+                f.setCategoryId(rs.getInt("category_id"));
+                f.setFoodName(rs.getString("food_name"));
+                f.setDescription(rs.getString("description"));
+                f.setPrice(rs.getDouble("price"));
+                f.setStatus(rs.getString("status"));
+                f.setImgURL(rs.getString("image_url"));
+                f.setSize(rs.getString("size"));
+                f.setCategoryName(rs.getString("category_name"));
+                f.setCategoryDescription(rs.getString("category_description"));
+
+                List<Ingredient> ingredients = getIngredientsByFoodId(f.getFoodId());
+                f.setIngredients(ingredients);
+                MList.add(f);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return MList;
+    }
+
+
+    public int getTotalMenuCount(){
+        int totalItems = 0;
+        String sql = "SELECT COUNT(*) FROM Foods";
+
+        try {
+            DBContext db = DBContext.getInstance();
+            Connection conn = db.connection;
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                totalItems = rs.getInt(1);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return totalItems;
+    }
+    
+    public static boolean isFoodNameExist(String foodName) {
+        String sql = "SELECT COUNT(*) FROM Foods WHERE LOWER(name) = ?";
+        try {
+            DBContext db = DBContext.getInstance();
+            Connection conn = db.connection;
+            PreparedStatement pstmt = conn.prepareStatement(sql);
+            pstmt.setString(1, foodName);
+            ResultSet rs = pstmt.executeQuery();
+            
+            if (rs.next()) {
+                return rs.getInt(1) > 0; 
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false; 
     }
 }

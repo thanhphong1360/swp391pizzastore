@@ -52,15 +52,6 @@ public class EditCategoryServlet extends HttpServlet {
         }
     }
 
-    // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
-    /**
-     * Handles the HTTP <code>GET</code> method.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -89,15 +80,44 @@ public class EditCategoryServlet extends HttpServlet {
         HttpSession session = request.getSession(false);
         if (session.getAttribute("user") != null) {
             int id = Integer.parseInt(request.getParameter("edit_cate_id"));
-            String name = request.getParameter("edit_cate_name");
-            String des = request.getParameter("edit_cate_des");
+            String cate = request.getParameter("edit_cate_name").trim();
+            String des = request.getParameter("edit_cate_des").trim();
             String status = request.getParameter("edit_cate_status");
 
-            Category c = new Category(id, name, des, status);
+            String errorMsg = null;
+
+            if (cate == null || cate.isEmpty()) {
+                errorMsg = "Vui lòng nhập đủ tên danh mục";
+            } else if (cate.length() < 2 || cate.length() > 100) {
+                errorMsg = "Tên danh mục tối thiểu 2 kí tự và tối đa 100 kí tự.";
+            }
+
+            if (des == null || des.isEmpty()) {
+                errorMsg = "Vui lòng nhập đủ mô tả cho danh mục";
+            } else if (des.length() < 2 || des.length() > 250) {
+                errorMsg = "Mô tả danh mục tối thiểu 2 kí tự và tối đa 250 kí tự.";
+            }
+
+            if (!status.equals("available") && !status.equals("unavailable")) {
+                errorMsg = "Vui lòng chọn trạng thái danh mục.";
+            }
+
+            if (errorMsg != null) {
+                request.setAttribute("errorMsg", errorMsg);
+                request.setAttribute("oldName", cate);
+                request.setAttribute("oldDes", des);
+                request.setAttribute("oldStatus", status);
+                request.setAttribute("categoryId", id);
+                RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/View/manager/EditCate.jsp");
+                dispatcher.forward(request, response);
+                return;
+            }
+
+            Category c = new Category(id, cate, des, status);
             CategoryDAO cDAO = new CategoryDAO();
             try {
                 int row = cDAO.editCategory(c);
-                response.sendRedirect(request.getContextPath()+ "/manager/ListCategoryServlet");
+                response.sendRedirect(request.getContextPath() + "/manager/ListCategoryServlet");
             } catch (SQLException ex) {
                 Logger.getLogger(EditCategoryServlet.class.getName()).log(Level.SEVERE, null, ex);
             }

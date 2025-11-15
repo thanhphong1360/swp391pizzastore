@@ -161,13 +161,71 @@
         </c:forEach>
 
         <div class="checkout-actions">
-            <h4>Tổng hóa đơn: <span class="total">${invoice.price} đ</span></h4>
-            <form id="checkoutForm" action="${pageContext.request.contextPath}/cashier/Invoice" method="POST" onsubmit="return confirmCheckout('${invoice.invoiceCode}')">
-                <input type="hidden" name="action" value="checkout">
-                <input type="hidden" name="invoiceId" value="${invoice.invoiceId}">
-                <input type="submit" value="✅ Thanh toán" class="btn">
-            </form>
-        </div>
+                <form id="checkoutForm" 
+                      action="${pageContext.request.contextPath}/cashier/Invoice" 
+                      method="POST" 
+                      onsubmit="return confirmCheckout('${invoice.invoiceCode}')">
+
+                    <input type="hidden" name="action" value="checkout">
+                    <input type="hidden" name="invoiceId" value="${invoice.invoiceId}">
+
+                    <!-- Tổng gốc -->
+                    <h4>
+                        Tổng hóa đơn gốc: 
+                        <span class="total" id="originalTotal">${invoice.price} đ</span>
+                    </h4>
+
+                    <!-- Tổng sau giảm (preview bằng JS) -->
+                    <h4>
+                        Sau giảm giá: 
+                        <span class="total" id="finalTotal">${invoice.price} đ</span>
+                    </h4>
+
+                    <!-- Ẩn tổng tiền gốc dạng số để JS dùng -->
+                    <input type="hidden" id="basePrice" value="${invoice.price}"/>
+
+                    <!-- MÃ GIẢM GIÁ - NẰM TRONG FORM -->
+                    <label for="discountId"><b>Mã giảm giá:</b></label>
+                    <select name="discountId" id="discountId">
+                        <option value="">-- Không áp dụng mã --</option>
+                        <c:forEach var="d" items="${discountList}">
+                            <option 
+                                value="${d.discountId}"
+                                data-type="${d.type}"
+                                data-value="${d.value}"
+                                data-max="${d.maxDiscountAmount}"
+                                data-min="${d.minInvoicePrice}"
+                                >
+                                ${d.code}
+                                -
+                                <c:out value="${d.description}" />
+                                (<c:choose>
+                                    <c:when test="${d.type == 'percentage'}">
+                                        -${d.value}% 
+                                        <c:if test="${d.maxDiscountAmount > 0}">
+                                            , tối đa ${d.maxDiscountAmount}đ
+                                        </c:if>
+                                    </c:when>
+                                    <c:otherwise>
+                                        -${d.value}đ
+                                    </c:otherwise>
+                                </c:choose>
+                                <c:if test="${d.minInvoicePrice > 0}">
+                                    , đơn ≥ ${d.minInvoicePrice}đ
+                                </c:if>
+                                )
+                            </option>
+                        </c:forEach>
+                    </select>
+
+                    <c:if test="${not empty discountError}">
+                        <p style="color:red; margin-top: 5px;">${discountError}</p>
+                    </c:if>
+
+                    <br><br>
+                    <input type="submit" value="✅ Thanh toán" class="btn">
+                </form>
+            </div>
 
     </div>
 
@@ -176,5 +234,70 @@
             return confirm("Xác nhận thanh toán hóa đơn #" + invoiceCode + " ?");
         }
     </script>
+    <script>
+            function formatCurrency(value) {
+                // đơn giản: làm tròn 0 số, thêm "đ"
+                return Math.round(value).toLocaleString('vi-VN') + ' đ';
+            }
+
+            function updateDiscountPreview() {
+                const basePriceInput = document.getElementById('basePrice');
+                const originalTotalSpan = document.getElementById('originalTotal');
+                const finalTotalSpan = document.getElementById('finalTotal');
+                const select = document.getElementById('discountId');
+
+                if (!basePriceInput || !select)
+                    return;
+
+                const basePrice = parseFloat(basePriceInput.value) || 0;
+                let finalPrice = basePrice;
+
+                const selectedOption = select.options[select.selectedIndex];
+
+                if (selectedOption && selectedOption.value !== "") {
+                    const type = selectedOption.getAttribute('data-type');   // percentage / fixed
+                    const value = parseFloat(selectedOption.getAttribute('data-value')) || 0;
+                    const max = parseFloat(selectedOption.getAttribute('data-max')) || 0;
+                    const min = parseFloat(selectedOption.getAttribute('data-min')) || 0;
+
+                    // Check đơn tối thiểu
+                    if (basePrice >= min) {
+                        let discountAmount = 0;
+
+                        if (type && type.toLowerCase() === 'percentage') {
+                            discountAmount = basePrice * value / 100.0;
+                            if (max > 0 && discountAmount > max) {
+                                discountAmount = max;
+                            }
+                        } else {
+                            // fixed
+                            discountAmount = value;
+                        }
+
+                        if (discountAmount > basePrice) {
+                            discountAmount = basePrice;
+                        }
+
+                        finalPrice = basePrice - discountAmount;
+                    } else {
+                        // nếu không đủ điều kiện đơn tối thiểu thì không giảm
+                        finalPrice = basePrice;
+                    }
+                }
+
+                originalTotalSpan.textContent = formatCurrency(basePrice);
+                finalTotalSpan.textContent = formatCurrency(finalPrice);
+            }
+
+            // Gắn event khi đổi mã
+            document.addEventListener('DOMContentLoaded', function () {
+                const select = document.getElementById('discountId');
+                if (select) {
+                    select.addEventListener('change', updateDiscountPreview);
+                }
+                // tính 1 lần khi load trang
+                updateDiscountPreview();
+            });
+        </script>
 </body>
 </html>
