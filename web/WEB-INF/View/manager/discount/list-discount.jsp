@@ -259,28 +259,28 @@
             of <strong>${totalItems}</strong> results
         </div>
 
-        <!-- PAGINATION -->
+        <<!-- PAGINATION -->
         <nav>
             <ul class="pagination justify-content-center">
                 <li class="page-item ${currentPage <= 1 ? 'disabled' : ''}">
-                    <a class="page-link" href="?page=1&search=${param.search}">First</a>
+                    <a class="page-link" href="${pageContext.request.contextPath}/manager/discount/list?page=1&search=${param.search}">First</a>
                 </li>
                 <li class="page-item ${currentPage <= 1 ? 'disabled' : ''}">
-                    <a class="page-link" href="?page=${currentPage - 1}&search=${param.search}">Previous</a>
+                    <a class="page-link" href="${pageContext.request.contextPath}/manager/discount/list?page=${currentPage - 1}&search=${param.search}">Previous</a>
                 </li>
 
                 <c:forEach var="i" begin="${currentPage - 2 > 0 ? currentPage - 2 : 1}" 
                            end="${currentPage + 2 < totalPages ? currentPage + 2 : totalPages}">
                     <li class="page-item ${i == currentPage ? 'active' : ''}">
-                        <a class="page-link" href="?page=${i}&search=${param.search}">${i}</a>
+                        <a class="page-link" href="${pageContext.request.contextPath}/manager/discount/list?page=${i}&search=${param.search}">${i}</a>
                     </li>
                 </c:forEach>
 
                 <li class="page-item ${currentPage >= totalPages ? 'disabled' : ''}">
-                    <a class="page-link" href="?page=${currentPage + 1}&search=${param.search}">Next</a>
+                    <a class="page-link" href="${pageContext.request.contextPath}/manager/discount/list?page=${currentPage + 1}&search=${param.search}">Next</a>
                 </li>
                 <li class="page-item ${currentPage >= totalPages ? 'disabled' : ''}">
-                    <a class="page-link" href="?page=${totalPages}&search=${param.search}">Last</a>
+                    <a class="page-link" href="${pageContext.request.contextPath}/manager/discount/list?page=${totalPages}&search=${param.search}">Last</a>
                 </li>
             </ul>
         </nav>
