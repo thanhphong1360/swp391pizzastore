@@ -4,6 +4,7 @@
  */
 package controller;
 
+import dal.DiscountDAO;
 import dal.InvoiceDAO;
 import dal.InvoiceTableDAO;
 import dal.OrderDAO;
@@ -18,6 +19,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
+import model.Discount;
 import model.Invoice;
 import model.InvoiceTable;
 import model.Order;
@@ -83,7 +86,7 @@ public class CashierInvoiceServlet extends HttpServlet {
                 request.setAttribute("invoiceList", pendingInvoiceList);
                 request.getRequestDispatcher("/WEB-INF/View/Cashier/CashierInvoiceCheckoutList.jsp").forward(request, response);
             }
-        }else if("detail".equals(action)){
+        } else if ("detail".equals(action)) {
             int invoiceId = Integer.parseInt(request.getParameter("invoiceId"));
             Invoice invoice = InvoiceDAO.getInvoiceById(invoiceId);
             //lay danh sach order trong invoice
@@ -107,7 +110,7 @@ public class CashierInvoiceServlet extends HttpServlet {
             request.setAttribute("invoice", invoice);
             request.setAttribute("orderList", orderList);
             request.getRequestDispatcher("/WEB-INF/View/Cashier/CashierInvoiceDetail.jsp").forward(request, response);
-            
+
         }
     }
 
@@ -153,6 +156,13 @@ public class CashierInvoiceServlet extends HttpServlet {
 
             invoice.setPrice(price);
             invoice = InvoiceDAO.updateInvoicePrice(invoice);
+            
+            invoice.setFinalPrice(price);
+            invoice.setDicountId(0);
+            double invoicePrice = price.doubleValue();
+            List<Discount> discountList = DiscountDAO.getApplicableDiscounts(invoicePrice);
+
+            request.setAttribute("discountList", discountList);
 
             //gui danh sach order len de xem
             request.setAttribute("invoice", invoice);
@@ -160,6 +170,8 @@ public class CashierInvoiceServlet extends HttpServlet {
             request.getRequestDispatcher("/WEB-INF/View/Cashier/CashierInvoiceCheckoutForm.jsp").forward(request, response);
         } else if ("checkout".equals(action)) {
             int invoiceId = Integer.parseInt(request.getParameter("invoiceId"));
+            
+            String discountIdRaw = request.getParameter("discountId");
             boolean canCheckout = true;
             Invoice invoice = InvoiceDAO.getInvoiceById(invoiceId);
             //lay danh sach order trong invoice
@@ -167,6 +179,22 @@ public class CashierInvoiceServlet extends HttpServlet {
             //kiem tra co order dang lam hay khong
             for (Order order : orderList) {
                 ArrayList<OrderFood> orderFoodList = OrderFoodDAO.getOrderFoodsByOrderId(order.getOrderId());
+                //kiem tra xem co order food khong, neu khong thi cancel invoice
+                if (orderFoodList == null) {
+                    //change invoice status
+                    invoice = InvoiceDAO.updateInvoiceStatus(invoice, "cancelled");
+                    //get tables lien quan toi invoice
+                    ArrayList<InvoiceTable> invoiceTableList = InvoiceTableDAO.getTableIdsByInvoiceId(invoiceId);
+                    //tra table ve available
+                    for (InvoiceTable invoiceTable : invoiceTableList) {
+                        TableDAO.updateTableStatus(TableDAO.getTableById(invoiceTable.getTableId()), "Available");
+                    }
+                    //view pending invoice list
+                    ArrayList<Invoice> pendingInvoiceList = InvoiceDAO.getInvoicesByStatusCashier("pending");
+                    request.setAttribute("invoiceList", pendingInvoiceList);
+                    request.getRequestDispatcher("/WEB-INF/View/Cashier/CashierInvoiceCheckoutList.jsp").forward(request, response);
+                    return;
+                }
                 for (OrderFood orderFood : orderFoodList) {
                     if (orderFood.getStatus().equals("pending") || orderFood.getStatus().equals("doing")) {
                         canCheckout = false;
@@ -175,6 +203,76 @@ public class CashierInvoiceServlet extends HttpServlet {
                 }
             }
             if (canCheckout) {
+                BigDecimal price = BigDecimal.ZERO;
+                Iterator<Order> iterator = orderList.iterator();
+                while (iterator.hasNext()) {
+                    Order order = iterator.next();
+                    if ("rejected".equals(order.getStatus())) {
+                        iterator.remove();
+                        continue;
+                    }
+                    order.includeOrderFood();
+                    order.includeTable();
+                    for (OrderFood orderFood : order.getOrderFoodList()) {
+                        orderFood.includeFood();
+                    }
+                    price = price.add(order.getPrice());
+                }
+
+                double invoicePrice = price.doubleValue();
+                double finalPrice = invoicePrice; // mặc định chưa giảm
+                double discountAmount = 0;
+                int discountIdToSave = 0;
+
+                // Viet: ÁP DỤNG DISCOUNT NẾU CÓ CHỌN
+                if (discountIdRaw != null && !discountIdRaw.isEmpty()) {
+                    try {
+                        int discountId = Integer.parseInt(discountIdRaw);
+                        DiscountDAO disDAO = new DiscountDAO();
+                        Discount d = disDAO.getDiscountById(discountId);
+
+                        if (d != null && d.isStatus()) { // status = true = active
+
+                            // check đơn tối thiểu
+                            if (invoicePrice >= d.getMinInvoicePrice()) {
+
+                                if ("percentage".equalsIgnoreCase(d.getType())) {
+                                    // giảm theo %
+                                    discountAmount = invoicePrice * d.getValue() / 100.0;
+
+                                    // nếu có giới hạn số tiền giảm tối đa
+                                    if (d.getMaxDiscountAmount() > 0
+                                            && discountAmount > d.getMaxDiscountAmount()) {
+                                        discountAmount = d.getMaxDiscountAmount();
+                                    }
+                                } else {
+                                    // giảm cố định
+                                    discountAmount = d.getValue();
+                                }
+
+                                if (discountAmount > invoicePrice) {
+                                    discountAmount = invoicePrice;
+                                }
+
+                                finalPrice = invoicePrice - discountAmount;
+                                discountIdToSave = discountId;
+
+                                // Nếu Invoice model có discountId thì set vào:
+                                // invoice.setDiscountId(discountId);
+                            }
+                            // nếu không đủ minInvoicePrice thì không giảm, finalPrice vẫn = invoicePrice
+                        }
+                    } catch (NumberFormatException e) {
+                        // discountId không hợp lệ -> bỏ qua, coi như không áp mã
+                    }
+                }
+                //Viet
+                //Viet Cập nhật giá hóa = giá sau giảm
+                invoice.setPrice(price);
+                invoice.setFinalPrice(BigDecimal.valueOf(finalPrice));
+                invoice.setDicountId(discountIdToSave);
+                
+                invoice = InvoiceDAO.updateInvoicePriceFinalAndDiscount(invoice);
                 //change invoice status
                 invoice = InvoiceDAO.updateInvoiceStatus(invoice, "paid");
                 //get tables lien quan toi invoice
@@ -207,6 +305,10 @@ public class CashierInvoiceServlet extends HttpServlet {
 
                 invoice.setPrice(price);
                 invoice = InvoiceDAO.updateInvoicePrice(invoice);
+                
+                double invoicePrice = price.doubleValue();
+                List<Discount> discountList = DiscountDAO.getApplicableDiscounts(invoicePrice);
+                request.setAttribute("discountList", discountList);
 
                 //gui danh sach order len de xem
                 request.setAttribute("invoice", invoice);

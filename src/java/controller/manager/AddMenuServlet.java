@@ -30,15 +30,6 @@ import model.Category;
 @MultipartConfig
 public class AddMenuServlet extends HttpServlet {
 
-    /**
-     * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
-     * methods.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
@@ -74,11 +65,13 @@ public class AddMenuServlet extends HttpServlet {
             throws ServletException, IOException {
         HttpSession session = request.getSession(false);
         if (session.getAttribute("user") != null) {
-            String foodName = request.getParameter("foodName");
-            String description = request.getParameter("description");
-            double price = 0.0;
+            String foodName = request.getParameter("foodName").trim();
+            String description = request.getParameter("description").trim();
             String priceStr = request.getParameter("price");
+            String size = request.getParameter("size");
+            String status = request.getParameter("status");
 
+            double price = 0.0;
             if (priceStr != null && !priceStr.trim().isEmpty()) {
                 try {
                     price = Double.parseDouble(priceStr.trim());
@@ -86,8 +79,6 @@ public class AddMenuServlet extends HttpServlet {
                     e.printStackTrace();
                 }
             }
-
-            String status = request.getParameter("status");
 
             int categoryId = 0;
             String categoryIdStr = request.getParameter("category_id");
@@ -99,24 +90,79 @@ public class AddMenuServlet extends HttpServlet {
                 }
             }
 
-            String size = request.getParameter("size");
-
-            Part filePart = request.getPart("imageUrl");
-            String imageUrl = null;
-            if (filePart != null && filePart.getSize() > 0) {
-                String fileName = Paths.get(filePart.getSubmittedFileName()).getFileName().toString();
-                String uploadPath = getServletContext().getRealPath("") + File.separator + "images" + File.separator + fileName;
-                File file = new File(uploadPath);
-
-                if (!file.getParentFile().exists()) {
-                    file.getParentFile().mkdirs();
-                }
-
-                filePart.write(uploadPath);  
-                imageUrl = "images/" + fileName;  
+            String errorMsg = null;
+            if (foodName == null || foodName.isEmpty()) {
+                errorMsg = "Vui lòng nhập tên món ăn.";
+            } else if (foodName.length() < 2 || foodName.length() > 100) {
+                errorMsg = "Tên món ăn phải có độ dài từ 2 đến 100 ký tự.";
             }
-            MenuDAO.addFoodForMenu(foodName, description, price, imageUrl, status, size, categoryId);         
+
+            if (MenuDAO.isFoodNameExist(foodName)) {
+                errorMsg = "Tên món ăn đã tồn tại. Vui lòng nhập tên khác.";
+            }
+
+            if (description == null || description.isEmpty()) {
+                errorMsg = "Vui lòng nhập mô tả cho món ăn.";
+            } else if (description.length() < 2 || description.length() > 250) {
+                errorMsg = "Mô tả món ăn phải có độ dài từ 2 đến 250 ký tự.";
+            }
+
+            String imageUrl = saveImage(request);
+            if (imageUrl == null || imageUrl.isEmpty()) {
+                imageUrl = request.getParameter("oldImageUrl"); 
+            }
+
+            if (errorMsg != null) {
+                CategoryDAO categoryDAO = new CategoryDAO();
+                List<Category> categories = categoryDAO.getAllCategoryName(); // Lấy lại danh mục
+                request.setAttribute("categories", categories);
+
+                request.setAttribute("errorMsg", errorMsg);
+                request.setAttribute("oldName", foodName);
+                request.setAttribute("oldDes", description);
+                request.setAttribute("oldPrice", priceStr);
+                request.setAttribute("oldSize", size);
+                request.setAttribute("oldStatus", status);
+                request.setAttribute("categoryId", categoryId);
+                request.setAttribute("oldImageUrl", imageUrl);
+
+                RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/View/manager/AddMenu.jsp");
+                dispatcher.forward(request, response);
+                return;
+            }
+
+            try {
+                // Cập nhật món ăn mới vào cơ sở dữ liệu
+                MenuDAO.addFoodForMenu(foodName, description, price, imageUrl, status, size, categoryId);
+                // Lưu thông báo vào session nếu thành công
+                session.setAttribute("message", "Thêm món ăn thành công.");
+                session.setAttribute("messageType", "success"); // Thông báo thành công
+            } catch (Exception e) {
+                // Lưu thông báo lỗi vào session nếu có exception
+                session.setAttribute("message", "Thêm món ăn thất bại. Vui lòng thử lại.");
+                session.setAttribute("messageType", "error"); // Thông báo thất bại
+            }
             response.sendRedirect(request.getContextPath() + "/manager/ListMenuServlet");
         }
     }
+
+    private String saveImage(HttpServletRequest request) throws IOException, ServletException {
+        Part filePart = request.getPart("imageUrl");
+        String imageUrl = null;
+
+        if (filePart != null && filePart.getSize() > 0) {
+            String fileName = Paths.get(filePart.getSubmittedFileName()).getFileName().toString();
+            String uploadPath = getServletContext().getRealPath("") + File.separator + "images" + File.separator + fileName;
+
+            File file = new File(uploadPath);
+            if (!file.getParentFile().exists()) {
+                file.getParentFile().mkdirs();
+            }
+
+            filePart.write(uploadPath);
+            imageUrl = "images/" + fileName;
+        }
+        return imageUrl;
+    }
+
 }

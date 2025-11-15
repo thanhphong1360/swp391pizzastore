@@ -5,6 +5,7 @@
 package dal;
 
 import java.math.BigDecimal;
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
@@ -222,6 +223,30 @@ public class InvoiceDAO {
         return rs == 0 ? null : invoice;
     }
 
+    public static Invoice updateInvoicePriceFinalAndDiscount(Invoice invoice) {
+        String sql = "UPDATE Invoices SET price = ?, final_price = ?, discount_id = ? WHERE invoice_id = ?";
+        PreparedStatement ps = null;
+        try {
+            DBContext db = DBContext.getInstance();
+            Connection conn = db.connection;
+            ps = conn.prepareStatement(sql);
+            ps.setBigDecimal(1, invoice.getPrice());
+            ps.setBigDecimal(2, invoice.getFinalPrice());
+
+            if (invoice.getDicountId() > 0) {
+                ps.setInt(3, invoice.getDicountId());
+            } else {
+                ps.setNull(3, java.sql.Types.INTEGER);
+            }
+
+            ps.setInt(4, invoice.getInvoiceId());
+
+            ps.executeUpdate();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return invoice;
+    }
     public static void main(String[] args) {
         ArrayList<Invoice> list = getInvoicesByStatusCashier("pending");
 //        for(Invoice invoice : list){

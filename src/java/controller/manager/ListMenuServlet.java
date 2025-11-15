@@ -45,10 +45,42 @@ public class ListMenuServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         HttpSession session = request.getSession(false);
+        String message = (String) session.getAttribute("message");
+        String messageType = (String) session.getAttribute("messageType");
         if (session.getAttribute("user") != null) {
+
+            if (message != null) {
+                request.setAttribute("message", message);
+                request.setAttribute("messageType", messageType);
+
+                // Xóa thông báo khỏi session sau khi đã hiển thị
+                session.removeAttribute("message");
+                session.removeAttribute("messageType");
+            }
+
+            //phân trang
+            int currentPage = 1;
+            int itemsPerPage = 5;
+
+            String pageParam = request.getParameter("page");
+            if (pageParam != null) {
+                try {
+                    currentPage = Integer.parseInt(pageParam);
+                } catch (NumberFormatException e) {
+                    currentPage = 1;
+                }
+            }
+            int offset = (currentPage - 1) * itemsPerPage;
+
             MenuDAO menuDAO = new MenuDAO();
-            List<Menu> menuList = MenuDAO.getAllFood();
+//            List<Menu> menuList = MenuDAO.getAllFood();
+            List<Menu> menuList = menuDAO.getMenuWithPagination(offset, itemsPerPage);
+            int totalItems = menuDAO.getTotalMenuCount();
+            int totalPages = (int) Math.ceil((double) totalItems / itemsPerPage);
+
             request.setAttribute("menuList", menuList);
+            request.setAttribute("currentPage", currentPage);
+            request.setAttribute("totalPages", totalPages);
 
             RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/View/manager/ListMenu.jsp");
             dispatcher.forward(request, response);

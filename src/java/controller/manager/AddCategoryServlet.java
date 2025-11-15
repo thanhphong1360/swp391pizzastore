@@ -23,15 +23,6 @@ import model.Category;
 @WebServlet(name = "AddCategoryServlet", urlPatterns = {"/manager/AddCategoryServlet"})
 public class AddCategoryServlet extends HttpServlet {
 
-    /**
-     * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
-     * methods.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
@@ -49,15 +40,6 @@ public class AddCategoryServlet extends HttpServlet {
         }
     }
 
-    // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
-    /**
-     * Handles the HTTP <code>GET</code> method.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -76,13 +58,50 @@ public class AddCategoryServlet extends HttpServlet {
             String cate = request.getParameter("add_cate_name");
             String des = request.getParameter("add_cate_des");
             String status = request.getParameter("add_cate_status");
-            
+
+            if (cate != null) {
+                cate = cate.trim();
+            }
+            if (des != null) {
+                des = des.trim();
+            }
+
+            String errorMsg = null;
+
+            if (cate == null || cate.isEmpty()) {
+                errorMsg = "Vui lòng nhập đủ tên danh mục";
+            } else if (cate.length() < 2 || cate.length() > 100) {
+                errorMsg = "Tên danh mục tối thiểu 2 kí tự và tối đa 100 kí tự.";
+            }
+
+            if (errorMsg == null) {
+                CategoryDAO categoryDAO = new CategoryDAO();
+                if (categoryDAO.checkCategoryExists(cate)) {
+                    errorMsg = "Danh mục này đã tồn tại. Vui lòng chọn tên khác.";
+                }
+            }
+
+            if (des == null || des.isEmpty()) {
+                errorMsg = "Vui lòng nhập đủ mô tả cho danh mục";
+            } else if (des.length() < 2 || des.length() > 250) {
+                errorMsg = "Mô tả danh mục tối thiểu 2 kí tự và tối đa 100 kí tự.";
+            }
+
+            if (errorMsg != null) {
+                request.setAttribute("errorMsg", errorMsg);
+                request.setAttribute("oldName", cate);
+                request.setAttribute("oldDes", des);
+
+                RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/View/manager/AddCate.jsp");
+                dispatcher.forward(request, response);
+                return;
+            }
+
             Category c = new Category(cate, des, status);
 
             CategoryDAO cDAO = new CategoryDAO();
             cDAO.addCategory(c);
-            response.sendRedirect(request.getContextPath()+ "/manager/ListCategoryServlet");
+            response.sendRedirect(request.getContextPath() + "/manager/ListCategoryServlet");
         }
     }
-
 }

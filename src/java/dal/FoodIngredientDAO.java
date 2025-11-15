@@ -20,16 +20,37 @@ import model.FoodIngredient;
 public class FoodIngredientDAO {
 
     public static void addIngredientToFood(int foodId, int ingredientId, double quantity) {
-        String sql = "INSERT INTO FoodIngredients (food_id, ingredient_id, quantity) VALUES (?, ?, ?)";
+        String checkSql = "SELECT quantity FROM FoodIngredients WHERE food_id = ? AND ingredient_id = ?";
+        String insertSql = "INSERT INTO FoodIngredients (food_id, ingredient_id, quantity) VALUES (?, ?, ?)";
+        String updateSql = "UPDATE FoodIngredients SET quantity = quantity + ? WHERE food_id = ? AND ingredient_id = ?";
 
         try {
             DBContext db = DBContext.getInstance();
             Connection conn = db.connection;
-            PreparedStatement ps = conn.prepareStatement(sql);
-            ps.setInt(1, foodId);
-            ps.setInt(2, ingredientId);
-            ps.setDouble(3, quantity);
-            ps.executeUpdate();
+            
+            
+            // Kiểm tra nguyên liệu đã tồn tại chưa
+            PreparedStatement checkPs = conn.prepareStatement(checkSql);
+            checkPs.setInt(1, foodId);
+            checkPs.setInt(2, ingredientId);
+            ResultSet rs = checkPs.executeQuery();
+
+            if (rs.next()) {
+                // Nếu nguyên liệu đã tồn tại, cập nhật số lượng
+                double existingQuantity = rs.getDouble("quantity");
+                PreparedStatement updatePs = conn.prepareStatement(updateSql);
+                updatePs.setDouble(1, quantity);
+                updatePs.setInt(2, foodId);
+                updatePs.setInt(3, ingredientId);
+                updatePs.executeUpdate();
+            } else {
+                // Nếu nguyên liệu chưa tồn tại, thêm mới
+                PreparedStatement insertPs = conn.prepareStatement(insertSql);
+                insertPs.setInt(1, foodId);
+                insertPs.setInt(2, ingredientId);
+                insertPs.setDouble(3, quantity);
+                insertPs.executeUpdate();
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }

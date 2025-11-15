@@ -2,6 +2,7 @@
 <%@page pageEncoding="UTF-8"%>
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <!DOCTYPE html>
 
 <html lang="vi">
@@ -139,45 +140,100 @@
                     </c:if>
                 </ul>
             </div>
-        </div>
-    </nav>
+        </section>
 
-    <!-- Hero Section -->
-    <section class="hero">
-        <h1>Welcome to Pizza House</h1>
-        <p>Freshly baked. Perfectly crafted. Delivered hot.</p>
-        <a href="#menu" class="btn btn-danger btn-lg mt-3">Order Now</a>
-    </section>
-
-
-    <!-- Menu Section -->
-    <h2 class="text-center mb-5 fw-bold">Our Menu</h2>
-    <section id="menu" class="menu-section container">
-
-        <div class="menu-row">
-            <c:forEach var="food" items="${menuList}">
-
-                <div class="menu-card">
-                    <img src="${food.imgURL}" class="card-img-top" alt="${food.foodName}">
-                    <div class="card-body">
-                        <h5 class="card-title">${food.foodName}</h5>
-                        <p class="card-text">${food.description}</p>
-                        <p class="menu-card-price">
-                            <fmt:formatNumber value="${food.price}" type="number" maxFractionDigits="0"/> Đ
-                        </p>
+        <!-- Features Section -->
+        <section id="services" class="container mb-5">
+            <div class="row g-4">
+                <div class="col-12 col-sm-6 col-md-3">
+                    <div class="feature-card h-100">
+                        <a href="#master-chefs">
+                            <div class="feature-icon"><i class="fas fa-user-tie"></i></div>
+                            <h5 class="feature-title">Đầu Bếp Chuyên Nghiệp</h5>
+                            <p class="feature-desc small">Chúng tôi có đội ngũ đầu bếp với nhiều năm kinh nghiệm, cam kết mang đến những món ăn tuyệt vời nhất.</p>
+                        </a>
                     </div>
                 </div>
-            </c:forEach>
-        </div>
-    </section>
+                <div class="col-12 col-sm-6 col-md-3">
+                    <div class="feature-card h-100">
+                        <a href="#quality-food">
+                            <div class="feature-icon"><i class="fas fa-utensils"></i></div>
+                            <h5 class="feature-title">Món Ăn Chất Lượng</h5>
+                            <p class="feature-desc small">Nguyên liệu tươi ngon, chế biến cẩn thận để tạo nên các món ăn hấp dẫn, đầy đủ dinh dưỡng.</p>
+                        </a>
+                    </div>
+                </div>
+                <div class="col-12 col-sm-6 col-md-3">
+                    <div class="feature-card h-100">
+                        <a href="#online-order">
+                            <div class="feature-icon"><i class="fas fa-shopping-cart"></i></div>
+                            <h5 class="feature-title">Đặt Hàng Trực Tuyến</h5>
+                            <p class="feature-desc small">Đặt hàng nhanh chóng và tiện lợi ngay trên website của chúng tôi để được giao hàng tận nơi.</p>
+                        </a>
+                    </div>
+                </div>
+                <div class="col-12 col-sm-6 col-md-3">
+                    <div class="feature-card h-100">
+                        <a href="#service-24-7">
+                            <div class="feature-icon"><i class="fas fa-headset"></i></div>
+                            <h5 class="feature-title">Dịch Vụ 24/7</h5>
+                            <p class="feature-desc small">Dịch vụ khách hàng hỗ trợ 24/7, luôn sẵn sàng giải đáp mọi thắc mắc và yêu cầu của bạn.</p>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
 
-    <!-- Footer -->
-    <footer class="text-center">
-        <div class="container">
-            <p>ï¿½ 2025 Pizza House. All rights reserved.</p>
-            <p>Follow us on <a href="#">Facebook</a> | <a href="#">Instagram</a></p>
-        </div>
-    </footer>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-</body>
+        <!-- Menu Section (two-column list) -->
+        <section id="menu" class="container mb-5">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="mb-0">Thực Đơn</h2>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <c:forEach var="food" items="${menuList}" varStatus="st">
+                        <c:if test="${st.index % 2 == 0}">
+                            <div class="menu-list-item">
+                                <div class="menu-left">
+                                    <img src="${food.imgURL != null ? food.imgURL : '/web/images/placeholder.png'}" alt="${food.foodName}" class="menu-img" />
+                                    <div>
+                                        <div class="menu-title">${food.foodName}</div>
+                                        <div class="menu-desc small text-muted">${food.description}</div>
+                                    </div>
+                                </div>
+                                <div class="menu-price"><fmt:formatNumber value="${food.price}" type="number" maxFractionDigits="0"/> Đ</div>
+                            </div>
+                        </c:if>
+                    </c:forEach>
+                </div>
+
+                <div class="col-md-6">
+                    <c:forEach var="food" items="${menuList}" varStatus="st">
+                        <c:if test="${st.index % 2 == 1}">
+                            <div class="menu-list-item">
+                                <div class="menu-left">
+                                    <img src="${food.imgURL != null ? food.imgURL : '/web/images/placeholder.png'}" alt="${food.foodName}" class="menu-img" />
+                                    <div>
+                                        <div class="menu-title">${food.foodName}</div>
+                                        <div class="menu-desc small text-muted">${food.description}</div>
+                                    </div>
+                                </div>
+                                <div class="menu-price"><fmt:formatNumber value="${food.price}" type="number" maxFractionDigits="0"/> Đ</div>
+                            </div>
+                        </c:if>
+                    </c:forEach>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="text-center">
+            <div class="container">
+                <p>© 2025 Pizza House. Bảo lưu mọi quyền.</p>
+                <p>Theo dõi chúng tôi trên <a href="#">Facebook</a> | <a href="#">Instagram</a></p>
+            </div>
+        </footer>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    </body>
 </html>
