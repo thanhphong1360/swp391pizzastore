@@ -19,7 +19,7 @@ a:hover { text-decoration:underline; }
 </head>
 <body>
 <div class="form-container">
-<h2>➕ Add User</h2>
+<h2>➕ Add User</h2> 
 <form action="users" method="post">
     <input type="hidden" name="action" value="add"/>
     <label>Name</label>
@@ -30,11 +30,10 @@ a:hover { text-decoration:underline; }
     <input type="password" name="password" required minlength="4"/>
     <label>Role</label>
     <select name="roleId" required>
-        <option value="2">Cashier</option>
+        <option value="2">Waiter</option>
         <option value="3">Chef</option>
-        <option value="4">Waiter</option>
-        <option value="5">DeliveryStaff</option>
-        <option value="6">Customer</option>
+        <option value="4">Cashier</option>
+        <option value="5">Customer</option>
     </select>
     <button type="submit">➕ Add</button>
 </form>
