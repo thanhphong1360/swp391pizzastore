@@ -65,18 +65,18 @@ public class EditIngredientsOfFoodServlet extends HttpServlet {
         HttpSession session = request.getSession(false);
         if (session.getAttribute("user") != null) {
             int ingredientId = Integer.parseInt(request.getParameter("ingredientId"));
-        int foodId = Integer.parseInt(request.getParameter("foodId"));
-        
-        // Lấy thông tin nguyên liệu và số lượng từ bảng FoodIngredients
-        Ingredient ingredient = FoodIngredientDAO.getIngredientByFoodIdAndIngredientId(foodId, ingredientId);
-        Menu menu = MenuDAO.getFoodById(foodId);  // Lấy thông tin món ăn
+            int foodId = Integer.parseInt(request.getParameter("foodId"));
 
-        // Truyền dữ liệu vào request để gửi tới JSP
-        request.setAttribute("ingredient", ingredient);
-        request.setAttribute("menu", menu);
+            // Lấy thông tin nguyên liệu và số lượng từ bảng FoodIngredients
+            Ingredient ingredient = FoodIngredientDAO.getIngredientByFoodIdAndIngredientId(foodId, ingredientId);
+            Menu menu = MenuDAO.getFoodById(foodId);  // Lấy thông tin món ăn
 
-        // Chuyển hướng tới trang sửa nguyên liệu
-        request.getRequestDispatcher("/WEB-INF/View/manager/EditIngredientsOfFood.jsp").forward(request, response);
+            // Truyền dữ liệu vào request để gửi tới JSP
+            request.setAttribute("ingredient", ingredient);
+            request.setAttribute("menu", menu);
+
+            // Chuyển hướng tới trang sửa nguyên liệu
+            request.getRequestDispatcher("/WEB-INF/View/manager/EditIngredientsOfFood.jsp").forward(request, response);
         }
     }
 
@@ -91,19 +91,29 @@ public class EditIngredientsOfFoodServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        int foodId = Integer.parseInt(request.getParameter("foodId"));
-        int ingredientId = Integer.parseInt(request.getParameter("ingredientId"));
-        double quantity = Double.parseDouble(request.getParameter("quantity"));
-        
-        // Cập nhật số lượng trong bảng FoodIngredients
-        try {
-            FoodIngredientDAO.updateIngredientQuantity(foodId, ingredientId, quantity);
-            // Nếu không xảy ra lỗi, chuyển hướng về trang hiển thị nguyên liệu của món ăn
-            response.sendRedirect("ViewIngredientsOfFoodServlet?foodId=" + foodId);
-        } catch (Exception e) {
-            // Nếu có lỗi, thông báo lỗi cho người dùng
-            request.setAttribute("error", "Có lỗi xảy ra khi cập nhật số lượng nguyên liệu!");
-            request.getRequestDispatcher("/errorPage.jsp").forward(request, response);
+        HttpSession session = request.getSession(false);
+        if (session.getAttribute("user") != null) {
+            try {
+                // Lấy thông tin từ form
+                int foodId = Integer.parseInt(request.getParameter("foodId"));
+                int ingredientId = Integer.parseInt(request.getParameter("ingredientId"));
+                double quantity = Double.parseDouble(request.getParameter("quantity"));
+
+                // Cập nhật nguyên liệu vào món ăn
+                FoodIngredientDAO.updateIngredientQuantity(foodId, ingredientId, quantity);
+
+                // Lưu thông báo thành công vào session
+                session.setAttribute("message", "Cập nhật nguyên liệu thành công.");
+                session.setAttribute("messageType", "success");
+
+            } catch (Exception e) {
+                // Lưu thông báo thất bại vào session nếu có exception
+                session.setAttribute("message", "Cập nhật nguyên liệu thất bại. Vui lòng thử lại.");
+                session.setAttribute("messageType", "error");
+            }
+
+            // Chuyển hướng về trang quản lý nguyên liệu của món ăn
+            response.sendRedirect(request.getContextPath() + "/manager/ViewIngredientsOfFoodServlet?foodId=" + request.getParameter("foodId"));
         }
     }
 

@@ -4,7 +4,6 @@
  */
 package dal;
 
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -133,5 +132,24 @@ public class CategoryDAO {
 
         pstmt.close();
         return row;
+    }
+
+    public boolean checkCategoryExists(String categoryName) {
+        String cateLow = categoryName.toLowerCase();
+        String sql = "SELECT COUNT(*) FROM Categories WHERE LOWER(name) = ?";    
+        try {
+            DBContext db = DBContext.getInstance();
+            Connection conn = db.connection;
+
+            PreparedStatement pstmt = conn.prepareStatement(sql);
+            pstmt.setString(1, cateLow);
+            ResultSet rs = pstmt.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1) > 0; 
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;  
     }
 }
