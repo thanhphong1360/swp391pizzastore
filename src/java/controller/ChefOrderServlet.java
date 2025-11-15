@@ -137,7 +137,7 @@ public class ChefOrderServlet extends HttpServlet {
                 double requiredAmount = fi.getQuantity() * orderFood.getQuantity();
                 double availableAmount = ingredient.getQuantity();
 
-                if (availableAmount <  requiredAmount) {
+                if (availableAmount < requiredAmount) {
                     enough = false;
                     shortageMsg.append(ingredient.getName())
                             .append(" thiếu ")
@@ -196,6 +196,7 @@ public class ChefOrderServlet extends HttpServlet {
 
             request.getRequestDispatcher("/WEB-INF/View/Chef/ChefOrderList.jsp").forward(request, response);
         } else if ("complete".equals(action)) {
+            OrderFoodDAO.updateOrderFoodStatus(orderFoodId, "completed");
             ArrayList<OrderFood> orderFoods = OrderFoodDAO.getOrderFoodsByStatus("doing");
             if (orderFoods != null) {
                 for (OrderFood orderFood : orderFoods) {
@@ -204,9 +205,8 @@ public class ChefOrderServlet extends HttpServlet {
             }
             request.setAttribute("status", "doing");
             request.setAttribute("orderFoods", orderFoods);
-
             request.getRequestDispatcher("/WEB-INF/View/Chef/ChefOrderList.jsp").forward(request, response);
-            OrderFoodDAO.updateOrderFoodStatus(orderFoodId, "completed");
+
         }
 
     }
