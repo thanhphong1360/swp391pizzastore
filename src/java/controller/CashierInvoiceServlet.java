@@ -83,7 +83,7 @@ public class CashierInvoiceServlet extends HttpServlet {
                 request.setAttribute("invoiceList", pendingInvoiceList);
                 request.getRequestDispatcher("/WEB-INF/View/Cashier/CashierInvoiceCheckoutList.jsp").forward(request, response);
             }
-        }else if("detail".equals(action)){
+        } else if ("detail".equals(action)) {
             int invoiceId = Integer.parseInt(request.getParameter("invoiceId"));
             Invoice invoice = InvoiceDAO.getInvoiceById(invoiceId);
             //lay danh sach order trong invoice
@@ -107,7 +107,7 @@ public class CashierInvoiceServlet extends HttpServlet {
             request.setAttribute("invoice", invoice);
             request.setAttribute("orderList", orderList);
             request.getRequestDispatcher("/WEB-INF/View/Cashier/CashierInvoiceDetail.jsp").forward(request, response);
-            
+
         }
     }
 
@@ -167,6 +167,22 @@ public class CashierInvoiceServlet extends HttpServlet {
             //kiem tra co order dang lam hay khong
             for (Order order : orderList) {
                 ArrayList<OrderFood> orderFoodList = OrderFoodDAO.getOrderFoodsByOrderId(order.getOrderId());
+                //kiem tra xem co order food khong, neu khong thi cancel invoice
+                if (orderFoodList == null) {
+                    //change invoice status
+                    invoice = InvoiceDAO.updateInvoiceStatus(invoice, "cancelled");
+                    //get tables lien quan toi invoice
+                    ArrayList<InvoiceTable> invoiceTableList = InvoiceTableDAO.getTableIdsByInvoiceId(invoiceId);
+                    //tra table ve available
+                    for (InvoiceTable invoiceTable : invoiceTableList) {
+                        TableDAO.updateTableStatus(TableDAO.getTableById(invoiceTable.getTableId()), "Available");
+                    }
+                    //view pending invoice list
+                    ArrayList<Invoice> pendingInvoiceList = InvoiceDAO.getInvoicesByStatusCashier("pending");
+                    request.setAttribute("invoiceList", pendingInvoiceList);
+                    request.getRequestDispatcher("/WEB-INF/View/Cashier/CashierInvoiceCheckoutList.jsp").forward(request, response);
+                    return;
+                }
                 for (OrderFood orderFood : orderFoodList) {
                     if (orderFood.getStatus().equals("pending") || orderFood.getStatus().equals("doing")) {
                         canCheckout = false;
