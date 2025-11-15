@@ -9,7 +9,6 @@ import model.User;
 import org.mindrot.jbcrypt.BCrypt;
 import util.AuditLogger;
 
-
 public class UserServlet extends HttpServlet {
 
     private final UserDAO userDAO = new UserDAO();
@@ -25,14 +24,27 @@ public class UserServlet extends HttpServlet {
         if (action == null) action = "list";
 
         switch (action) {
+
             case "add":
                 req.getRequestDispatcher("/WEB-INF/View/admin/users/add.jsp").forward(req, resp);
                 break;
 
             case "edit":
-                int id = Integer.parseInt(req.getParameter("id"));
-                req.setAttribute("user", userDAO.getById(id));
-                req.getRequestDispatcher("/WEB-INF/View/admin/users/edit.jsp").forward(req, resp);
+                try {
+                    int id = Integer.parseInt(req.getParameter("id"));
+                    User user = userDAO.getById(id);
+
+                    if (user == null) {
+                        resp.sendRedirect("users?message=notfound");
+                        return;
+                    }
+
+                    req.setAttribute("user", user);
+                    req.getRequestDispatcher("/WEB-INF/View/admin/users/edit.jsp").forward(req, resp);
+
+                } catch (Exception e) {
+                    resp.sendRedirect("users?message=invalid");
+                }
                 break;
 
             case "toggle":
@@ -48,25 +60,31 @@ public class UserServlet extends HttpServlet {
 
     private void handleToggle(HttpServletRequest req, HttpServletResponse resp, Integer currentUserId)
             throws IOException {
-        int toggleId = Integer.parseInt(req.getParameter("id"));
-        User target = userDAO.getById(toggleId);
 
-        if (target == null) {
-            resp.sendRedirect("users?message=error");
-            return;
-        }
+        try {
+            int toggleId = Integer.parseInt(req.getParameter("id"));
+            User target = userDAO.getById(toggleId);
 
-        boolean currentStatus = target.isStatus();
-        boolean updated = userDAO.updateStatus(toggleId, !currentStatus);
+            if (target == null) {
+                resp.sendRedirect("users?message=error");
+                return;
+            }
 
-        if (updated) {
-            String actionType = currentStatus ? "DEACTIVATE" : "RESTORE";
-            String desc = (currentStatus ? "Deactivated " : "Restored ") + "user: " + target.getEmail();
-            AuditLogger.log(currentUserId, actionType, "Users", target.getUserId(), desc);
+            boolean currentStatus = target.isStatus();
+            boolean updated = userDAO.updateStatus(toggleId, !currentStatus);
 
-            resp.sendRedirect("users?message=" + (currentStatus ? "deactivated" : "restored"));
-        } else {
-            resp.sendRedirect("users?message=error");
+            if (updated) {
+                String actionType = currentStatus ? "DEACTIVATE" : "RESTORE";
+                String desc = (currentStatus ? "Deactivated " : "Restored ") + "user: " + target.getEmail();
+                AuditLogger.log(currentUserId, actionType, "Users", target.getUserId(), desc);
+
+                resp.sendRedirect("users?message=" + (currentStatus ? "deactivated" : "restored"));
+            } else {
+                resp.sendRedirect("users?message=error");
+            }
+
+        } catch (Exception e) {
+            resp.sendRedirect("users?message=invalid");
         }
     }
 
@@ -85,68 +103,93 @@ public class UserServlet extends HttpServlet {
         String password = req.getParameter("password");
         String roleStr = req.getParameter("roleId");
 
-        // 🧾 Validate input
+        // VALIDATION CHUNG
         if (name == null || name.trim().isEmpty() || name.length() > 20
-                || email == null || email.trim().isEmpty()
-                || password == null || password.length() < 4) {
+                || email == null || email.trim().isEmpty()) {
 
-            String errorMessage = "⚠ Please fill all required fields (password ≥ 4 chars).";
-            if (name != null && name.length() > 20) {
-                errorMessage = "⚠ Name must not exceed 20 characters.";
-            }
-
-            req.setAttribute("errorMessage", errorMessage);
-            String page = "add".equals(action)
-                    ? "/WEB-INF/View/admin/users/add.jsp"
-                    : "/WEB-INF/View/admin/users/edit.jsp";
-            req.getRequestDispatcher(page).forward(req, resp);
+            req.setAttribute("errorMessage", "⚠ Please fill all required fields.");
+            forwardError(req, resp, action);
             return;
         }
 
-        // Validate email format
         if (!email.matches("^[\\w.%+-]+@[\\w.-]+\\.[a-zA-Z]{2,6}$")) {
             req.setAttribute("errorMessage", "⚠ Invalid email format.");
-            String page = "add".equals(action)
-                    ? "/WEB-INF/View/admin/users/add.jsp"
-                    : "/WEB-INF/View/admin/users/edit.jsp";
-            req.getRequestDispatcher(page).forward(req, resp);
+            forwardError(req, resp, action);
             return;
         }
 
         int roleId = Integer.parseInt(roleStr);
-        User u = new User();
-        u.setName(name);
-        u.setEmail(email);
-        u.setPassword(BCrypt.hashpw(password, BCrypt.gensalt(12)));
-        u.setRoleId(roleId);
 
-        // ➕ ADD
+        // --- ADD USER ---
         if ("add".equals(action)) {
-            if (userDAO.existsByEmail(email)) {
-                req.setAttribute("errorMessage", "⚠ Email already exists!");
-                req.getRequestDispatcher("/WEB-INF/View/admin/users/add.jsp").forward(req, resp);
+
+            if (password == null || password.length() < 6) {
+                req.setAttribute("errorMessage", "⚠ Password must be at least 6 characters.");
+                forwardError(req, resp, action);
                 return;
             }
 
+            if (userDAO.existsByEmail(email)) {
+                req.setAttribute("errorMessage", "⚠ Email already exists!");
+                forwardError(req, resp, action);
+                return;
+            }
+
+            User u = new User();
+            u.setName(name);
+            u.setEmail(email);
+            u.setPassword(BCrypt.hashpw(password, BCrypt.gensalt(12)));
+            u.setRoleId(roleId);
+
             int newUserId = userDAO.insert(u);
+
             if (newUserId > 0) {
                 AuditLogger.log(currentUserId, "ADD", "Users", newUserId, "Added new user: " + email);
                 resp.sendRedirect("users?message=added");
             } else {
                 req.setAttribute("errorMessage", "❌ Insert failed!");
-                req.getRequestDispatcher("/WEB-INF/View/admin/users/add.jsp").forward(req, resp);
+                forwardError(req, resp, action);
             }
 
-        // ✏️ EDIT
-        } else if ("edit".equals(action)) {
-            int userId = Integer.parseInt(idStr);
-            u.setUserId(userId);
+            return;
+        }
 
+        // --- EDIT USER ---
+        if ("edit".equals(action)) {
+
+            int userId = Integer.parseInt(idStr);
             User old = userDAO.getById(userId);
-            if (old != null && !old.getEmail().equalsIgnoreCase(email) && userDAO.existsByEmail(email)) {
+
+            if (old == null) {
+                resp.sendRedirect("users?message=notfound");
+                return;
+            }
+
+            User u = new User();
+            u.setUserId(userId);
+            u.setName(name);
+            u.setEmail(email);
+            u.setRoleId(roleId);
+
+            // Check trùng email
+            if (!old.getEmail().equalsIgnoreCase(email) && userDAO.existsByEmail(email)) {
                 req.setAttribute("errorMessage", "⚠ This email is already used by another user!");
+                req.setAttribute("user", old);
                 req.getRequestDispatcher("/WEB-INF/View/admin/users/edit.jsp").forward(req, resp);
                 return;
+            }
+
+            // XỬ LÝ PASSWORD — CHỈ HASH NẾU USER NHẬP PASSWORD MỚI
+            if (password == null || password.trim().isEmpty()) {
+                u.setPassword(old.getPassword());      // Giữ password cũ
+            } else {
+                if (password.length() < 6) {
+                    req.setAttribute("errorMessage", "⚠ New password must be at least 6 characters.");
+                    req.setAttribute("user", old);
+                    req.getRequestDispatcher("/WEB-INF/View/admin/users/edit.jsp").forward(req, resp);
+                    return;
+                }
+                u.setPassword(BCrypt.hashpw(password, BCrypt.gensalt(12)));
             }
 
             if (userDAO.update(u)) {
@@ -154,9 +197,20 @@ public class UserServlet extends HttpServlet {
                 resp.sendRedirect("users?message=updated");
             } else {
                 req.setAttribute("errorMessage", "❌ Update failed. Please try again.");
+                req.setAttribute("user", old);
                 req.getRequestDispatcher("/WEB-INF/View/admin/users/edit.jsp").forward(req, resp);
             }
         }
+    }
+
+    private void forwardError(HttpServletRequest req, HttpServletResponse resp, String action)
+            throws ServletException, IOException {
+
+        String page = "add".equals(action)
+                ? "/WEB-INF/View/admin/users/add.jsp"
+                : "/WEB-INF/View/admin/users/edit.jsp";
+
+        req.getRequestDispatcher(page).forward(req, resp);
     }
 
     @Override

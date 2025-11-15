@@ -28,15 +28,16 @@ a:hover { text-decoration:underline; }
     <label>Email</label>
     <input type="email" name="email" value="${user.email}" required maxlength="100"/>
     <label>Password</label>
-    <input type="password" name="password" value="${user.password}" required minlength="4"/>
+    <input type="password" name="password" placeholder="Leave blank to keep old password" minlength="6">
+
     <label>Role</label>
     <select name="roleId" required>
         <option value="1" ${user.roleId==1?'selected':''}>Manager</option>
-        <option value="2" ${user.roleId==2?'selected':''}>Cashier</option>
+        <option value="2" ${user.roleId==2?'selected':''}>Waiter</option>
         <option value="3" ${user.roleId==3?'selected':''}>Chef</option>
-        <option value="4" ${user.roleId==4?'selected':''}>Waiter</option>
-        <option value="5" ${user.roleId==5?'selected':''}>DeliveryStaff</option>
-        <option value="6" ${user.roleId==6?'selected':''}>Customer</option>
+        <option value="4" ${user.roleId==4?'selected':''}>Cashier</option>
+        <option value="5" ${user.roleId==5?'selected':''}>Customer</option>
+   
     </select>
     <button type="submit">✏ Update</button>
 </form>

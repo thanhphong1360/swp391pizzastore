@@ -55,7 +55,7 @@ public class RegisterServlet extends HttpServlet {
 
        
         String hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt(12));
-User newUser = new User(0, 6, email, hashedPassword, name, null);
+User newUser = new User(0, 5, email, hashedPassword, name, null);
         boolean success = userDAO.insertUser(newUser);
 
         if (success) {

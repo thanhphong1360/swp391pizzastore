@@ -105,9 +105,9 @@
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
-                    <li class="nav-item"><a class="nav-link" href="${pageContext.request.contextPath}/Home">Home</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#menu">Menu</a></li>
-                    <li class="nav-item"><a class="nav-link" href="${pageContext.request.contextPath}/payment">Checkout</a></li>
+                    <li class="nav-item"><a class="nav-link" href="${pageContext.request.contextPath}/menuForCus">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="${pageContext.request.contextPath}/menuForCus">Menu</a></li>
+                
 
                     <!-- Đã đăng nhập: hiện tên + Profile + Logout -->
                     <c:if test="${not empty sessionScope.user}">
@@ -116,10 +116,8 @@
                                 <i class="fas fa-user-circle"></i> Xin chào, ${sessionScope.user.name}
                             </a>
                             <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" href="${pageContext.request.contextPath}/profile">
-                                        <i class="fas fa-user-edit"></i> Profile
-                                    </a></li>
-                                <li><hr class="dropdown-divider"></li>
+                                
+                                
                                 <li>
                                     <form action="${pageContext.request.contextPath}/Logout" method="post" class="d-inline">
                                         <button type="submit" class="dropdown-item text-danger">
